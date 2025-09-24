@@ -1,0 +1,17 @@
+{
+    "name": "cechriza/api",
+    "autoload": {
+        "psr-4": {
+            "Cechriza\\Api\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "WernerReyes",
+            "email": "werner.reyes@tecsup.edu.pe"
+        }
+    ],
+    "require": {
+        "phpoffice/phpspreadsheet": "^5.1"
+    }
+}
