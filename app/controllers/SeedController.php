@@ -19,10 +19,10 @@ class SeedController
 
     private function sqlServerDBConnection()
     {
-        $serverName = "172.19.0.18"; // or your server name
-        $database = "CECHRIZA-PRODUCCION";
-        $username = "sa";
-        $password = "Angelicus";
+        $serverName = ""; // or your server name
+        $database = "";
+        $username = "";
+        $password = "";
         try {
             $conn = new PDO("sqlsrv:Server=$serverName;Database=$database;TrustServerCertificate=true", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
