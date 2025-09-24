@@ -63,17 +63,43 @@ class SeedController
   
 public function runScript() {
     $conn = $this->sqlServerDBConnection();
-    
-    $maxRows = 2000;
-    $currentRow = 0;
+
+    //* First from 0 to 4000 "summary": {
+    //     "total_updated": 3409,
+    //     "total_not_found": 593
+    // }
+   
+    $maxRows = 9000;
+    $startRow = 4001;
+    // $currentRow = 4001;
     $excelData = DataSeeder::getExelData();
 
     $totalUpdated = 0;
     $totalNotFound = 0;
 
-    foreach ($excelData as $row) {
-        // if (++$currentRow > $maxRows)
+     // ✅ CORRECTO - Usar array_slice para empezar desde la fila 2001
+    $slicedData = array_slice($excelData, $startRow, $maxRows - $startRow + 1);
+
+    echo json_encode([
+        'info' => "Procesando filas desde $startRow hasta $maxRows",
+        'total_rows_to_process' => $slicedData[0]
+    ]) . "\n";
+    
+    // $currentRow = $startRow - 1; // Empezar desde 2000 para que el primer ++$currentRow sea 2001
+
+    // ✅ ALTERNATIVA - Usar índice del foreach
+    foreach ($excelData as $index => $row) {
+        // $currentRow = $index + 1; // Los arrays empiezan en 0, pero las filas en 1
+        
+        // // Saltar filas hasta llegar a la 2001
+        // if ($currentRow < $startRow) {
+        //     continue;
+        // }
+        
+        // // Parar al llegar al máximo
+        // if ($currentRow > $maxRows) {
         //     break;
+        // }
             
         $serie = $row[3];
         $idMachine = $row[0];
