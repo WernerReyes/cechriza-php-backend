@@ -7,7 +7,7 @@ class Seed
 
     public function __construct()
     {
-        $this->user = new User();
+        $this->user = new UserModel();
     }
 
     public function run()

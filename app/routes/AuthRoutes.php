@@ -1,13 +1,7 @@
 <?php
-require_once "app/core/Router.php";
+require_once "config/Router.php";
 require_once "app/controllers/AuthController.php";
-
-$router = new Router();
-
-// $router->get("/", "UserController@index");
-// $router->post("/many", "UserController@createMany");
-// $router->get("/seed", "SeedController@run");
-
+require_once "app/middlewares/AuthMiddleware.php";
 class AuthRoutes
 {
 
@@ -17,6 +11,9 @@ class AuthRoutes
         Router $router
     ) {
         $router->post(self::$prefix . "/register", "AuthController@register");
+        $router->post(self::$prefix . "/login", "AuthController@login");
+        $router->post(self::$prefix . "/logout", "AuthController@logout", ["auth"]);
+        $router->get(self::$prefix . "/me", "AuthController@me", ["auth"]);
     }
 }
 ?>

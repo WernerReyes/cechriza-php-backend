@@ -1,12 +1,14 @@
 <?php
 class Database
 {
+
+    public static $db;
     public static function connect()
     {
-        $host = "localhost";
-        $db = "cechriza_web";
-        $user = "werner";
-        $pass = "root";
+        $host = $_ENV['DB_HOST'];
+        $db = $_ENV['DB_NAME'];
+        $user = $_ENV['DB_USERNAME'];
+        $pass = $_ENV['DB_PASSWORD'];
         $charset = "utf8mb4";
 
         $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
@@ -15,6 +17,7 @@ class Database
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         ];
 
-        return new PDO($dsn, $user, $pass, $options);
+        self::$db = new PDO($dsn, $user, $pass, $options);
+
     }
 }

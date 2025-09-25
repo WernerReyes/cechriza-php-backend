@@ -19,10 +19,10 @@ class SeedController
 
     private function sqlServerDBConnection()
     {
-        $serverName = ""; // or your server name
-        $database = "";
-        $username = "";
-        $password = "";
+        $serverName = "172.19.0.18"; // or your server name
+        $database = "CECHRIZA-PRODUCCION";
+        $username = "sa";
+        $password = "Angelicus";
         try {
             $conn = new PDO("sqlsrv:Server=$serverName;Database=$database;TrustServerCertificate=true", $username, $password);
             $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -69,8 +69,8 @@ public function runScript() {
     //     "total_not_found": 593
     // }
    
-    $maxRows = 9000;
-    $startRow = 4001;
+    $maxRows = 8700;
+    $startRow = 6200;
     // $currentRow = 4001;
     $excelData = DataSeeder::getExelData();
 
@@ -82,8 +82,10 @@ public function runScript() {
 
     echo json_encode([
         'info' => "Procesando filas desde $startRow hasta $maxRows",
-        'total_rows_to_process' => $slicedData[0]
+        'rows_to_process' => $slicedData[0]
     ]) . "\n";
+
+    return;
     
     // $currentRow = $startRow - 1; // Empezar desde 2000 para que el primer ++$currentRow sea 2001
 
@@ -119,6 +121,7 @@ public function runScript() {
             
             echo json_encode([
                 'serie' => $serie,
+                "id_equipo" => $idMachine,
                 'action' => 'updated',
                 'success' => $affectedRows > 0,
                 'affected_rows' => $affectedRows
@@ -129,6 +132,7 @@ public function runScript() {
         } else {
             echo json_encode([
                 'serie' => $serie,
+                'id_equipo'=> $idMachine,
                 'action' => 'not_found',
                 'message' => "Serie no encontrada en la base de datos"
             ]) . "\n";

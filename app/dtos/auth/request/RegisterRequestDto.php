@@ -21,36 +21,37 @@ class RegisterRequestDto
 
     }
 
-    
 
-    public function validate(): RegisterRequestDto | string
+
+    public function validate(): RegisterRequestDto | array
     {
         $validation = new ValidationEngine($this);
         $validation->required("name")
-            ->min("name", 2)
-            ->max("name", 100)
+            ->minLength("name", 2)
+            ->maxLength("name", 100)
             ->required("lastname")
-            ->min("lastname", 2)
-            ->max("lastname", 100)
+            ->minLength("lastname", 2)
+            ->maxLength("lastname", 100)
             ->required("email")
             ->email("email")
             ->required("password")
-            ->min("password", 6);
+            ->minLength("password", 6);
 
         if ($validation->fails()) {
-            return $validation->getErrors()[0];
+            return $validation->getErrors();
         }
 
         return $this;
     }
 
-    public function toArrayWithHashedPassword(): array {
+    public function toInsertDB(): array
+    {
         return [
-            'name' => $this->name,
-            'lastname' => $this->lastname,
-            'email' => $this->email,
-            'password' => password_hash($this->password, PASSWORD_DEFAULT),
-            'role' => 'USER'
+            $this->name,
+            $this->lastname,
+            $this->email,
+            password_hash($this->password, PASSWORD_DEFAULT),
+            'USER'
         ];
     }
 }

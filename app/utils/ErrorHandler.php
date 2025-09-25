@@ -1,6 +1,6 @@
 <?php
-require_once 'app/exceptions/ApiException.php';
-require_once 'app/dtos/common/response/ApiResponse.php';
+require_once 'app/AppException.php';
+require_once 'app/AppResponse.php';
 
 class ErrorHandler {
     
@@ -27,13 +27,13 @@ class ErrorHandler {
             'line' => $line
         ];
         
-        ApiResponse::error($message, 500, $errorDetails);
+        AppResponse::error($message, 500, $errorDetails);
     }
     
     public static function handleException($exception) {
 
-         if ($exception instanceof ApiException) {
-            ApiResponse::error(
+         if ($exception instanceof AppException) {
+            AppResponse::error(
                 $exception->getMessage(),
                 $exception->getStatusCode(),
                 $exception->getDetails()
@@ -47,8 +47,6 @@ class ErrorHandler {
             'line' => $exception->getLine(),
             'trace' => $exception->getTraceAsString()
         ];
-
-        error_log('probando'. $exception->getMessage() .''. $exception->getFile());
         
         // Diferentes códigos según el tipo de excepción
         $code = 500;
@@ -59,7 +57,7 @@ class ErrorHandler {
             $errorDetails['type'] = 'Database Error';
         }
         
-        ApiResponse::error($exception->getMessage(), $code, $errorDetails);
+        AppResponse::error($exception->getMessage(), $code, $errorDetails);
     }
     
     public static function handleFatalError() {
@@ -72,7 +70,7 @@ class ErrorHandler {
                 'line' => $error['line']
             ];
             
-            ApiResponse::error($error['message'], 500, $errorDetails);
+            AppResponse::error($error['message'], 500, $errorDetails);
         }
     }
 }

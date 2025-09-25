@@ -1,0 +1,13 @@
+<?php
+require_once "config/Router.php";
+require_once "app/controllers/PageController.php";
+class PageRoutes
+{
+    private static string $prefix = '/page';
+    public static function routes(
+        Router $router
+    ) {
+        $router->post(self::$prefix, "PageController@create", ["auth"]);
+    }
+}
+?>

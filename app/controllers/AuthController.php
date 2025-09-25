@@ -1,14 +1,16 @@
 <?php
 require_once "app/AppController.php";
 require_once "app/services/AuthService.php";
-require_once "app/models/User.php";
+require_once "app/middlewares/AuthMiddleware.php";
 require_once "app/dtos/auth/request/RegisterRequestDto.php";
+require_once "app/dtos/auth/request/LoginRequestDto.php";
+;
 class AuthController extends AppController
 {
     private AuthService $authService;
     public function __construct()
     {
-        $this->authService = new AuthService(User::getInstance());
+        $this->authService = new AuthService();
     }
 
     public function register()
@@ -16,11 +18,33 @@ class AuthController extends AppController
         $data = $this->body();
         $dto = new RegisterRequestDto($data);
         $dtoValidated = $dto->validate();
-        if (is_string($dtoValidated)) {
-            throw ApiException::validationError($dtoValidated);
+        if (is_array($dtoValidated)) {
+            throw AppException::validationError("Validation failed", $dtoValidated);
         }
+        return AppResponse::success($this->authService->register($dtoValidated));
+    }
 
-        $this->authService->register($dtoValidated);
+    public function login()
+    {
+        $data = $this->body();
+        $dto = new LoginRequestDto($data);
+        $dtoValidated = $dto->validate();
+        if (is_array($dtoValidated)) {
+            throw AppException::validationError("Validation failed", $dtoValidated);
+        }
+        // Implement login logic here
+        return AppResponse::success($this->authService->login($dtoValidated));
+    }
+
+    public function logout()
+    {
+        $this->authService->logout();
+        return AppResponse::success();
+    }
+
+    public function me()
+    {
+        return AppResponse::success($this->authService->me());
     }
 }
 ?>

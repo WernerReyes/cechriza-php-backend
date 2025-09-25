@@ -1,5 +1,5 @@
 <?php
-require_once 'app/exceptions/ApiException.php';
+require_once 'app/AppException.php';
 
 class ValidationEngine
 {
@@ -8,26 +8,37 @@ class ValidationEngine
 
     public function __construct($data)
     {
-        // Convertir objeto a array si es necesario
-        error_log("<--PROBANDO--> " . json_encode($data) . ' ' . is_object($data) . ' ' . json_encode(get_object_vars($data)));
-
 
         if (is_object($data)) {
             $this->data = get_object_vars($data);
+        } elseif (is_array($data)) {
+            $this->data = $data;
         } else {
-            $this->data = is_array($data) ? $data : [];
+            throw AppException::internalServer('Invalid data type for validation');
         }
     }
 
     public function required($field, $message = null)
     {
-        // Verificar si el campo existe en el array Y no está vacío
+        // Verify if the field exists and is not empty in the object
         if (
             !array_key_exists($field, $this->data) ||
             $this->isEmpty($this->data[$field])
         ) {
 
             $this->errors[$field] = $message ?? "$field is required";
+        }
+        return $this;
+    }
+
+    public function optional($field)
+    {
+        // If the field does not exist or is empty, remove any existing errors for this field
+        if (
+            !array_key_exists($field, $this->data) ||
+            $this->isEmpty($this->data[$field])
+        ) {
+            unset($this->errors[$field]);
         }
         return $this;
     }
@@ -45,7 +56,7 @@ class ValidationEngine
         return $this;
     }
 
-    public function min($field, $length, $message = null)
+    public function minLength($field, $length, $message = null)
     {
         if (
             array_key_exists($field, $this->data) &&
@@ -58,7 +69,21 @@ class ValidationEngine
         return $this;
     }
 
-    public function max($field, $length, $message = null)
+    public function min($field, int|float $minValue, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            is_numeric($this->data[$field]) &&
+            $this->data[$field] < $minValue
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must be at least $minValue";
+        }
+        return $this;
+    }
+
+    public function maxLength($field, $length, $message = null)
     {
         if (
             array_key_exists($field, $this->data) &&
@@ -70,6 +95,10 @@ class ValidationEngine
         }
         return $this;
     }
+
+
+
+
 
     public function in($field, $values, $message = null)
     {
@@ -84,6 +113,19 @@ class ValidationEngine
         return $this;
     }
 
+    public function enum($field, $enumClass, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            !in_array($this->data[$field], array_map(fn($case) => $case->value, $enumClass::cases()))
+            ) {
+                $enumValues = array_map(fn($case) => $case->value, $enumClass::cases());
+                $this->errors[$field] = $message ?? "$field must be one of: " . implode(', ', $enumValues);
+        }
+        return $this;
+    }
+
     public function numeric($field, $message = null)
     {
         if (
@@ -93,6 +135,19 @@ class ValidationEngine
         ) {
 
             $this->errors[$field] = $message ?? "$field must be numeric";
+        }
+        return $this;
+    }
+
+    public function integer($field, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) && (!is_numeric($this->data[$field]) ||
+                !filter_var($this->data[$field], FILTER_VALIDATE_INT))
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must be an integer";
         }
         return $this;
     }
@@ -133,7 +188,7 @@ class ValidationEngine
     public function validate()
     {
         if ($this->fails()) {
-            throw ApiException::validationError("Validation failed", $this->errors);
+            throw AppException::validationError("Validation failed", $this->errors);
         }
         return true;
     }
