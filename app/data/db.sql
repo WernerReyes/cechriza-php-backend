@@ -74,7 +74,7 @@ CREATE TABLE `menu` (
 
 LOCK TABLES `menu` WRITE;
 /*!40000 ALTER TABLE `menu` DISABLE KEYS */;
-INSERT INTO `menu` VALUES (1,'Inicio',NULL,'inicio',1,1,NULL,17),(24,'Inicio',NULL,'inicio',2,1,NULL,17),(26,'Inicio',NULL,'inicio',4,1,NULL,17),(27,'Inicio',NULL,'inicio',3,1,NULL,17),(32,'Inicio',NULL,'inicio',1,1,1,17);
+INSERT INTO `menu` VALUES (1,'Inicio editado',NULL,'inicio-editado',0,1,NULL,17),(24,'Inicio',NULL,'inicio',2,1,NULL,17),(26,'Inicio',NULL,'inicio',4,1,NULL,17),(27,'Inicio',NULL,'inicio',3,1,NULL,17),(32,'Inicio',NULL,'inicio',1,1,1,17);
 /*!40000 ALTER TABLE `menu` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -91,11 +91,13 @@ CREATE TABLE `pages` (
   `description` text,
   `active` tinyint DEFAULT '1',
   `menu_id` int DEFAULT NULL,
+  `created_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id_pages`),
   UNIQUE KEY `unique_menu_id` (`menu_id`),
   KEY `fk_pages_menu1_idx` (`menu_id`),
   CONSTRAINT `fk_pages_menu1` FOREIGN KEY (`menu_id`) REFERENCES `menu` (`id_menu`)
-) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=21 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -104,7 +106,7 @@ CREATE TABLE `pages` (
 
 LOCK TABLES `pages` WRITE;
 /*!40000 ALTER TABLE `pages` DISABLE KEYS */;
-INSERT INTO `pages` VALUES (1,'Pagina de inicio',NULL,1,24),(17,'Pagina de inicio',NULL,1,1);
+INSERT INTO `pages` VALUES (1,'Pagina de inicio',NULL,1,24,'2025-09-26 17:07:49','2025-09-26 17:07:49'),(17,'Pagina de inicio',NULL,1,1,'2025-09-26 17:07:49','2025-09-26 17:07:49'),(19,'Pagina de inicio',NULL,1,32,'2025-09-26 17:09:21','2025-09-26 17:09:21'),(20,'Pagina de inicio',NULL,1,27,'2025-09-26 17:11:06','2025-09-26 17:11:06');
 /*!40000 ALTER TABLE `pages` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -121,12 +123,13 @@ CREATE TABLE `section_items` (
   `subtitle` varchar(200) DEFAULT NULL,
   `description` text,
   `image` varchar(245) DEFAULT NULL,
+  `background_image` varchar(100) DEFAULT NULL,
   `icon` varchar(100) DEFAULT NULL,
   `text_button` varchar(100) DEFAULT NULL,
   `link_button` varchar(100) DEFAULT NULL,
   `order` varchar(45) DEFAULT NULL,
   `sections_id` int NOT NULL,
-  `function_machine_id` int NOT NULL,
+  `function_machine_id` int DEFAULT NULL,
   PRIMARY KEY (`id_section_items`),
   UNIQUE KEY `order_UNIQUE` (`order`),
   UNIQUE KEY `order_section_UNIQUE` (`order`,`sections_id`),
@@ -134,7 +137,7 @@ CREATE TABLE `section_items` (
   KEY `fk_section_items_function_machine1_idx` (`function_machine_id`),
   CONSTRAINT `fk_section_items_function_machine1` FOREIGN KEY (`function_machine_id`) REFERENCES `function_machine` (`id_function_machine`),
   CONSTRAINT `fk_section_items_sections1` FOREIGN KEY (`sections_id`) REFERENCES `sections` (`id_section`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -143,6 +146,7 @@ CREATE TABLE `section_items` (
 
 LOCK TABLES `section_items` WRITE;
 /*!40000 ALTER TABLE `section_items` DISABLE KEYS */;
+INSERT INTO `section_items` VALUES (1,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'2',1,NULL),(9,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'1',1,NULL),(11,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'5',1,NULL),(12,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'3',1,NULL),(14,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'6',1,NULL),(15,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'8',1,NULL),(17,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'9',1,NULL);
 /*!40000 ALTER TABLE `section_items` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -170,7 +174,7 @@ CREATE TABLE `sections` (
   UNIQUE KEY `id_section_UNIQUE` (`id_section`),
   KEY `fk_sections_pages1_idx` (`pages_id`),
   CONSTRAINT `fk_sections_pages1` FOREIGN KEY (`pages_id`) REFERENCES `pages` (`id_pages`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -179,7 +183,7 @@ CREATE TABLE `sections` (
 
 LOCK TABLES `sections` WRITE;
 /*!40000 ALTER TABLE `sections` DISABLE KEYS */;
-INSERT INTO `sections` VALUES (1,2,'HERO',NULL,NULL,NULL,NULL,NULL,1,17);
+INSERT INTO `sections` VALUES (1,2,'HERO',NULL,NULL,NULL,NULL,NULL,1,17),(4,1,'HERO',NULL,NULL,NULL,NULL,NULL,1,17),(6,5,'HERO',NULL,NULL,NULL,NULL,NULL,1,17),(7,53,'HERO',NULL,NULL,NULL,NULL,NULL,1,17);
 /*!40000 ALTER TABLE `sections` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -215,6 +219,25 @@ UNLOCK TABLES;
 --
 -- Dumping routines for database 'cechriza_web'
 --
+/*!50003 DROP PROCEDURE IF EXISTS `DeleteMenu` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`werner`@`%` PROCEDURE `DeleteMenu`(IN m_menu_id INT)
+BEGIN
+    UPDATE menu SET active = 0 WHERE  id_menu = m_menu_id;
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
 /*!50003 DROP PROCEDURE IF EXISTS `GetAllMenusOrdered` */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -230,6 +253,36 @@ BEGIN
   
         SELECT id_menu, title, slug, `order`, users_id, url, parent_id, active FROM menu ORDER BY `order` ASC;
 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetAllPages` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`werner`@`%` PROCEDURE `GetAllPages`()
+BEGIN
+	SELECT
+    p.id_pages,
+    p.title,
+    p.description,
+    p.active,
+    p.menu_id,
+    p.created_at,
+    p.updated_at,
+    COUNT(s.id_section) AS section_count
+FROM pages p
+LEFT JOIN sections s ON s.pages_id = p.id_pages
+GROUP BY p.id_pages;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -288,6 +341,38 @@ BEGIN
     EXECUTE stmt USING @val;
     DEALLOCATE PREPARE stmt;
 
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `GetSectionByField` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`werner`@`%` PROCEDURE `GetSectionByField`( IN search_field VARCHAR(50), IN u_value varchar(60))
+BEGIN
+IF search_field IN ('id_section') THEN
+    SET @query = CONCAT(
+        'SELECT id_section, `order`, `type`, `title`, `subtitle`, `description`, `text_button`, `url_button`, `active`, `pages_id` ',
+        'FROM sections WHERE ', search_field, ' = ?'
+    );
+
+    PREPARE stmt FROM @query;
+    SET @val = u_value;
+    EXECUTE stmt USING @val;
+    DEALLOCATE PREPARE stmt;
+ELSE
+    SIGNAL SQLSTATE '45000'
+        SET MESSAGE_TEXT = 'Campo de búsqueda no permitido';
+END IF;
 END ;;
 DELIMITER ;
 /*!50003 SET sql_mode              = @saved_sql_mode */ ;
@@ -368,7 +453,7 @@ BEGIN
         SET page_id = LAST_INSERT_ID();
     
     -- ✅ IMPORTANTE: SELECT para retornar datos
-    SELECT id_pages, title, description, active, menu_id 
+    SELECT id_pages, title, description, active, menu_id, created_at, updated_at
     FROM pages
     WHERE id_pages = page_id;
 END ;;
@@ -401,6 +486,35 @@ BEGIN
     SELECT id_section, `order`, type, title, subtitle, description, text_button, url_button, active, pages_id 
     FROM sections
     WHERE id_section = section_id;
+
+END ;;
+DELIMITER ;
+/*!50003 SET sql_mode              = @saved_sql_mode */ ;
+/*!50003 SET character_set_client  = @saved_cs_client */ ;
+/*!50003 SET character_set_results = @saved_cs_results */ ;
+/*!50003 SET collation_connection  = @saved_col_connection */ ;
+/*!50003 DROP PROCEDURE IF EXISTS `InsertSectionItem` */;
+/*!50003 SET @saved_cs_client      = @@character_set_client */ ;
+/*!50003 SET @saved_cs_results     = @@character_set_results */ ;
+/*!50003 SET @saved_col_connection = @@collation_connection */ ;
+/*!50003 SET character_set_client  = utf8mb4 */ ;
+/*!50003 SET character_set_results = utf8mb4 */ ;
+/*!50003 SET collation_connection  = utf8mb4_0900_ai_ci */ ;
+/*!50003 SET @saved_sql_mode       = @@sql_mode */ ;
+/*!50003 SET sql_mode              = 'ONLY_FULL_GROUP_BY,STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,NO_ZERO_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION' */ ;
+DELIMITER ;;
+CREATE DEFINER=`werner`@`%` PROCEDURE `InsertSectionItem`(IN mi_sections_id INT, IN mi_order INT, IN mi_title VARCHAR(100), IN mi_subtitle VARCHAR(200), 
+								  IN mi_description TEXT, IN mi_image VARCHAR(245), IN mi_background_image VARCHAR(100), IN mi_icon VARCHAR(100), 
+                                  IN mi_text_button VARCHAR(100), IN mi_link_button VARCHAR(100), IN mi_function_machine_id INT)
+BEGIN
+	DECLARE section_item_id INT;
+    INSERT INTO section_items (sections_id, `order`,title, subtitle, description, image, background_image, icon, text_button, link_button, function_machine_id) 
+    VALUES (mi_sections_id, mi_order, mi_title, mi_subtitle, mi_description, mi_image, mi_background_image, mi_icon, mi_text_button, mi_link_button, mi_function_machine_id);
+	
+    SET section_item_id = LAST_INSERT_ID();
+    
+    select id_section_items, sections_id, `order`,title, subtitle, description, image, background_image, icon, text_button, link_button, function_machine_id
+    from section_items where id_section_items = section_item_id;
 
 END ;;
 DELIMITER ;
@@ -468,4 +582,4 @@ DELIMITER ;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2025-09-25 17:33:59
+-- Dump completed on 2025-09-26 17:42:54
