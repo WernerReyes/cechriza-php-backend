@@ -10,6 +10,11 @@ class PageController extends AppController
         $this->pageService = new PageService();
     }
 
+    public function getAll()
+    {
+        return AppResponse::success($this->pageService->getAll());
+    }
+
     public function create()
     {
         $body = $this->body();

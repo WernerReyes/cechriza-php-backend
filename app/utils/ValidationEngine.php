@@ -1,5 +1,6 @@
 <?php
 require_once 'app/AppException.php';
+require_once 'app/utils/FileUploader.php';
 
 class ValidationEngine
 {
@@ -119,9 +120,9 @@ class ValidationEngine
             array_key_exists($field, $this->data) &&
             !$this->isEmpty($this->data[$field]) &&
             !in_array($this->data[$field], array_map(fn($case) => $case->value, $enumClass::cases()))
-            ) {
-                $enumValues = array_map(fn($case) => $case->value, $enumClass::cases());
-                $this->errors[$field] = $message ?? "$field must be one of: " . implode(', ', $enumValues);
+        ) {
+            $enumValues = array_map(fn($case) => $case->value, $enumClass::cases());
+            $this->errors[$field] = $message ?? "$field must be one of: " . implode(', ', $enumValues);
         }
         return $this;
     }
@@ -162,6 +163,20 @@ class ValidationEngine
         }
         return $this;
     }
+
+    public function files($field, $allowExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'], $message = null)
+    {
+        $fileUploader = new FileUploader();
+
+        $validation = $fileUploader->validateFile($this->data[$field] ?? null, $allowExtensions);
+        if (is_string($validation)) {
+            $this->errors[$field] = $message ?? $validation;
+        }
+
+        return $this;
+    }
+
+
 
     private function isEmpty($value)
     {

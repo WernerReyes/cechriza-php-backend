@@ -12,9 +12,8 @@ class MenuRoutes
     ) {
         $router->get(self::$prefix, "MenuController@getAll", ["auth"]);
         $router->post(self::$prefix, "MenuController@create", ["auth"]);
-        $router->put(self::$prefix . "/{id}", "MenuController@edit", ["auth"]);
+        $router->put(self::$prefix . "/{id}", "MenuController@update", ["auth"]);
+        $router->delete(self::$prefix . "/{id}", "MenuController@delete", ["auth"]);
 
     }
 }
-
-?>

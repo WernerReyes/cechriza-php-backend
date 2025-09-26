@@ -17,7 +17,9 @@ class CreateSectionRequestDto
 
     public $pageId;
 
-    public function __construct($data)
+    public $image;
+
+    public function __construct($data, $image = null)
     {
         $this->order = $data['order'] ?? 0;
         $this->type = $data['type'] ?? '';
@@ -27,6 +29,7 @@ class CreateSectionRequestDto
         $this->textButton = $data['textButton'] ?? null;
         $this->urlButton = $data['urlButton'] ?? null;
         $this->pageId = $data['pageId'] ?? 0;
+        $this->image = $image;
     }
 
     public function validate()
@@ -62,7 +65,9 @@ class CreateSectionRequestDto
 
             ->required("pageId")
             ->integer("pageId")
-            ->min("pageId", 1);
+            ->min("pageId", 1)
+
+            ->files("image");
 
         if ($validation->fails()) {
             return $validation->getErrors();

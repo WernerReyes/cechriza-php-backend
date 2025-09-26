@@ -1,5 +1,5 @@
 <?php
-require_once "app/exceptions/PageExceptionHandler.php";
+require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/models/PageModel.php";
 require_once "app/models/MenuModel.php";
 require_once "app/entities/PageEntity.php";
@@ -11,6 +11,12 @@ class PageService
     {
         $this->pageModel = PageModel::getInstance();
         $this->menuModel = MenuModel::getInstance();
+    }
+
+    public function getAll()
+    {
+        $pages = $this->pageModel->getAll();
+        return array_map(fn($page) => new PageEntity($page), $pages);
     }
 
     public function create(CreatePageRequestDto $dto): PageEntity
@@ -29,9 +35,9 @@ class PageService
                 throw $e;
             }
 
-            throw new PageExceptionHandler($e);
+            throw new DBExceptionHandler($e, [
+                ["name" => "unique_menu_id", "message" => "No se puede asignar el mismo menú a dos páginas."],
+            ]);
         }
     }
 }
-
-?>

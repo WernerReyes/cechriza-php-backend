@@ -30,16 +30,22 @@ class MenuController extends AppController
 
     }
 
-    public function edit($id)
+    public function update(string $id)
     {
         $body = $this->body();
-        $dto = new UpdateMenuRequestDto(array_merge($body, ['id' => $id]));
+        $dto = new UpdateMenuRequestDto($body, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {
             throw AppException::validationError("Validation failed", $dto);
         }
 
         return AppResponse::success($this->menuService->update($dto));
+    }
+
+    public function delete(string $id)
+    {
+        $this->menuService->delete(intval($id));
+        return AppResponse::success();
     }
 }
 ?>

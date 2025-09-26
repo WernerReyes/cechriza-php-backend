@@ -7,6 +7,7 @@ class PageRoutes
     public static function routes(
         Router $router
     ) {
+        $router->get(self::$prefix, "PageController@getAll", ["auth"]);
         $router->post(self::$prefix, "PageController@create", ["auth"]);
     }
 }

@@ -7,10 +7,10 @@ enum SectionSearchField: string
 
 enum SectionType: string
 {
-    case HERO = 'hero';
-    case BENEFITS = 'benefits';
+    case HERO = 'HERO';
+    case BENEFITS = 'BENEFITS';
 
-    case MACHINE_TYPE = 'machine_type';
+    case MACHINE_TYPE = 'MACHINE_TYPE';
 }
 
 class SectionModel

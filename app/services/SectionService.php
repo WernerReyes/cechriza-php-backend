@@ -1,6 +1,8 @@
 <?php
 require_once "app/models/SectionModel.php";
 require_once "app/models/PageModel.php";
+require_once "app/entities/SectionEntity.php";
+require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/dtos/section/request/CreateSectionRequestDto.php";
 class SectionService
 {
@@ -14,13 +16,23 @@ class SectionService
         $this->pageModel = PageModel::getInstance();
     }
 
-    public function create(CreateSectionRequestDto $dto)
-    {   
-        $page = $this->pageModel->getByField(PageSearchField::ID, $dto->pageId);
-        if (empty($page)) {
-            throw AppException::badRequest("La página no existe");
+    public function create(CreateSectionRequestDto $dto): SectionEntity
+    {
+        try {
+            $page = $this->pageModel->getByField(PageSearchField::ID, $dto->pageId);
+            if (empty($page)) {
+                throw AppException::badRequest("La página no existe");
+            }
+            return new SectionEntity($this->sectionModel->create($dto->toInsertDB()));
+
+        } catch (Exception $e) {
+            if ($e instanceof AppException) {
+                throw $e;
+            }
+
+            throw new DBExceptionHandler($e, [
+                ["name" => "order_pages_UNIQUE", "message" => "No se puede asignar el mismo orden a dos secciones en la misma página."],
+            ]);
         }
-        return $this->sectionModel->create($dto->toInsertDB());
     }
 }
-?>

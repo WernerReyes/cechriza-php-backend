@@ -9,9 +9,9 @@ class UpdateMenuRequestDto
 
     public $parentId;
 
-    public function __construct($data)
+    public function __construct($data, $id)
     {
-        $this->id = $data["id"];
+        $this->id = $id;
         $this->title = $data['title'] ?? null;
         $this->order = $data['order'] ?? null;
         $this->url = $data['url'] ?? null;
@@ -56,7 +56,7 @@ class UpdateMenuRequestDto
     {
         $userId = $GLOBALS[AuthConst::CURRENT_USER]['user_id'];
         return [
-            $this->id,
+            intval($this->id),
             $this->title,
             $this->generateSlug($this->title),
             intval($this->order),

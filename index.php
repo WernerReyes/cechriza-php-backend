@@ -12,11 +12,18 @@ ErrorHandler::register();
 
 require_once 'app/AppRoutes.php';
 
+$allowOrigins = [
+    'http://localhost:4200',
+
+];
+
+$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 
 // Headers para API
 header('Content-Type: application/json');
-header('Access-Control-Allow-Origin: *');
+header("Access-Control-Allow-Origin: $origin");
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 

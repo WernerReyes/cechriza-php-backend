@@ -3,7 +3,7 @@
 enum PageSearchField: string
 {
     case ID = 'id_pages';
-    
+
 }
 
 class PageModel
@@ -26,6 +26,13 @@ class PageModel
     }
 
 
+    public function getAll()
+    {
+        $stmt = $this->db->prepare("CALL GetAllPages()");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
     public function getByField(PageSearchField $field, $value)
     {
         $stmt = $this->db->prepare("CALL GetPageByField(?, ?)");
@@ -39,7 +46,7 @@ class PageModel
         $stmt->execute($data);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
+
 }
 
 ?>

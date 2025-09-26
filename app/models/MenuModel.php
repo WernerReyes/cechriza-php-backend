@@ -40,17 +40,23 @@ class MenuModel
     }
 
 
-    public function create($data)
+    public function create(array $data)
     {
         $stmt = $this->db->prepare('CALL InsertMenu(?,?,?,?,?,?)');
         $stmt->execute($data);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public function update($data)
+    public function update(array $data)
     {
         $stmt = $this->db->prepare('CALL UpdateMenu(?,?,?,?,?,?)');
         $stmt->execute($data);
         return $stmt->fetch(PDO::FETCH_ASSOC);
+    }
+    
+    public function delete(int $id)
+    {
+        $stmt = $this->db->prepare('CALL DeleteMenu(?)');
+        return $stmt->execute([$id]);
     }
 }
