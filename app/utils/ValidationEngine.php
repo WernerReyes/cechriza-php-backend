@@ -127,6 +127,34 @@ class ValidationEngine
         return $this;
     }
 
+    public function array($field, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            !is_array($this->data[$field])
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must be an array";
+        }
+        return $this;
+    }
+
+
+    public function minItems($field, $minItems, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            is_array($this->data[$field]) &&
+            count($this->data[$field]) < $minItems
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must have at least $minItems items";
+        }
+        return $this;
+    }
+
     public function numeric($field, $message = null)
     {
         if (
@@ -136,6 +164,20 @@ class ValidationEngine
         ) {
 
             $this->errors[$field] = $message ?? "$field must be numeric";
+        }
+        return $this;
+    }
+
+    public function boolean($field, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            !is_bool($this->data[$field]) &&
+            !in_array($this->data[$field], [0, 1, '0', '1'], true)
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must be a boolean";
         }
         return $this;
     }
@@ -160,6 +202,19 @@ class ValidationEngine
             if ($exists && (!$excludeId || $exists['id'] != $excludeId)) {
                 $this->errors[$field] = $message ?? "$field already exists";
             }
+        }
+        return $this;
+    }
+
+    public function pattern($field, $pattern, $message = null)
+    {
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            !preg_match($pattern, $this->data[$field])
+        ) {
+
+            $this->errors[$field] = $message ?? "$field format is invalid";
         }
         return $this;
     }

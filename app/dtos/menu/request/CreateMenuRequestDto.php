@@ -1,5 +1,6 @@
 <?php
 require_once "app/utils/ValidationEngine.php";
+require_once "app/core/constants/PatternsConst.php";
 class CreateMenuRequestDto
 {
     public $title;
@@ -12,6 +13,8 @@ class CreateMenuRequestDto
 
     public $pageId;
 
+    public $dropdownArray = [];
+
     public function __construct($data)
     {
         $this->title = $data['title'] ?? '';
@@ -20,6 +23,7 @@ class CreateMenuRequestDto
         $this->parentId = $data['parentId'] ?? null;
         $this->menuType = $data['menuType'] ?? '';
         $this->pageId = $data['pageId'] ?? null;
+        $this->dropdownArray = $data['dropdownArray'] ?? [];
     }
 
     public function validate()
@@ -35,18 +39,30 @@ class CreateMenuRequestDto
             ->required("menuType")
             ->enum("menuType", MenuTypes::class);
 
-        if ($validation->fails()) {
-            return $validation->getErrors();
+        if ($this->menuType === MenuTypes::INTERNAL_PAGE->value) {
+            $validation->required("pageId")
+                ->integer("pageId")
+                ->min("pageId", 1);
+            $this->url = null;
+
+        } else if ($this->menuType === MenuTypes::EXTERNAL_LINK->value) {
+            $validation->required("url")
+                ->pattern("url", PatternsConst::$URL);
+            $this->pageId = null;
+        } else if ($this->menuType === MenuTypes::DROPDOWN->value) {
+            $validation->required("dropdownArray")
+                ->array("dropdownArray")
+                ->minItems("dropdownArray", 1);
         }
 
-        if ($this->menuType === MenuTypes::EXTERNAL_LINK->value) {
-            $internalLinkValidation = new CreateInternalMenuRequestDto($this);
-            return $internalLinkValidation->validate();
+        if ($validation->fails()) {
+            return $validation->getErrors();
         }
 
 
         return $this;
     }
+
 
     public function toInsertDB(): array
     {

@@ -3,6 +3,7 @@ require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/models/PageModel.php";
 require_once "app/models/MenuModel.php";
 require_once "app/entities/PageEntity.php";
+require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
 class PageService
 {
     private PageModel $pageModel;
@@ -13,9 +14,9 @@ class PageService
         $this->menuModel = MenuModel::getInstance();
     }
 
-    public function getAll()
+    public function getAll(GetAllPagesFilterRequestDto $dto)
     {
-        $pages = $this->pageModel->getAll();
+        $pages = $this->pageModel->getAll($dto->toInsertDB());
         return array_map(fn($page) => new PageEntity($page), $pages);
     }
 

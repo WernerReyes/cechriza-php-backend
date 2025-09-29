@@ -1,5 +1,6 @@
 <?php
 require_once "app/services/PageService.php";
+require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
 require_once "app/dtos/page/request/CreatePageRequestDto.php";
 class PageController extends AppController
 {
@@ -12,7 +13,12 @@ class PageController extends AppController
 
     public function getAll()
     {
-        return AppResponse::success($this->pageService->getAll());
+        $query = $_GET;
+        $dto = new GetAllPagesFilterRequestDto($query);
+        if (is_array($dto)) {
+            throw AppException::validationError("Validation failed", $dto);
+        }
+        return AppResponse::success($this->pageService->getAll($dto));
     }
 
     public function create()

@@ -26,7 +26,7 @@ class PageModel
     }
 
 
-    public function getAll()
+    public function getAll($params = [])
     {
         $stmt = $this->db->prepare("CALL GetAllPages()");
         $stmt->execute();

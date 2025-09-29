@@ -6,7 +6,6 @@
 --
 -- MENU
 --
--- TODO: New field page_id in InsertMenu procedure, it's necessary to update this procedure
 DELIMITER ;;
 CREATE PROCEDURE `InsertMenu`(IN m_title VARCHAR(100), IN m_slug VARCHAR(80), IN m_order INT, IN m_id_user INT, IN m_url TEXT, IN m_parent_id INT, IN m_page_id INT)
 BEGIN

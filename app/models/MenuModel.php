@@ -3,6 +3,8 @@
 enum MenuSearchField: string
 {
     case ID = 'id_menu';
+
+    case ORDER = 'order';
 }
 
 enum MenuTypes: string
