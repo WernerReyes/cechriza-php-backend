@@ -3,10 +3,14 @@ require_once "app/utils/ValidationEngine.php";
 class CreateMenuRequestDto
 {
     public $title;
+
+    public $menuType;
     public $order;
     public $url;
 
     public $parentId;
+
+    public $pageId;
 
     public function __construct($data)
     {
@@ -14,6 +18,8 @@ class CreateMenuRequestDto
         $this->order = $data['order'] ?? 0;
         $this->url = $data['url'] ?? null;
         $this->parentId = $data['parentId'] ?? null;
+        $this->menuType = $data['menuType'] ?? '';
+        $this->pageId = $data['pageId'] ?? null;
     }
 
     public function validate()
@@ -26,18 +32,18 @@ class CreateMenuRequestDto
             ->integer("order")
             ->min("order", 1)
             ->maxLength("order", 100)
-            ->minLength("url", 2)
-            ->maxLength("url", 255)
-            ->optional("url")
-            ->min("parentId", 1)
-            ->integer("parentId")
-            ->optional("parentId");
-        
-
+            ->required("menuType")
+            ->enum("menuType", MenuTypes::class);
 
         if ($validation->fails()) {
             return $validation->getErrors();
         }
+
+        if ($this->menuType === MenuTypes::EXTERNAL_LINK->value) {
+            $internalLinkValidation = new CreateInternalMenuRequestDto($this);
+            return $internalLinkValidation->validate();
+        }
+
 
         return $this;
     }
@@ -51,7 +57,8 @@ class CreateMenuRequestDto
             intval($this->order),
             $userId,
             $this->url,
-            $this->parentId
+            $this->parentId == null ? null : intval($this->parentId),
+            $this->pageId == null ? null : intval($this->pageId)
         ];
     }
 

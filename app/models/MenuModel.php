@@ -4,6 +4,23 @@ enum MenuSearchField: string
 {
     case ID = 'id_menu';
 }
+
+enum MenuTypes: string
+{
+    case INTERNAL_PAGE = 'internal-page';
+    case EXTERNAL_LINK = 'external-link';
+    case DROPDOWN = 'dropdown';
+}
+
+enum MenuUpdateField: string
+{
+    case TITLE = 'title';
+    case ORDER = 'order';
+    case URL = 'url';
+    case PARENT_ID = 'parent_id';
+    case ACTIVE = 'active';
+}
+
 class MenuModel
 {
     private static $instance = null;
@@ -42,7 +59,7 @@ class MenuModel
 
     public function create(array $data)
     {
-        $stmt = $this->db->prepare('CALL InsertMenu(?,?,?,?,?,?)');
+        $stmt = $this->db->prepare('CALL InsertMenu(?,?,?,?,?,?,?)');
         $stmt->execute($data);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
@@ -53,7 +70,7 @@ class MenuModel
         $stmt->execute($data);
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
-    
+
     public function delete(int $id)
     {
         $stmt = $this->db->prepare('CALL DeleteMenu(?)');

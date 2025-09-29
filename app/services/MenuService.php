@@ -48,6 +48,9 @@ class MenuService
 
     }
 
+    private function internalPageMenu() {
+        
+    }
 
     public function update(UpdateMenuRequestDto $dto): MenuEntity
     {
