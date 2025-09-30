@@ -14,8 +14,11 @@ CREATE TABLE `users` (
   `password` varchar(150) NOT NULL,
   `role` enum('USER','EDITOR') NOT NULL DEFAULT 'USER',
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP, -- TODO ADD THIS PROPERTY
   PRIMARY KEY (`id_user`)
 ) ENGINE=InnoDB AUTO_INCREMENT=18 DEFAULT CHARSET=utf8mb3;
+
+
 
 --
 -- Dumping data for table `users`
