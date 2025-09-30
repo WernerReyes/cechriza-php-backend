@@ -27,7 +27,7 @@ class CreateMenuRequestDto
         $this->pageId = $data['pageId'] ?? null;
         $this->dropdownArray = $data['dropdownArray'] ?? [];
         $this->active = $data['active'] ?? true;
-        
+
     }
 
     public function validate()
@@ -57,6 +57,8 @@ class CreateMenuRequestDto
             $validation->required("dropdownArray")
                 ->array("dropdownArray")
                 ->minItems("dropdownArray", 1);
+            $this->url = null;
+            $this->pageId = null;
         }
 
         if ($validation->fails()) {
@@ -71,15 +73,6 @@ class CreateMenuRequestDto
     public function toInsertDB(): array
     {
         $userId = $GLOBALS[AuthConst::CURRENT_USER]['user_id'];
-        // return [
-        //     $this->title,
-        //     $this->generateSlug($this->title),
-        //     intval($this->order),
-        //     $userId,
-        //     $this->url,
-        //     $this->parentId == null ? null : intval($this->parentId),
-        //     $this->pageId == null ? null : intval($this->pageId)
-        // ];
         return [
             "title" => $this->title,
             "slug" => $this->generateSlug($this->title),

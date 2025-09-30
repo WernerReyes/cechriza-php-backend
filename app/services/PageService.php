@@ -6,20 +6,19 @@ require_once "app/entities/PageEntity.php";
 require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
 class PageService
 {
-    private PageModel $pageModel;
+    // private PageModel $pageModel;
     private MenuModel $menuModel;
     public function __construct()
     {
-        $this->pageModel = PageModel::getInstance();
-        $this->menuModel = MenuModel::getInstance();
+        // $this->pageModel = PageModel::getInstance();
+        // $this->menuModel = MenuModel::getInstance();
     }
 
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {
-        $pages = $this->pageModel->getAll($dto->toInsertDB());
-        return array_map(fn($page) => new PageEntity($page), $pages);
-    }
 
+        return PageModel::get();
+    }
     public function create(CreatePageRequestDto $dto): PageEntity
     {
         try {
@@ -29,7 +28,7 @@ class PageService
                 throw AppException::badRequest("El menu no existe");
             }
 
-            $pageCreated = $this->pageModel->create($dto->toInsertDB());
+            $pageCreated = PageModel::create($dto->toInsertDB());
             return new PageEntity($pageCreated);
         } catch (Exception $e) {
             if ($e instanceof AppException) {

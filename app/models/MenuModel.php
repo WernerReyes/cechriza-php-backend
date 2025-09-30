@@ -98,5 +98,16 @@ class MenuModel extends Model {
 
     protected $primaryKey = 'id_menu';
 
+    public function parent() {
+        return $this->belongsTo(MenuModel::class, 'parent_id');
+    }
+
+    public function children() {
+        return $this->hasMany(MenuModel::class, 'parent_id');
+    }
+
+    public function page() {
+        return $this->hasOne(PageModel::class, 'menu_id', 'id_menu');
+    }
 
 }

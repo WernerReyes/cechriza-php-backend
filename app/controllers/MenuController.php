@@ -17,6 +17,11 @@ class MenuController extends AppController
         return AppResponse::success($this->menuService->getAll());
     }
 
+    public function getById(string $id)
+    {
+        $menu = $this->menuService->findMenuById(intval($id));
+        return AppResponse::success($menu);
+    }
     public function create()
     {
         $body = $this->body();
