@@ -1,5 +1,7 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
+
 enum MenuSearchField: string
 {
     case ID = 'id_menu';
@@ -23,59 +25,78 @@ enum MenuUpdateField: string
     case ACTIVE = 'active';
 }
 
-class MenuModel
-{
-    private static $instance = null;
-    private $db;
+// class MenuModel
+// {
+//     private static $instance = null;
+//     private $db;
 
-    public function __construct()
-    {
-        $this->db = Database::$db;
-    }
+//     public function __construct()
+//     {
+//         $this->db = Database::$db;
+//     }
 
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
+//     public static function getInstance()
+//     {
+//         if (self::$instance === null) {
+//             self::$instance = new self();
+//         }
 
-        return self::$instance;
-    }
-
-
-    public function getAll()
-    {
-        $stmt = $this->db->prepare("CALL GetAllMenusOrdered()");
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+//         return self::$instance;
+//     }
 
 
-    public function getByField(MenuSearchField $field, $value)
-    {
-        $stmt = $this->db->prepare("CALL GetMenuByField(?, ?)");
-        $stmt->execute([$field->value, $value]);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    }
+//     public function getAll()
+//     {
+//         $stmt = $this->db->prepare("CALL GetAllMenusOrdered()");
+//         $stmt->execute();
+//         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+//     }
 
 
-    public function create(array $data)
-    {
-        $stmt = $this->db->prepare('CALL InsertMenu(?,?,?,?,?,?,?)');
-        $stmt->execute($data);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
+//     public function getByField(MenuSearchField $field, $value)
+//     {
+//         $stmt = $this->db->prepare("CALL GetMenuByField(?, ?)");
+//         $stmt->execute([$field->value, $value]);
+//         return $stmt->fetchAll(PDO::FETCH_ASSOC);
+//     }
 
-    public function update(array $data)
-    {
-        $stmt = $this->db->prepare('CALL UpdateMenu(?,?,?,?,?,?)');
-        $stmt->execute($data);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
 
-    public function delete(int $id)
-    {
-        $stmt = $this->db->prepare('CALL DeleteMenu(?)');
-        return $stmt->execute([$id]);
-    }
+//     public function create(array $data)
+//     {
+//         $stmt = $this->db->prepare('CALL InsertMenu(?,?,?,?,?,?,?)');
+//         $stmt->execute($data);
+//         return $stmt->fetch(PDO::FETCH_ASSOC);
+//     }
+
+//     public function update(array $data)
+//     {
+//         $stmt = $this->db->prepare('CALL UpdateMenu(?,?,?,?,?,?)');
+//         $stmt->execute($data);
+//         return $stmt->fetch(PDO::FETCH_ASSOC);
+//     }
+
+//     public function delete(int $id)
+//     {
+//         $stmt = $this->db->prepare('CALL DeleteMenu(?)');
+//         return $stmt->execute([$id]);
+//     }
+// }
+
+class MenuModel extends Model {
+    public $table = 'menu';
+    public $timestamps = false;
+    protected $fillable = [
+        'title',
+        'slug',
+        'order',
+        'url',
+        'parent_id',
+        'page_id',
+        'users_id',
+        'active',
+    ];
+
+    protected $primaryKey = 'id_menu';
+
+
 }

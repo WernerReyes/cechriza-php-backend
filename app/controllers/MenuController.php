@@ -26,7 +26,7 @@ class MenuController extends AppController
             throw AppException::validationError("Validation failed", $dto);
         }
 
-        return AppResponse::success($this->menuService->create($dto));
+        return AppResponse::success($this->menuService->create($dto), "Menú creado exitosamente");
 
     }
 

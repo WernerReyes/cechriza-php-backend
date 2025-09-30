@@ -1,33 +1,27 @@
 <?php
 require_once "app/models/UserModel.php";
-require_once "app/entities/UserEntity.php";
 require_once "app/utils/JwtUtil.php";
 require_once "app/utils/CookieUtil.php";
 require_once "app/core/constants/AuthConst.php";
 require_once "app/dtos/auth/response/LoginResponseDto.php";
 class AuthService
 {
-    private UserModel $userModel;
 
-    public function __construct(
-
-    ) {
-        $this->userModel = UserModel::getInstance();
-    }
 
     public function register(RegisterRequestDto $registerRequestDto): UserEntity
     {
-        $existUser = $this->userModel->findByField(UserSearchField::EMAIL, $registerRequestDto->email);
+        $existUser = UserModel::where('email', $registerRequestDto->email)->first();
         if ($existUser)
             throw AppException::badRequest("El usuario ya existe");
 
-        $userCreated = $this->userModel->create($registerRequestDto->toInsertDB());
-        return new UserEntity($userCreated);
+        $userCreated = UserModel::create($registerRequestDto->toInsertDB());
+        return $userCreated;
     }
 
     public function login(LoginRequestDto $loginRequestDto): LoginResponseDto
     {
-        $user = $this->userModel->findByField(UserSearchField::EMAIL, $loginRequestDto->email);
+        // $user = $this->userModel->findByField(UserSearchField::EMAIL, $loginRequestDto->email);
+        $user = UserModel::where('email', $loginRequestDto->email)->first();
         if (!$user || !password_verify($loginRequestDto->password, $user['password'])) {
             throw AppException::unauthorized("Invalid email or password");
         }
@@ -43,7 +37,9 @@ class AuthService
         // Set in HttpOnly Cookie
         CookieUtil::setAuthCookies($token, $refreshToken);
 
-        return new LoginResponseDto($user, $token, $refreshToken);
+        error_log("user: $user");
+
+        return new LoginResponseDto($user->setHidden(['password']), $token, $refreshToken);
     }
 
     public function refreshToken(): LoginResponseDto
@@ -65,7 +61,7 @@ class AuthService
             $userPayload = $decoded['data'];
 
             // Verificar que el usuario aún existe
-            $user = $this->userModel->findByField(UserSearchField::ID, $userPayload['user_id']);
+            $user = UserModel::find($userPayload['user_id'])->setHidden(['password']);
             if (!$user) {
                 throw AppException::unauthorized("User no longer exists");
             }
@@ -94,11 +90,11 @@ class AuthService
     public function me()
     {
         $data = $GLOBALS[AuthConst::CURRENT_USER];
-        $user = $this->userModel->findByField(UserSearchField::ID, $data['user_id']);
+        $user = UserModel::find($data['user_id'])->setHidden(['password']);
         if (!$user) {
             throw AppException::unauthorized("User no longer exists");
         }
-        return new UserEntity($user);
+        return $user;
     }
 }
 ?>

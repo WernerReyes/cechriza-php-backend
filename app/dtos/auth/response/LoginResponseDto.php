@@ -2,19 +2,19 @@
 require_once "app/entities/UserEntity.php";
 class LoginResponseDto
 {
-    public UserEntity $user;
+    public $user;
     public string $accessToken;
 
     public string $refreshToken;
 
 
     public function __construct(
-        array $user,
+        $user,
         string $accessToken,
         string $refreshToken
     ) {
 
-        $this->user = new UserEntity($user);
+        $this->user = $user;
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
 

@@ -46,12 +46,13 @@ class RegisterRequestDto
 
     public function toInsertDB(): array
     {
+
         return [
-            $this->name,
-            $this->lastname,
-            $this->email,
-            password_hash($this->password, PASSWORD_DEFAULT),
-            'USER'
+            "name"=> $this->name,
+            "lastname"=> $this->lastname,
+            "email"=> $this->email,
+            "password"=> password_hash($this->password, PASSWORD_DEFAULT),
+            "role"=> 'USER'
         ];
     }
 }

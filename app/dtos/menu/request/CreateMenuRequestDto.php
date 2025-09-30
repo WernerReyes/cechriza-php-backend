@@ -13,6 +13,8 @@ class CreateMenuRequestDto
 
     public $pageId;
 
+    public $active;
+
     public $dropdownArray = [];
 
     public function __construct($data)
@@ -24,6 +26,8 @@ class CreateMenuRequestDto
         $this->menuType = $data['menuType'] ?? '';
         $this->pageId = $data['pageId'] ?? null;
         $this->dropdownArray = $data['dropdownArray'] ?? [];
+        $this->active = $data['active'] ?? true;
+        
     }
 
     public function validate()
@@ -67,14 +71,24 @@ class CreateMenuRequestDto
     public function toInsertDB(): array
     {
         $userId = $GLOBALS[AuthConst::CURRENT_USER]['user_id'];
+        // return [
+        //     $this->title,
+        //     $this->generateSlug($this->title),
+        //     intval($this->order),
+        //     $userId,
+        //     $this->url,
+        //     $this->parentId == null ? null : intval($this->parentId),
+        //     $this->pageId == null ? null : intval($this->pageId)
+        // ];
         return [
-            $this->title,
-            $this->generateSlug($this->title),
-            intval($this->order),
-            $userId,
-            $this->url,
-            $this->parentId == null ? null : intval($this->parentId),
-            $this->pageId == null ? null : intval($this->pageId)
+            "title" => $this->title,
+            "slug" => $this->generateSlug($this->title),
+            "order" => intval($this->order),
+            "users_id" => $userId,
+            "url" => $this->url,
+            "parent_id" => $this->parentId == null ? null : intval($this->parentId),
+            "pages_id" => $this->pageId == null ? null : intval($this->pageId),
+            "active" => boolval($this->active) ? 1 : 0,
         ];
     }
 
