@@ -57,6 +57,12 @@ class PageModel extends Model
     protected $primaryKey = 'id_pages';
     public $timestamps = false;
     protected $fillable = ['title', 'content', 'slug'];
+
+    public function menu()
+    {
+        // return $this->hasOne(PageModel::class, 'menu_id', 'id_pages');
+        return $this->belongsTo(MenuModel::class, 'menu_id', 'id_menu');
+    }
 }
 
 ?>

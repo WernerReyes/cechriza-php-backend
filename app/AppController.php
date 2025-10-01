@@ -15,5 +15,10 @@ class AppController
         }
         return $data;
     }
+
+    protected function queryParam(string $key)
+    {
+        return $_GET[$key] ?? $_GET;
+    }
 }
 ?>

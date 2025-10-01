@@ -44,13 +44,14 @@ class MenuController extends AppController
             throw AppException::validationError("Validation failed", $dto);
         }
 
-        return AppResponse::success($this->menuService->update($dto));
+        return AppResponse::success($this->menuService->update($dto), "Menú actualizado exitosamente");
     }
 
     public function delete(string $id)
     {
-        $this->menuService->delete(intval($id));
-        return AppResponse::success();
+        $type = $this->queryParam('type');
+        $this->menuService->delete(intval($id), $type);
+        return AppResponse::success(null, "Menú eliminado exitosamente");
     }
 }
 ?>

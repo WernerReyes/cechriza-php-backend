@@ -17,7 +17,7 @@ class PageService
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {
 
-        return PageModel::get();
+        return PageModel::with('menu')->get();
     }
     public function create(CreatePageRequestDto $dto): PageEntity
     {
