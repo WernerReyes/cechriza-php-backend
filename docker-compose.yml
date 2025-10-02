@@ -10,8 +10,20 @@ services:
       MYSQL_USER: werner
       MYSQL_PASSWORD: root
     ports:
-      - "3307:3306"
+      - "3306:3306"
     volumes:
       - db_data:/var/lib/mysql
+  db-official:
+    image: mysql:8.0
+    container_name: mysql-db-official
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cechriza_web_v2
+      MYSQL_USER: werner
+      MYSQL_PASSWORD: root
+    ports:
+      - "3307:3306"
+    depends_on:
+      - db
 volumes:
   db_data:

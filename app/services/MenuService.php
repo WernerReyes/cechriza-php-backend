@@ -8,7 +8,7 @@ class MenuService
 
     public function getAll()
     {
-        $menus = MenuModel::with('children')->whereNull('parent_id')->orderBy('order')->get();
+        $menus = MenuModel::with('children')->whereNull('parent_id')->orderBy('order_num')->get();
         return $menus;
     }
 

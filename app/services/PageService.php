@@ -16,7 +16,7 @@ class PageService
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {
 
-        return PageModel::with('menu')->get();
+        return PageModel::orderBy('created_at', 'desc')->get();
     }
     public function create(CreatePageRequestDto $dto)
     {
