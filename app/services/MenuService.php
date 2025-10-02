@@ -1,7 +1,6 @@
 <?php
 require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/models/MenuModel.php";
-require_once "app/entities/MenuEntity.php";
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Eloquent\Model;
 class MenuService
@@ -11,6 +10,11 @@ class MenuService
     {
         $menus = MenuModel::with('children')->whereNull('parent_id')->orderBy('order')->get();
         return $menus;
+    }
+
+    public function countAll()
+    {
+        return MenuModel::count();
     }
 
     public function findMenuById($id)

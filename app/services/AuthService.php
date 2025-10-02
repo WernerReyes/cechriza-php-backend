@@ -8,7 +8,7 @@ class AuthService
 {
 
 
-    public function register(RegisterRequestDto $registerRequestDto): UserEntity
+    public function register(RegisterRequestDto $registerRequestDto)
     {
         $existUser = UserModel::where('email', $registerRequestDto->email)->first();
         if ($existUser)

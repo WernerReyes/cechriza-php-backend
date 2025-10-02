@@ -1,6 +1,5 @@
 <?php
 require_once "app/models/SectionItemModel.php";
-require_once "app/entities/SectionItemEntity.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 
 class SectionItemService
@@ -23,7 +22,7 @@ class SectionItemService
             }
 
             $sectionItem = $this->sectionItemModel->create($dto->toInsertDB());
-            return new SectionItemEntity($sectionItem);
+            return $sectionItem;
 
         } catch (Exception $e) {
             if ($e instanceof AppException) {

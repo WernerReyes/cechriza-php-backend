@@ -31,7 +31,7 @@ class Router
     {
         $url = parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH);
         // 👇 Este es el nombre de tu carpeta del proyecto en htdocs
-        $basePath = "/api";
+        $basePath = $_ENV['BASE_PATH'] ?? '';
 
         // Elimina el prefijo de la URL si existe
         if (strpos($url, $basePath) === 0) {

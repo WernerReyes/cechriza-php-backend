@@ -1,5 +1,5 @@
 <?php
-require_once "app/entities/UserEntity.php";
+
 class LoginResponseDto
 {
     public $user;

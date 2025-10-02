@@ -2,7 +2,6 @@
 require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/models/PageModel.php";
 require_once "app/models/MenuModel.php";
-require_once "app/entities/PageEntity.php";
 require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
 class PageService
 {
@@ -19,7 +18,7 @@ class PageService
 
         return PageModel::with('menu')->get();
     }
-    public function create(CreatePageRequestDto $dto): PageEntity
+    public function create(CreatePageRequestDto $dto)
     {
         try {
             //code...
@@ -29,7 +28,7 @@ class PageService
             }
 
             $pageCreated = PageModel::create($dto->toInsertDB());
-            return new PageEntity($pageCreated);
+            return $pageCreated;
         } catch (Exception $e) {
             if ($e instanceof AppException) {
                 throw $e;
