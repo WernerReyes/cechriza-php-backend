@@ -84,7 +84,12 @@ CREATE TABLE links (
     -- solo se usa si es EXTERNAL
     page_id INT DEFAULT NULL,
     -- solo se usa si es PAGE
+    --- TODO: Add these fields later
+    title VARCHAR(100) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_links_pages FOREIGN KEY (page_id) REFERENCES pages(id_page)
+    -- TODO
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 INSERT INTO links (type, url, page_id)
 VALUES ('PAGE', NULL, 1),
@@ -211,7 +216,10 @@ CREATE TABLE categories (
     id_category INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
     slug VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT
+    description TEXT,
+    -- TODO: Add these fields later
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP, 
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 INSERT INTO categories (title, slug, description)
 VALUES (

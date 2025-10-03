@@ -54,7 +54,7 @@ enum PageSearchField: string
 class PageModel extends Model
 {
     protected $table = 'pages';
-    protected $primaryKey = 'id_pages';
+    protected $primaryKey = 'id_page';
     public $timestamps = true;
     protected $fillable = ['title', 'content', 'slug'];
 
