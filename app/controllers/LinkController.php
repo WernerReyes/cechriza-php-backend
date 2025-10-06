@@ -3,6 +3,7 @@ require_once "app/AppController.php";
 require_once "app/AppResponse.php";
 require_once "app/services/LinkService.php";
 require_once "app/dtos/link/request/CreateLinkRequestDto.php";
+require_once "app/dtos/link/request/UpdateLinkRequestDto.php";
 
 class LinkController extends AppController
 {
@@ -29,5 +30,17 @@ class LinkController extends AppController
         }
 
         return AppResponse::success($this->linkService->create($dto), "Link creado exitosamente");
+    }
+
+    public function update($id)
+    {
+        $body = $this->body();
+        $dto = new UpdateLinkRequestDto(array_merge($body, ["id" => $id]));
+        $dto = $dto->validate();
+        if (is_array($dto)) {
+            throw AppException::validationError("Validation failed", $dto);
+        }
+
+        return AppResponse::success($this->linkService->update($dto), "Link actualizado exitosamente");
     }
 }

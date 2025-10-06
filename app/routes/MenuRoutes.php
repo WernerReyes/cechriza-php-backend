@@ -11,10 +11,10 @@ class MenuRoutes
         Router $router
     ) {
         $router->get(self::$prefix, "MenuController@getAll", ["auth"]);
-        $router->get(self::$prefix . "/count", "MenuController@countAll", ["auth"]);
         $router->get(self::$prefix . "/{id}", "MenuController@getById", ["auth"]);
         $router->post(self::$prefix, "MenuController@create", ["auth"]);
         $router->put(self::$prefix . "/{id}", "MenuController@update", ["auth"]);
+        $router->put(self::$prefix . "/order", "MenuController@updateOrder", ["auth"]);
         $router->delete(self::$prefix . "/{id}", "MenuController@delete", ["auth"]);
 
     }

@@ -87,12 +87,9 @@ class MenuModel extends Model {
     public $timestamps = false;
     protected $fillable = [
         'title',
-        'slug',
-        'order',
-        'url',
+        'order_num',
         'parent_id',
-        'page_id',
-        'users_id',
+        'link_id',
         'active',
     ];
 
@@ -106,8 +103,8 @@ class MenuModel extends Model {
         return $this->hasMany(MenuModel::class, 'parent_id');
     }
 
-    public function page() {
-        return $this->hasOne(PageModel::class, 'menu_id', 'id_menu');
+    public function link() {
+        return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
     }
 
 }

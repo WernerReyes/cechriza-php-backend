@@ -9,5 +9,6 @@ class LinkRoutes
     ) {
         $router->get(self::$prefix, "LinkController@getAll", ["auth"]);
         $router->post(self::$prefix, "LinkController@create", ["auth"]);
+        $router->put(self::$prefix . "/{id}", "LinkController@update", ["auth"]);
     }
 }

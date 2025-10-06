@@ -98,6 +98,19 @@ class ValidationEngine
     }
 
 
+    public function fieldsMatchInArray($fields, $array, $message = null)
+    {
+        foreach ($fields as $field) {
+            if (
+                array_key_exists($field, $this->data) &&
+                !$this->isEmpty($this->data[$field]) &&
+                (!is_array($array) || !in_array($this->data[$field], $array))
+            ) {
+                $this->errors[$field] = $message ?? "$field must match one of the specified values";
+            }
+        }
+        return $this;
+    }
 
 
 

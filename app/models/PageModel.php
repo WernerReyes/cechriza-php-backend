@@ -56,7 +56,7 @@ class PageModel extends Model
     protected $table = 'pages';
     protected $primaryKey = 'id_page';
     public $timestamps = true;
-    protected $fillable = ['title', 'content', 'slug'];
+    protected $fillable = ['title', 'description', 'slug'];
 
     public function menu()
     {

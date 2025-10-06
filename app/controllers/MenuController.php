@@ -3,6 +3,7 @@ require_once "app/AppController.php";
 require_once "app/services/MenuService.php";
 require_once "app/dtos/menu/request/CreateMenuRequestDto.php";
 require_once "app/dtos/menu/request/UpdateMenuRequestDto.php";
+require_once "app/dtos/menu/request/UpdateMenuOrderRequestDto.php";
 
 class MenuController extends AppController
 {
@@ -15,11 +16,6 @@ class MenuController extends AppController
     public function getAll()
     {
         return AppResponse::success($this->menuService->getAll());
-    }
-
-    public function countAll()
-    {
-        return AppResponse::success($this->menuService->countAll());
     }
 
     public function getById(string $id)
@@ -50,6 +46,19 @@ class MenuController extends AppController
         }
 
         return AppResponse::success($this->menuService->update($dto), "Menú actualizado exitosamente");
+    }
+
+    public function updateOrder()
+    {
+        $body = $this->body();
+        $dto = new UpdateMenuOrderRequestDto($body);
+        $dto = $dto->validate();
+        if (is_array($dto)) {
+            throw AppException::validationError("Validation failed", $dto);
+        }
+
+        $this->menuService->updateOrder($dto);
+        return AppResponse::success(null, "Orden de menús actualizado exitosamente");
     }
 
     public function delete(string $id)

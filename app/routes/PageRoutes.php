@@ -9,6 +9,7 @@ class PageRoutes
     ) {
         $router->get(self::$prefix, "PageController@getAll", ["auth"]);
         $router->post(self::$prefix, "PageController@create", ["auth"]);
+        $router->put(self::$prefix . "/{id}", "PageController@update", ["auth"]);
     }
 }
 ?>
