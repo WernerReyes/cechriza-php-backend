@@ -7,43 +7,32 @@ class CreateSectionItemRequestDto
 
     public $sectionId;
 
-
-    public $order;
-
     public $title;
 
     public $subtitle;
 
-    public $description;
+    public $content;
 
-    public $image;
+    public $fileImage;
 
-    public $icon;
+    public $imageUrl;
 
-    public $textButton;
+    public $linkId;
 
-    public $linkButton;
-
-    public $backgroundImage;
-
-    public $functionMachineId;
+    public $linkTexted;
 
 
     public function __construct($data)
     {
         $this->sectionType = $data["sectionType"] ?? '';
         $this->sectionId = $data['sectionId'] ?? 0;
-        $this->order = $data['order'] ?? 0
-        ;
-        $this->title = $data['title'] ?? null;
+        $this->title = $data['title'] ?? '';
         $this->subtitle = $data['subtitle'] ?? null;
-        $this->description = $data['description'] ?? null;
-        $this->image = $data['image'] ?? null;
-        $this->icon = $data['icon'] ?? null;
-        $this->textButton = $data['textButton'] ?? null;
-        $this->linkButton = $data['linkButton'] ?? null;
-        $this->backgroundImage = $data['backgroundImage'] ?? null;
-        $this->functionMachineId = $data['functionMachineId'] ?? null;
+        $this->content = $data['content'] ?? null;
+        $this->fileImage = $data['fileImage'] ?? null;
+        $this->imageUrl = $data['imageUrl'] ?? null;
+        $this->linkId = $data['linkId'] ?? null;
+        $this->linkTexted = $data['linkTexted'] ?? null;
     }
 
     public function validate()
@@ -57,37 +46,51 @@ class CreateSectionItemRequestDto
             ->integer("sectionId")
             ->min("sectionId", 1)
 
-            ->required("order")
-            ->integer("order")
-            ->min("order", 1)
+            ->required("title")
+            ->minLength("title", 2)
+            ->maxLength("title", 100)
+
+            ->minLength("subtitle", 2)
+            ->maxLength("subtitle", 150)
+            ->optional("subtitle")
+
+            ->minLength("content", 10)
+            ->optional("content")
+
+            ->files("fileImage")
+            ->optional("fileImage")
+
+            ->enum("imageUrl", PatternsConst::$URL)
+            ->optional("imageUrl")
+
+            ->integer("linkId")
+            ->min("linkId", 1)
+            ->optional("linkId")
+
+            ->minLength("linkTexted", 2)
+            ->maxLength("linkTexted", 100)
+            ->optional("linkTexted")
+
         ;
 
         if ($validation->fails()) {
             return $validation->getErrors();
         }
 
-        if ($this->sectionType == SectionType::HERO) {
-            $createDto = new CreateSectionHeroRequestDto((array) $this);
-            return $createDto->validate();
-        }
 
         return $this;
     }
 
-    public function toInsertDB(): array
+    public function toInsertDB($imageUrl): array
     {
         return [
-            intval($this->sectionId),
-            intval($this->order),
-            $this->title,
-            $this->subtitle,
-            $this->description,
-            $this->image,
-            $this->backgroundImage,
-            $this->icon,
-            $this->textButton,
-            $this->linkButton,
-            $this->functionMachineId !== null ? intval($this->functionMachineId) : null,
+            "section_id" => $this->sectionId,
+            "title" => $this->title,
+            "description" => $this->content,
+            "subtitle" => $this->subtitle,
+            "image" => $imageUrl,
+            "link_id" => $this->linkId,
+            "text_button" => $this->linkTexted,
         ];
     }
 

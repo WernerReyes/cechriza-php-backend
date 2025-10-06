@@ -17,15 +17,30 @@ enum SectionType: string
 
 class SectionModel extends Model
 {
+
+    protected $table = 'sections';
     public $timestamps = false;
+
+    public $primaryKey = 'id_section';
 
     protected $fillable = [
         'id_section',
         'title',
-        'content',
+        'description',
+        'subtitle',
+        'active',
+        'text_button',
+        'link_id',
         'type',
-        'order',
-        'created_at',
-        'updated_at',
+        'order_num',
+        'page_id'
+        // 'created_at',
+        // 'updated_at',
     ];
+
+
+    public function sectionItems()
+    {
+        return $this->hasMany(SectionItemModel::class, 'section_id', 'id_section');
+    }
 }

@@ -1,40 +1,58 @@
 <?php
 
+use Illuminate\Database\Eloquent\Model;
+// class SectionItemModel
+// {
+//     private static $instance = null;
+//     private $db;
 
-class SectionItemModel
+//     public function __construct()
+//     {
+//         $this->db = Database::$db;
+//     }
+
+//     public static function getInstance()
+//     {
+//         if (self::$instance === null) {
+//             self::$instance = new self();
+//         }
+
+//         return self::$instance;
+//     }
+
+
+//     // public function getByField(PageSearchField $field, $value)
+//     // {
+//     //     $stmt = $this->db->prepare("CALL GetPageByField(?, ?)");
+//     //     $stmt->execute([$field->value, $value]);
+//     //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
+//     // }
+
+//     public function create($data)
+//     {
+//         $stmt = $this->db->prepare('CALL InsertSectionItem(?,?,?,?,?,?,?,?,?,?,?)');
+//         $stmt->execute($data);
+//         return $stmt->fetch(PDO::FETCH_ASSOC);
+//     }
+
+// }
+
+class SectionItemModel extends Model
 {
-    private static $instance = null;
-    private $db;
+    public $table = "section_items";
+    public $timestamps = false;
 
-    public function __construct()
-    {
-        $this->db = Database::$db;
-    }
+    protected $primaryKey = "id_section_item";
 
-    public static function getInstance()
-    {
-        if (self::$instance === null) {
-            self::$instance = new self();
-        }
-
-        return self::$instance;
-    }
-
-
-    // public function getByField(PageSearchField $field, $value)
-    // {
-    //     $stmt = $this->db->prepare("CALL GetPageByField(?, ?)");
-    //     $stmt->execute([$field->value, $value]);
-    //     return $stmt->fetchAll(PDO::FETCH_ASSOC);
-    // }
-
-    public function create($data)
-    {
-        $stmt = $this->db->prepare('CALL InsertSectionItem(?,?,?,?,?,?,?,?,?,?,?)');
-        $stmt->execute($data);
-        return $stmt->fetch(PDO::FETCH_ASSOC);
-    }
-
+    protected $fillable = [
+        "title",
+        "subtitle",
+        "description",
+        "image",
+        "text_button",
+        "section_id",
+        "category_id"
+    ];
 }
 
 ?>

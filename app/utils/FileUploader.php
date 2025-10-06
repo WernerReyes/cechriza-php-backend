@@ -290,7 +290,8 @@ class FileUploader {
     private function getPublicUrl($fileName) {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
-        return $protocol . $host . "/api/public/uploads/images/$fileName";
+        $path = $_ENV['BASE_PATH'] ?? '';
+        return $protocol . $host . "$path/public/uploads/images/$fileName";
     }
 
     public function deleteImage($imagePath) {

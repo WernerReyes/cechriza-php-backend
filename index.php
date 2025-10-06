@@ -12,26 +12,29 @@ ErrorHandler::register();
 
 require_once 'app/AppRoutes.php';
 
-$allowOrigins = [
-    'http://localhost:4200',
-
-];
-
-
+$allowOrigins = ['http://localhost:4200'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 
-// Headers para API
-header('Content-Type: application/json');
-header("Access-Control-Allow-Origin: $origin");
+if (in_array($origin, $allowOrigins)) {
+    header("Access-Control-Allow-Origin: $origin");
+}
+
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
-    exit();
+    exit;
 }
+
+header('Content-Type: application/json');
+
+// if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+//     http_response_code(200);
+//     exit();
+// }
 
 try {
     Database::connect();

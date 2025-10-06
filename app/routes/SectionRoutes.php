@@ -8,7 +8,8 @@ class SectionRoutes
     public static function routes(
         Router $router,
     ) {
+        $router->get(self::$prefix, "SectionController@getAll", ["auth"]);
         $router->post(self::$prefix, "SectionController@create", ["auth"]);
+        $router->put(self::$prefix . "/{id}", "SectionController@update", ["auth"]);
     }
 }
-?>

@@ -13,13 +13,14 @@ class SectionItemController extends AppController
 
     public function create()
     {
-        $body = $this->body();
-        $dto = new CreateSectionItemRequestDto($body);
+        $formData = $this->formData("fileImage");
+        error_log("FormData: " . json_encode($formData));
+        $dto = new CreateSectionItemRequestDto($formData);
         $dto = $dto->validate();
         if (is_array($dto)) {
             throw AppException::validationError("Validation failed", $dto);
         }
 
-        return AppResponse::success($this->sectionItemService->create($dto));
+        return AppResponse::success($this->sectionItemService->create($dto), "Item de sección creado correctamente");
     }
 }

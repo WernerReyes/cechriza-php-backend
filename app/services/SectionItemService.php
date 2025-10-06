@@ -1,39 +1,34 @@
 <?php
 require_once "app/models/SectionItemModel.php";
+require_once "app/models/LinkModel.php";
 require_once "app/exceptions/DBExceptionHandler.php";
-
+require_once "app/utils/FileUploader.php";
 class SectionItemService
 {
-    private SectionModel $sectionModel;
-    private SectionItemModel $sectionItemModel;
-
-    public function __construct()
-    {
-        $this->sectionModel = SectionModel::getInstance();
-        $this->sectionItemModel = SectionItemModel::getInstance();
-    }
 
     public function create(CreateSectionItemRequestDto $dto)
     {
-        try {
-            $model = $this->sectionModel->getByField(SectionSearchField::ID, $dto->sectionId);
-            if (empty($model)) {
-                throw AppException::notFound("La sección no existe");
+        if (!empty($dto->linkId)) {
+            $link = LinkModel::find($dto->linkId);
+            if (empty($link)) {
+                throw AppException::validationError("El enlace seleccionado no existe");
             }
-
-            $sectionItem = $this->sectionItemModel->create($dto->toInsertDB());
-            return $sectionItem;
-
-        } catch (Exception $e) {
-            if ($e instanceof AppException) {
-                throw $e;
-            }
-
-            throw new DBExceptionHandler($e, [
-                ["name" => "order_UNIQUE", "message" => "No puede haber dos items con el mismo orden en una sección"],
-            ]);
-
         }
+
+        $imageUrl = $dto->imageUrl;
+        if (!empty($dto->fileImage)) {
+            $fileUploader = new FileUploader();
+            $uploadResult = $fileUploader->uploadImage($dto->fileImage);
+
+            if (is_string($uploadResult)) {
+                throw AppException::validationError("Image upload failed: " . $uploadResult);
+            }
+
+            $imageUrl = $uploadResult['url'];
+        }
+
+        $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl));
+        return $sectionItem;
 
     }
 }

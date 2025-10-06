@@ -16,6 +16,20 @@ class AppController
         return $data;
     }
 
+
+     // ✅ NUEVO: Método para FormData
+    protected function formData($fileName = 'file')
+    {
+        $data = [];
+        
+        // Obtener campos de texto del FormData
+        foreach ($_POST as $key => $value) {
+            $data[$key] = $value;
+        }
+    
+        return [...$data, $fileName => $_FILES[$fileName] ?? null];
+    }
+
     protected function queryParam(string $key)
     {
         return $_GET[$key] ?? $_GET;
