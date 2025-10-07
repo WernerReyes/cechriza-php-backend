@@ -10,6 +10,8 @@ class SectionRoutes
     ) {
         $router->get(self::$prefix, "SectionController@getAll", ["auth"]);
         $router->post(self::$prefix, "SectionController@create", ["auth"]);
+        $router->put(self::$prefix . "/order", "SectionController@updateOrder", ["auth"]);
         $router->put(self::$prefix . "/{id}", "SectionController@update", ["auth"]);
+
     }
 }

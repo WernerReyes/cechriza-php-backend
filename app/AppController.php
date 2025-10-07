@@ -17,17 +17,22 @@ class AppController
     }
 
 
-     // ✅ NUEVO: Método para FormData
-    protected function formData($fileName = 'file')
+    // ✅ NUEVO: Método para FormData
+    protected function formData(array $fileNames)
     {
-        $data = [];
-        
+        $formData = $_POST;
+
         // Obtener campos de texto del FormData
-        foreach ($_POST as $key => $value) {
+        foreach ($formData as $key => $value) {
             $data[$key] = $value;
         }
-    
-        return [...$data, $fileName => $_FILES[$fileName] ?? null];
+
+        // return [...$data, $fileName => $_FILES[$fileName] ?? null];
+        foreach ($fileNames as $fileName) {
+            $data[$fileName] = $_FILES[$fileName] ?? null;
+        }
+
+        return $data;
     }
 
     protected function queryParam(string $key)

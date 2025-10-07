@@ -45,13 +45,16 @@ class SectionItemModel extends Model
     protected $primaryKey = "id_section_item";
 
     protected $fillable = [
+        "id_section_item",
         "title",
         "subtitle",
         "description",
         "image",
+        "background_image",
         "text_button",
         "section_id",
-        "category_id"
+        "category_id",
+        "link_id"
     ];
 }
 

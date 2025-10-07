@@ -2,8 +2,10 @@
 require_once "app/utils/ValidationEngine.php";
 require_once "app/dtos/sectionItem/request/CreateSectionHeroRequestDto.php";
 require_once "app/core/constants/PatternsConst.php";
-class CreateSectionItemRequestDto
+class UpdateSectionItemRequestDto
 {
+
+    public $id;
     public $sectionType;
 
     public $sectionId;
@@ -22,16 +24,18 @@ class CreateSectionItemRequestDto
 
     public $backgroundImageUrl;
 
+
     public $linkId;
 
     public $linkTexted;
 
 
-    public function __construct($data)
+    public function __construct($data, $id)
     {
+        $this->id = $id ?? 0;
         $this->sectionType = $data["sectionType"] ?? '';
-        $this->sectionId = $data['sectionId'] ?? 0;
-        $this->title = $data['title'] ?? '';
+        $this->sectionId = $data['sectionId'] ?? null;
+        $this->title = $data['title'] ?? null;
         $this->subtitle = $data['subtitle'] ?? null;
         $this->content = $data['content'] ?? null;
         $this->fileImage = $data['fileImage'] ?? null;
@@ -46,16 +50,20 @@ class CreateSectionItemRequestDto
     {
         $validation = new ValidationEngine($this);
         $validation
+            ->required('id')
+            ->integer('id')
+            ->min('id', 1)
+
             ->required('sectionType')
             ->enum('sectionType', SectionType::class)
 
-            ->required("sectionId")
             ->integer("sectionId")
             ->min("sectionId", 1)
+            ->optional("sectionId")
 
-            ->required("title")
             ->minLength("title", 2)
             ->maxLength("title", 100)
+            ->optional("title")
 
             ->minLength("subtitle", 2)
             ->maxLength("subtitle", 150)
@@ -94,9 +102,9 @@ class CreateSectionItemRequestDto
         return $this;
     }
 
-    public function toInsertDB($imageUrl, $backgroundImageUrl): array
+    public function toUpdateDB($imageUrl = null, $backgroundImageUrl = null): array
     {
-        return [
+        return array_filter([
             "section_id" => $this->sectionId,
             "title" => $this->title,
             "description" => $this->content,
@@ -105,7 +113,9 @@ class CreateSectionItemRequestDto
             "background_image" => $backgroundImageUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
-        ];
+        ], function ($value) {
+            return !is_null($value) || $value === '';
+        });
     }
 
 }

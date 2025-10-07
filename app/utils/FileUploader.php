@@ -152,6 +152,10 @@ class FileUploader {
     }
 
     public function validateFile($file, $allowExtensions = []) {
+        if (empty(($file))) {
+            return 'No se subió ningún archivo';
+        }
+        
         // Verificar errores de PHP
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return $this->getUploadError($file['error']);
@@ -298,7 +302,7 @@ class FileUploader {
         $fullPath = $this->uploadDir . ltrim($imagePath, '/');
         
         if (file_exists($fullPath)) {
-            return unlink($fullPath);
+            return unlink(filename: $fullPath);
         }
         
         return false;

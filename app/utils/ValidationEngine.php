@@ -236,6 +236,8 @@ class ValidationEngine
     {
         $fileUploader = new FileUploader();
 
+        error_log("Validating file for field: $field with data: " . json_encode($this->data[$field] ?? null));
+
         $validation = $fileUploader->validateFile($this->data[$field] ?? null, $allowExtensions);
         if (is_string($validation)) {
             $this->errors[$field] = $message ?? $validation;
