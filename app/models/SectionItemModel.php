@@ -54,6 +54,7 @@ class SectionItemModel extends Model
         "text_button",
         "section_id",
         "category_id",
+        "icon",
         "link_id"
     ];
 }

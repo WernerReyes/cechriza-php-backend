@@ -24,7 +24,7 @@ class AppController
 
         // Obtener campos de texto del FormData
         foreach ($formData as $key => $value) {
-            $data[$key] = $value;
+            $data[$key] = htmlspecialchars(trim($value), ENT_QUOTES, 'UTF-8');
         }
 
         // return [...$data, $fileName => $_FILES[$fileName] ?? null];
@@ -34,6 +34,8 @@ class AppController
 
         return $data;
     }
+
+    
 
     protected function queryParam(string $key)
     {

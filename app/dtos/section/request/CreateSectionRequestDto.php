@@ -48,8 +48,16 @@ class CreateSectionRequestDto
             ->integer("pageId")
             ->min("pageId", 1);
 
+
         if ($validation->fails()) {
             return $validation->getErrors();
+        }
+
+        if ($this->type === SectionType::HERO->value) {
+            $this->textButton = null;
+            $this->linkId = null;
+            $this->description = null;
+            $this->subtitle = null;
         }
 
         return $this;

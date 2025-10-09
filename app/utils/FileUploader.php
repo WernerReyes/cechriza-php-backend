@@ -7,14 +7,15 @@ class FileUploader {
 
     public function __construct() {
         $this->uploadDir = __DIR__ . '/../../public/uploads/images/';
-        $this->allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+        $this->allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
         $this->maxFileSize = 5 * 1024 * 1024; // 5MB
         $this->allowedMimeTypes = [
             'image/jpeg',
             'image/jpg', 
             'image/png',
             'image/gif',
-            'image/webp'
+            'image/webp',
+            'image/svg+xml',
         ];
     }
 
@@ -41,6 +42,13 @@ class FileUploader {
                 throw new Exception('Error al mover el archivo');
             }
 
+            // Si es SVG, sanitizar
+            if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'svg') {
+
+                $this->sanitizeSvg($targetPath);
+            }
+
+
             // Optimizar imagen
             $this->optimizeImage($targetPath);
 
@@ -59,6 +67,24 @@ class FileUploader {
                 'error' => $e->getMessage()
             ];
         }
+    }
+
+
+     /**
+     * Limpia un archivo SVG para evitar código malicioso.
+     */
+    private function sanitizeSvg(string $filePath): void
+    {
+        $content = file_get_contents($filePath);
+
+        // Eliminar etiquetas <script> y <foreignObject>
+        $content = preg_replace('/<script.*?<\/script>/is', '', $content);
+        $content = preg_replace('/<foreignObject.*?<\/foreignObject>/is', '', $content);
+
+        // Eliminar cualquier evento como onload, onclick, etc.
+        $content = preg_replace('/on\w+="[^"]*"/i', '', $content);
+
+        file_put_contents($filePath, $content);
     }
 
 
@@ -182,7 +208,7 @@ class FileUploader {
         }
 
         // Verificar que sea una imagen real
-        if (!getimagesize($file['tmp_name'])) {
+        if ($mimeType !== 'image/svg+xml' && !getimagesize($file['tmp_name'])) {
             return 'El archivo no es una imagen válida';
         }
 

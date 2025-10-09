@@ -14,7 +14,7 @@ class SectionItemController extends AppController
 
     public function create()
     {
-        $formData = $this->formData(["fileImage", "backgroundFileImage"]);
+        $formData = $this->formData(["fileImage", "backgroundFileImage", "fileIcon"]);
         $dto = new CreateSectionItemRequestDto($formData);
         $dto = $dto->validate();
         if (is_array($dto)) {
@@ -26,7 +26,7 @@ class SectionItemController extends AppController
 
     public function update($id)
     {
-        $formData = $this->formData(["fileImage", "backgroundFileImage"]);
+        $formData = $this->formData(["fileImage", "backgroundFileImage", "fileIcon"]);
         $dto = new UpdateSectionItemRequestDto($formData, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {

@@ -22,10 +22,21 @@ class SectionItemService
             }
         }
 
-        $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
-        $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
+        $imageUrl = null;
+        $backgroundImageUrl = null;
+        $fileIconUrl = null;
+        if ($dto->sectionType == SectionType::HERO->value) {
+            $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
+            $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
+        } elseif ($dto->sectionType == SectionType::WHY_US->value) {
+            $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+        }
 
-        $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl));
+
+
+        // $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+
+        $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
         return $sectionItem;
 
     }
@@ -42,32 +53,11 @@ class SectionItemService
             }
         }
 
-        // $imageUrl = $dto->imageUrl;
 
-        // if (!empty($imageUrl)) {
-        //     if ($sectionItem->image_url) {
-        //         $this->fileUploader->deleteImage($sectionItem->image_url);
-        //     }
-        // }
-
-        // if (!empty($dto->fileImage)) {
-        //     if ($sectionItem->image_url) {
-        //         $this->fileUploader->deleteImage($sectionItem->image_url);
-        //     }
-
-        //     $uploadResult = $this->fileUploader->uploadImage($dto->fileImage);
-
-        //     if (is_string($uploadResult)) {
-        //         throw AppException::validationError("Image upload failed: " . $uploadResult);
-        //     }
-
-        //     $imageUrl = $uploadResult['url'];
-        // }
-
-        $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->imageUrl, $dto->fileImage);
-        $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->backgroundImageUrl, $dto->backgroundFileImage);
-
-        $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl));
+        $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
+        $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
+        // $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->currentFileIconUrl, $dto->fileIconUrl, $dto->fileIcon);
+        $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl, ));
 
         return $sectionItem;
     }
@@ -101,30 +91,21 @@ class SectionItemService
         return $currentImageUrl;
     }
 
-    private function getImageToUpdateDB($currentImageUrl, $newImageUrl, $fileImage)
+    private function getImageToUpdateDB($imageDB, $currentImageUrl, $newImageUrl, $fileImage)
     {
-        if (!empty($newImageUrl)) {
-            if ($currentImageUrl) {
-                $this->fileUploader->deleteImage($currentImageUrl);
-            }
-            return $newImageUrl;
+
+        if ($imageDB) {
+            $this->fileUploader->deleteImage($imageDB);
         }
 
-        if (!empty($fileImage)) {
-            if ($currentImageUrl) {
-                $this->fileUploader->deleteImage($currentImageUrl);
-            }
-
-            $uploadResult = $this->fileUploader->uploadImage($fileImage);
-
-            if (is_string($uploadResult)) {
-                throw AppException::validationError("Image upload failed: " . $uploadResult);
-            }
-
-            return $uploadResult['url'];
+        if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
+            return null;
+        } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
+            return $currentImageUrl;
         }
 
-        return $currentImageUrl;
+        return $this->getImageToInsertDB($newImageUrl, $fileImage);
+
     }
 
 

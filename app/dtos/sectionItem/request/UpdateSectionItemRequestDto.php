@@ -24,6 +24,10 @@ class UpdateSectionItemRequestDto
 
     public $backgroundImageUrl;
 
+    public $currentImageUrl;
+
+    public $currentBackgroundImageUrl;
+
 
     public $linkId;
 
@@ -44,6 +48,8 @@ class UpdateSectionItemRequestDto
         $this->linkTexted = $data['linkTexted'] ?? null;
         $this->backgroundFileImage = $data['backgroundFileImage'] ?? null;
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
+        $this->currentImageUrl = $data['currentImageUrl'] ?? null;
+        $this->currentBackgroundImageUrl = $data['currentBackgroundImageUrl'] ?? null;
     }
 
     public function validate()
@@ -84,6 +90,12 @@ class UpdateSectionItemRequestDto
             ->pattern("backgroundImageUrl", PatternsConst::$URL)
             ->optional("backgroundImageUrl")
 
+            ->pattern("currentImageUrl", PatternsConst::$URL)
+            ->optional("currentImageUrl")
+
+            ->pattern("currentBackgroundImageUrl", PatternsConst::$URL)
+            ->optional("currentBackgroundImageUrl")
+
             ->integer("linkId")
             ->min("linkId", 1)
             ->optional("linkId")
@@ -102,20 +114,19 @@ class UpdateSectionItemRequestDto
         return $this;
     }
 
-    public function toUpdateDB($imageUrl = null, $backgroundImageUrl = null): array
+    public function toUpdateDB($imageUrl = null, $backgroundImageUrl = null, $fileIconUrl = null): array
     {
-        return array_filter([
+        return [
             "section_id" => $this->sectionId,
             "title" => $this->title,
             "description" => $this->content,
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
+            "icon" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
-        ], function ($value) {
-            return !is_null($value) || $value === '';
-        });
+        ];
     }
 
 }

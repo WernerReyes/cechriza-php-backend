@@ -59,17 +59,27 @@ class UpdateSectionRequestDto
     public function toUpdateDB(): array
     {
 
-        return array_filter([
-            "title" => $this->title !== null ? $this->title : null,
+        // return array_filter([
+        //     "title" => $this->title !== null ? $this->title : null,
+        //     "type" => $this->type,
+        //     "active" => $this->active !== null ? $this->active : null,
+        //     "subtitle" => $this->subtitle !== null ? $this->subtitle : null,
+        //     "description" => $this->description !== null ? $this->description : null,
+        //     "text_button" => $this->textButton !== null ? $this->textButton : null,
+        //     "link_id" => $this->linkId !== null ? $this->linkId : null,
+        // ], function ($value) {
+        //     return $value !== null;
+        // });
+
+        return [
+            "title" => $this->title,
             "type" => $this->type,
-            "active" => $this->active !== null ? $this->active : null,
-            "subtitle" => $this->subtitle !== null ? $this->subtitle : null,
-            "description" => $this->description !== null ? $this->description : null,
-            "text_button" => $this->textButton !== null ? $this->textButton : null,
-            "link_id" => $this->linkId !== null ? $this->linkId : null,
-        ], function ($value) {
-            return $value !== null;
-        });
+            "active" => $this->active,
+            "subtitle" => $this->subtitle,
+            "description" => $this->description,
+            "text_button" => $this->textButton,
+            "link_id" => $this->linkId
+        ];
     }
 
 

@@ -12,6 +12,8 @@ enum SectionType: string
     case HERO = 'HERO';
     case BENEFITS = 'BENEFITS';
 
+    case WHY_US = 'WHY_US';
+
     case MACHINE_TYPE = 'MACHINE_TYPE';
 }
 

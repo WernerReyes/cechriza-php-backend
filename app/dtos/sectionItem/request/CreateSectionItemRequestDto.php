@@ -26,6 +26,10 @@ class CreateSectionItemRequestDto
 
     public $linkTexted;
 
+    public $fileIcon;
+
+    public $fileIconUrl;
+
 
     public function __construct($data)
     {
@@ -40,6 +44,8 @@ class CreateSectionItemRequestDto
         $this->linkTexted = $data['linkTexted'] ?? null;
         $this->backgroundFileImage = $data['backgroundFileImage'] ?? null;
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
+        $this->fileIcon = $data['fileIcon'] ?? null;
+        $this->fileIconUrl = $data['fileIconUrl'] ?? null;
     }
 
     public function validate()
@@ -84,7 +90,36 @@ class CreateSectionItemRequestDto
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
-        ;
+            ->files("fileIcon", ['svg'])
+            ->optional("fileIcon")
+
+            ->pattern("fileIconUrl", PatternsConst::$URL)
+            ->optional("fileIconUrl");
+        
+
+        // if ($this->sectionType === SectionType::HERO->value) {
+        //     $this->fileIcon = null;
+        //     $this->fileIconUrl = null;
+        // } 
+
+        switch ($this->sectionType) {
+            case SectionType::HERO->value:
+                $this->fileIcon = null;
+                $this->fileIconUrl = null;
+                break;
+
+            case SectionType::WHY_US->value:
+                $this->subtitle = null;
+                $this->fileImage = null;
+                $this->imageUrl = null;
+                $this->backgroundFileImage = null;
+                $this->backgroundImageUrl = null;
+                $this->linkId = null;
+                $this->linkTexted = null;
+                break;
+
+            
+        }
 
         if ($validation->fails()) {
             return $validation->getErrors();
@@ -94,7 +129,7 @@ class CreateSectionItemRequestDto
         return $this;
     }
 
-    public function toInsertDB($imageUrl, $backgroundImageUrl): array
+    public function toInsertDB($imageUrl=null, $backgroundImageUrl=null, $fileIconUrl=null): array
     {
         return [
             "section_id" => $this->sectionId,
@@ -103,6 +138,7 @@ class CreateSectionItemRequestDto
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
+            "icon" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
         ];
