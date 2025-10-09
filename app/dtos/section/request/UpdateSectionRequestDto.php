@@ -42,7 +42,7 @@ class UpdateSectionRequestDto
             ->enum("type", SectionType::class)
 
             ->minLength("title", 2)
-            ->maxLength("title", 100)
+            ->maxLength("title", 200)
             ->optional("title")
 
             ->boolean("active")

@@ -53,14 +53,36 @@ class CreateSectionRequestDto
             return $validation->getErrors();
         }
 
-        if ($this->type === SectionType::HERO->value) {
-            $this->textButton = null;
-            $this->linkId = null;
-            $this->description = null;
-            $this->subtitle = null;
-        }
+        $this->setFieldForSectionType();
 
         return $this;
+    }
+
+
+    private function setFieldForSectionType()
+    {
+        switch ($this->type) {
+            case SectionType::HERO->value:
+                $this->textButton = null;
+                $this->linkId = null;
+                $this->description = null;
+                $this->subtitle = null;
+                break;
+
+            case SectionType::WHY_US->value:
+                $this->textButton = null;
+                $this->linkId = null;
+                break;
+
+            case SectionType::CASH_PROCESSING_EQUIPMENT->value:
+                $this->subtitle = null;
+                $this->description = null;
+                break;
+
+            default:
+                # code...
+                break;
+        }
     }
 
     public function toInsertDB(): array

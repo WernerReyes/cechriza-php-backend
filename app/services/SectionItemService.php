@@ -28,8 +28,10 @@ class SectionItemService
         if ($dto->sectionType == SectionType::HERO->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
-        } elseif ($dto->sectionType == SectionType::WHY_US->value) {
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
             $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+        } elseif ($dto->sectionType == SectionType::CLIENT->value) {
+            $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
         }
 
 
@@ -53,11 +55,19 @@ class SectionItemService
             }
         }
 
+        $imageUrl = null;
+        $backgroundImageUrl = null;
+        $fileIconUrl = null;
+        if ($dto->sectionType == SectionType::HERO->value) {
+            $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
+            $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
+            $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
+        }
 
-        $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
-        $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
-        // $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->currentFileIconUrl, $dto->fileIconUrl, $dto->fileIcon);
-        $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl, ));
+
+
+        $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
 
         return $sectionItem;
     }

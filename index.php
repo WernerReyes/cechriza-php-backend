@@ -1,6 +1,7 @@
 <?php
 // require_once 'app/controllers/SeedController.php';
 require_once 'vendor/autoload.php';
+require_once 'app/controllers/OS_TICKET.php';
 
 //* Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
@@ -31,10 +32,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 header('Content-Type: application/json');
 
-// if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-//     http_response_code(200);
-//     exit();
-// }
 
 try {
     Database::connect();
@@ -47,6 +44,14 @@ try {
 // phpinfo();
 // $seed = new SeedController();
 // $seed->runScript();
+
+
+// $os_ticket = new OS_TICKET();
+//  $os_ticket->runScript();
+
+
+
+
 
 
 ?>

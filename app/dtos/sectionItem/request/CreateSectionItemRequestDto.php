@@ -59,9 +59,10 @@ class CreateSectionItemRequestDto
             ->integer("sectionId")
             ->min("sectionId", 1)
 
-            ->required("title")
+
             ->minLength("title", 2)
             ->maxLength("title", 100)
+            ->optional("title")
 
             ->minLength("subtitle", 2)
             ->maxLength("subtitle", 150)
@@ -95,7 +96,7 @@ class CreateSectionItemRequestDto
 
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl");
-        
+
 
         // if ($this->sectionType === SectionType::HERO->value) {
         //     $this->fileIcon = null;
@@ -118,7 +119,39 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 break;
 
-            
+            case SectionType::CASH_PROCESSING_EQUIPMENT->value:
+                $this->subtitle = null;
+                $this->content = null;
+                $this->backgroundFileImage = null;
+                $this->backgroundImageUrl = null;
+                $this->fileImage = null;
+                $this->imageUrl = null;
+                break;
+
+            case SectionType::VALUE_PROPOSITION->value:
+                $this->fileImage = null;
+                $this->imageUrl = null;
+                $this->backgroundFileImage = null;
+                $this->backgroundImageUrl = null;
+                $this->linkId = null;
+                $this->linkTexted = null;
+                $this->fileIcon = null;
+                $this->fileIconUrl = null;
+                break;
+
+            case SectionType::CLIENT->value:
+                $this->title = null;
+                $this->subtitle = null;
+                $this->content = null;
+                $this->backgroundFileImage = null;
+                $this->backgroundImageUrl = null;
+                $this->linkId = null;
+                $this->linkTexted = null;
+                $this->fileIcon = null;
+                $this->fileIconUrl = null;
+                break;
+
+
         }
 
         if ($validation->fails()) {
@@ -129,7 +162,7 @@ class CreateSectionItemRequestDto
         return $this;
     }
 
-    public function toInsertDB($imageUrl=null, $backgroundImageUrl=null, $fileIconUrl=null): array
+    public function toInsertDB($imageUrl = null, $backgroundImageUrl = null, $fileIconUrl = null): array
     {
         return [
             "section_id" => $this->sectionId,

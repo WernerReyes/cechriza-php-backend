@@ -140,6 +140,11 @@ CREATE TABLE sections (
     order_num INT NOT NULL,
     type ENUM(
         'HERO',
+        'WHY_US',
+        -- TODO Add more types as needed
+        'CASH_PROCESSING_EQUIPMENT',
+        -- TODO --
+
         'BENEFIT',
         'MACHINE_TYPE',
         'BILL_MACHINE',
@@ -149,7 +154,7 @@ CREATE TABLE sections (
         'CONTACT',
         'FOOTER'
     ) NOT NULL,
-    title VARCHAR(100),
+    title VARCHAR(200), -- TODO:  put varchar(200)
     subtitle VARCHAR(200),
     description TEXT,
     text_button VARCHAR(100),

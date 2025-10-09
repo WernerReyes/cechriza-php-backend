@@ -2,19 +2,19 @@
 
 use Illuminate\Database\Eloquent\Model;
 
-enum SectionSearchField: string
-{
-    case ID = 'id_section';
-}
-
 enum SectionType: string
 {
     case HERO = 'HERO';
-    case BENEFITS = 'BENEFITS';
-
     case WHY_US = 'WHY_US';
+    case CASH_PROCESSING_EQUIPMENT = 'CASH_PROCESSING_EQUIPMENT';
+    case VALUE_PROPOSITION = 'VALUE_PROPOSITION';
+    case CLIENT = 'CLIENT';
 
+
+    case BENEFITS = 'BENEFITS';
     case MACHINE_TYPE = 'MACHINE_TYPE';
+
+    
 }
 
 class SectionModel extends Model

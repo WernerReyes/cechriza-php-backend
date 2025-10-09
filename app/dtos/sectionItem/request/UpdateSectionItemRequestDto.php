@@ -33,6 +33,10 @@ class UpdateSectionItemRequestDto
 
     public $linkTexted;
 
+    public $fileIcon;
+
+    public $fileIconUrl;
+
 
     public function __construct($data, $id)
     {
@@ -50,6 +54,8 @@ class UpdateSectionItemRequestDto
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
         $this->currentImageUrl = $data['currentImageUrl'] ?? null;
         $this->currentBackgroundImageUrl = $data['currentBackgroundImageUrl'] ?? null;
+        $this->fileIcon = $data['fileIcon'] ?? null;
+        $this->fileIconUrl = $data['fileIconUrl'] ?? null;
     }
 
     public function validate()
@@ -104,7 +110,11 @@ class UpdateSectionItemRequestDto
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
-        ;
+            ->files("fileIcon", ['svg'])
+            ->optional("fileIcon")
+
+            ->pattern("fileIconUrl", PatternsConst::$URL)
+            ->optional("fileIconUrl");
 
         if ($validation->fails()) {
             return $validation->getErrors();
