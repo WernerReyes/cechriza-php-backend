@@ -20,8 +20,11 @@ class SectionController extends AppController
 
     public function create()
     {
-        $body = $this->body();
-        $dto = new CreateSectionRequestDto($body);
+
+        $formData = $this->formData(["fileImage"]);
+        // $body = $this->body();
+        error_log(json_encode($formData) ." formData");
+        $dto = new CreateSectionRequestDto($formData);
         $dto = $dto->validate();
         if (is_array($dto)) {
             throw AppException::validationError("Validation failed", $dto);

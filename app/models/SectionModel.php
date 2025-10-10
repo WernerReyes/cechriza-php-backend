@@ -9,6 +9,9 @@ enum SectionType: string
     case CASH_PROCESSING_EQUIPMENT = 'CASH_PROCESSING_EQUIPMENT';
     case VALUE_PROPOSITION = 'VALUE_PROPOSITION';
     case CLIENT = 'CLIENT';
+    case OUR_COMPANY = 'OUR_COMPANY';
+
+    case MACHINE = 'MACHINE';
 
 
     case BENEFITS = 'BENEFITS';
@@ -32,6 +35,7 @@ class SectionModel extends Model
         'subtitle',
         'active',
         'text_button',
+        'image',
         'link_id',
         'type',
         'order_num',
@@ -44,5 +48,10 @@ class SectionModel extends Model
     public function sectionItems()
     {
         return $this->hasMany(SectionItemModel::class, 'section_id', 'id_section');
+    }
+
+    public function link()
+    {
+        return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
     }
 }

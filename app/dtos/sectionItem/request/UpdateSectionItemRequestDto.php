@@ -37,6 +37,8 @@ class UpdateSectionItemRequestDto
 
     public $fileIconUrl;
 
+    public $categoryId;
+
 
     public function __construct($data, $id)
     {
@@ -56,6 +58,7 @@ class UpdateSectionItemRequestDto
         $this->currentBackgroundImageUrl = $data['currentBackgroundImageUrl'] ?? null;
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
+        $this->categoryId = $data['categoryId'] ?? null;
     }
 
     public function validate()
@@ -114,7 +117,12 @@ class UpdateSectionItemRequestDto
             ->optional("fileIcon")
 
             ->pattern("fileIconUrl", PatternsConst::$URL)
-            ->optional("fileIconUrl");
+            ->optional("fileIconUrl")
+            
+            ->integer("categoryId")
+            ->min("categoryId", 1)
+            ->optional("categoryId")
+            ;
 
         if ($validation->fails()) {
             return $validation->getErrors();
@@ -136,6 +144,7 @@ class UpdateSectionItemRequestDto
             "icon" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
+            "category_id" => $this->categoryId,
         ];
     }
 

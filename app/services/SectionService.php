@@ -7,10 +7,15 @@ use Illuminate\Database\Capsule\Manager as Capsule;
 class SectionService
 {
 
+    private FileUploader $fileUploader;
 
+    public function __construct()
+    {
+        $this->fileUploader = new FileUploader();
+    }
     public function getAll()
     {
-        return SectionModel::with('sectionItems')->orderBy('order_num', 'asc')->get();
+        return SectionModel::with('sectionItems', 'link:id_link,type')->orderBy('order_num', 'asc')->get();
     }
 
     public function create(CreateSectionRequestDto $dto)
@@ -18,7 +23,14 @@ class SectionService
         try {
             $maxOrder = SectionModel::max('order_num') ?? 0;
 
-            $section = SectionModel::create(array_merge($dto->toInsertDB(), ["order_num" => $maxOrder + 1]));
+            $imageUrl = null;
+            if ($dto->type === SectionType::OUR_COMPANY->value) {
+                $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
+            }
+
+            error_log(json_encode($dto) ." checking dto");
+
+            $section = SectionModel::create(array_merge($dto->toInsertDB($imageUrl), ["order_num" => $maxOrder + 1]));
             return $section;
         } catch (Exception $e) {
             throw $e;
@@ -52,5 +64,22 @@ class SectionService
             }
         });
 
+    }
+
+
+    private function getImageToInsertDB($imageUrl, $fileImage)
+    {
+        $currentImageUrl = $imageUrl;
+        if (!empty($fileImage)) {
+            $uploadResult = $this->fileUploader->uploadImage($fileImage);
+
+            if (is_string($uploadResult)) {
+                throw AppException::validationError("Image upload failed: " . $uploadResult);
+            }
+
+            $currentImageUrl = $uploadResult['url'];
+        }
+
+        return $currentImageUrl;
     }
 }

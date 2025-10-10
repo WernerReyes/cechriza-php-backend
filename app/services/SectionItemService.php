@@ -30,7 +30,7 @@ class SectionItemService
             $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
         } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
             $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
-        } elseif ($dto->sectionType == SectionType::CLIENT->value) {
+        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
         }
 
@@ -63,6 +63,8 @@ class SectionItemService
             $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
         } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
             $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
+        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
+            $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }
 
 

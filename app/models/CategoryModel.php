@@ -9,11 +9,15 @@ class CategoryModel extends Model
 
     public $timestamps = true;
 
+    public $primaryKey = 'id_category';
+
     protected $fillable = [
         'id_category',
         'title',
-        'slug',
-        'description',
-        'image_url',
     ];
+
+    public function scopeWhereTitleCaseSensitive($query, $title)
+    {
+        return $query->whereRaw('BINARY title = ?', [$title]);
+    }
 }

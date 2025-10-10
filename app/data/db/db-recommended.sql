@@ -123,8 +123,12 @@ CREATE TABLE section_items (
 CREATE TABLE categories (
   id_category INT AUTO_INCREMENT PRIMARY KEY,
   title VARCHAR(100) NOT NULL,
+  -- TODO: Delete these fields
   slug VARCHAR(100) NOT NULL UNIQUE,
   description TEXT
+  -- TODO: Add these fields
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 

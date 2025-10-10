@@ -14,20 +14,26 @@ class CreateSectionRequestDto
     public $type;
     public $textButton;
 
+    public $fileImage;
+
+    public $imageUrl;
+
     public $linkId;
 
     public $active;
 
-    public function __construct($data, $image = null)
+    public function __construct($data)
     {
         $this->title = $data["title"] ?? '';
         $this->type = $data["type"] ?? '';
         $this->pageId = $data["pageId"] ?? 0;
-        $this->active = $data["active"] ?? true;
+        $this->active = $data["active"] ? boolval($data["active"]) : true;
         $this->subtitle = $data["subtitle"] ?? null;
         $this->description = $data["description"] ?? null;
         $this->textButton = $data["textButton"] ?? null;
         $this->linkId = $data["linkId"] ?? null;
+        $this->fileImage = $data["fileImage"] ?? null;
+        $this->imageUrl = $data["imageUrl"] ?? null;
     }
 
     public function validate()
@@ -46,7 +52,15 @@ class CreateSectionRequestDto
 
             ->required("pageId")
             ->integer("pageId")
-            ->min("pageId", 1);
+            ->min("pageId", 1)
+
+            ->files("fileImage")
+            ->optional("fileImage")
+
+            ->pattern("imageUrl", PatternsConst::$URL)
+            ->optional("imageUrl");
+
+
 
 
         if ($validation->fails()) {
@@ -67,16 +81,45 @@ class CreateSectionRequestDto
                 $this->linkId = null;
                 $this->description = null;
                 $this->subtitle = null;
+                $this->imageUrl = null;
+                $this->fileImage = null;
                 break;
 
             case SectionType::WHY_US->value:
                 $this->textButton = null;
                 $this->linkId = null;
+                $this->imageUrl = null;
+                $this->fileImage = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
                 $this->subtitle = null;
                 $this->description = null;
+                $this->imageUrl = null;
+                $this->fileImage = null;
+                break;
+
+            case SectionType::CLIENT->value:
+                $this->textButton = null;
+                $this->linkId = null;
+                $this->description = null;
+                $this->imageUrl = null;
+                $this->fileImage = null;
+                break;
+
+            case SectionType::VALUE_PROPOSITION->value:
+                $this->fileImage = null;
+                $this->imageUrl = null;
+                $this->description = null;
+                $this->textButton = null;
+                $this->linkId = null;
+                $this->subtitle = null;
+                break;
+
+            case SectionType::OUR_COMPANY->value:
+                $this->textButton = null;
+                $this->linkId = null;
+                $this->subtitle = null;
                 break;
 
             default:
@@ -85,7 +128,7 @@ class CreateSectionRequestDto
         }
     }
 
-    public function toInsertDB(): array
+    public function toInsertDB($imageUrl = null): array
     {
         return [
             "title" => $this->title,
@@ -93,6 +136,7 @@ class CreateSectionRequestDto
             "active" => $this->active,
             "page_id" => $this->pageId,
             "subtitle" => $this->subtitle,
+            "image"=> $imageUrl,
             "description" => $this->description,
             "text_button" => $this->textButton,
             "link_id" => $this->linkId

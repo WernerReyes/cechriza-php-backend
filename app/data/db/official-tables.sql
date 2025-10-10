@@ -1,5 +1,4 @@
 use cechriza_web_v2;
-
 -- ==========================================
 -- LIMPIEZA DE TABLAS EXISTENTES (orden inverso)
 -- ==========================================
@@ -10,8 +9,6 @@ DROP TABLE IF EXISTS menu;
 DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS pages;
 DROP TABLE IF EXISTS users;
-
-
 -- ==========================================
 -- Tabla de Usuarios
 -- ==========================================
@@ -25,14 +22,22 @@ CREATE TABLE users (
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id_user)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 INSERT INTO users (name, lastname, email, password, role)
-VALUES 
-('Werner', 'Reyes', 'werner@example.com', '123456', 'USER'),
-('Ana', 'López', 'ana@example.com', '123456', 'USER');
-
-
+VALUES (
+        'Werner',
+        'Reyes',
+        'werner@example.com',
+        '123456',
+        'USER'
+    ),
+    (
+        'Ana',
+        'López',
+        'ana@example.com',
+        '123456',
+        'USER'
+    );
 -- ==========================================
 -- Tabla de Páginas
 -- ==========================================
@@ -44,18 +49,38 @@ CREATE TABLE pages (
     active TINYINT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 INSERT INTO pages (title, slug, description)
-VALUES
-('Procesamiento de Billetes', 'procesamiento_billete', 'Soluciones para clasificación, conteo y depósito de billetes.'),
-('Procesamiento de Monedas', 'procesamiento_moneda', 'Soluciones para conteo y clasificación de monedas.'),
-('Kisan NEWTON 30', 'kisan-newton-30', 'Clasificadora de billetes de alta velocidad y tamaño compacto.'),
-('Kisan K5-A', 'kisan-k5a', 'Clasificadora de billetes de 5 bolsillos de alta velocidad.'),
-('Kisan K6', 'kisan-k6', 'Clasificadora modular de alto volumen.'),
-('Contacto', 'contacto', 'Página de contacto para consultas.');
-
-
+VALUES (
+        'Procesamiento de Billetes',
+        'procesamiento_billete',
+        'Soluciones para clasificación, conteo y depósito de billetes.'
+    ),
+    (
+        'Procesamiento de Monedas',
+        'procesamiento_moneda',
+        'Soluciones para conteo y clasificación de monedas.'
+    ),
+    (
+        'Kisan NEWTON 30',
+        'kisan-newton-30',
+        'Clasificadora de billetes de alta velocidad y tamaño compacto.'
+    ),
+    (
+        'Kisan K5-A',
+        'kisan-k5a',
+        'Clasificadora de billetes de 5 bolsillos de alta velocidad.'
+    ),
+    (
+        'Kisan K6',
+        'kisan-k6',
+        'Clasificadora modular de alto volumen.'
+    ),
+    (
+        'Contacto',
+        'contacto',
+        'Página de contacto para consultas.'
+    );
 -- ==========================================
 -- Tabla de Links
 -- ==========================================
@@ -69,19 +94,20 @@ CREATE TABLE links (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_links_pages FOREIGN KEY (page_id) REFERENCES pages(id_page)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 INSERT INTO links (title, type, url, page_id)
-VALUES 
-('nueva', 'PAGE', NULL, 1),
-('nueva1', 'PAGE', NULL, 2),
-('nueva2', 'PAGE', NULL, 3),
-('nueva3', 'PAGE', NULL, 4),
-('nueva4', 'PAGE', NULL, 5),
-('nueva5', 'PAGE', NULL, 6),
-('nueva6', 'EXTERNAL', 'https://www.kisan.com', NULL);
-
-
+VALUES ('nueva', 'PAGE', NULL, 1),
+    ('nueva1', 'PAGE', NULL, 2),
+    ('nueva2', 'PAGE', NULL, 3),
+    ('nueva3', 'PAGE', NULL, 4),
+    ('nueva4', 'PAGE', NULL, 5),
+    ('nueva5', 'PAGE', NULL, 6),
+    (
+        'nueva6',
+        'EXTERNAL',
+        'https://www.kisan.com',
+        NULL
+    );
 -- ==========================================
 -- Tabla de Menú (estructura jerárquica)
 -- ==========================================
@@ -94,44 +120,52 @@ CREATE TABLE menu (
     link_id INT NULL,
     CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES menu(id_menu),
     CONSTRAINT fk_menu_links FOREIGN KEY (link_id) REFERENCES links(id_link)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- Menú principal
 INSERT INTO menu (title, order_num, active, parent_id, link_id)
-VALUES 
-('Inicio', 1, 1, NULL, 1),
-('Monedas', 2, 1, NULL, 2),
-('Productos', 3, 1, NULL, NULL),
-('Contacto', 4, 1, NULL, 6);
-
+VALUES ('Inicio', 1, 1, NULL, 1),
+    ('Monedas', 2, 1, NULL, 2),
+    ('Productos', 3, 1, NULL, NULL),
+    ('Contacto', 4, 1, NULL, 6);
 -- Submenús bajo "Productos"
 INSERT INTO menu (title, order_num, active, parent_id, link_id)
-VALUES
-('Kisan NEWTON 30', 1, 1, 3, 3),
-('Kisan K5-A', 2, 1, 3, 4),
-('Kisan K6', 3, 1, 3, 5);
-
-
+VALUES ('Kisan NEWTON 30', 1, 1, 3, 3),
+    ('Kisan K5-A', 2, 1, 3, 4),
+    ('Kisan K6', 3, 1, 3, 5);
 -- ==========================================
 -- Tabla de Categorías
 -- ==========================================
 CREATE TABLE categories (
     id_category INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL,
+    title VARCHAR(100) NOT NULL -- TODO: Put it UNIQUE,
+    -- TODO: Delete these fields
     slug VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
+    -- TODO --
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 INSERT INTO categories (title, slug, description)
-VALUES
-('Clasificadoras de Billetes', 'clasificadoras', 'Máquinas para clasificar billetes por denominación y estado.'),
-('Contadoras de Billetes', 'contadoras', 'Dispositivos para conteo rápido de billetes.'),
-('Sistemas de Depósito de Billetes', 'deposito', 'Soluciones para depositar billetes de forma segura.'),
-('Recicladoras de Billetes', 'recicladoras', 'Equipos que permiten reutilizar billetes en circulación.');
-
-
+VALUES (
+        'Clasificadoras de Billetes',
+        'clasificadoras',
+        'Máquinas para clasificar billetes por denominación y estado.'
+    ),
+    (
+        'Contadoras de Billetes',
+        'contadoras',
+        'Dispositivos para conteo rápido de billetes.'
+    ),
+    (
+        'Sistemas de Depósito de Billetes',
+        'deposito',
+        'Soluciones para depositar billetes de forma segura.'
+    ),
+    (
+        'Recicladoras de Billetes',
+        'recicladoras',
+        'Equipos que permiten reutilizar billetes en circulación.'
+    );
 -- ==========================================
 -- Tabla de Secciones
 -- ==========================================
@@ -143,8 +177,8 @@ CREATE TABLE sections (
         'WHY_US',
         -- TODO Add more types as needed
         'CASH_PROCESSING_EQUIPMENT',
+        'OUR_COMPANY',
         -- TODO --
-
         'BENEFIT',
         'MACHINE_TYPE',
         'BILL_MACHINE',
@@ -154,7 +188,10 @@ CREATE TABLE sections (
         'CONTACT',
         'FOOTER'
     ) NOT NULL,
-    title VARCHAR(200), -- TODO:  put varchar(200)
+    image VARCHAR(245),
+    -- TODO Add this property to the entity
+    title VARCHAR(200),
+    -- TODO:  put varchar(200)
     subtitle VARCHAR(200),
     description TEXT,
     text_button VARCHAR(100),
@@ -163,29 +200,63 @@ CREATE TABLE sections (
     page_id INT NOT NULL,
     CONSTRAINT fk_sections_pages FOREIGN KEY (page_id) REFERENCES pages(id_page),
     CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- HERO en Procesamiento de Billetes
-INSERT INTO sections (order_num, type, title, subtitle, description, text_button, page_id, link_id)
-VALUES 
-(1, 'HERO', 'Procesamiento de Billetes', 'Soluciones Profesionales', 'Ofrecemos máquinas de clasificación, conteo y reciclaje de billetes.', 'Ver productos', 1, NULL);
-
+INSERT INTO sections (
+        order_num,
+        type,
+        title,
+        subtitle,
+        description,
+        text_button,
+        page_id,
+        link_id
+    )
+VALUES (
+        1,
+        'HERO',
+        'Procesamiento de Billetes',
+        'Soluciones Profesionales',
+        'Ofrecemos máquinas de clasificación, conteo y reciclaje de billetes.',
+        'Ver productos',
+        1,
+        NULL
+    );
 -- Sección de categorías
 INSERT INTO sections (order_num, type, title, subtitle, page_id)
-VALUES 
-(2, 'MACHINE_TYPE', 'Categorías de Productos', 'Filtra por categoría', 1);
-
+VALUES (
+        2,
+        'MACHINE_TYPE',
+        'Categorías de Productos',
+        'Filtra por categoría',
+        1
+    );
 -- Sección de productos
 INSERT INTO sections (order_num, type, title, subtitle, page_id)
-VALUES 
-(3, 'BILL_MACHINE', 'Nuestros Productos', 'Clasificadoras y contadoras disponibles', 1);
-
+VALUES (
+        3,
+        'BILL_MACHINE',
+        'Nuestros Productos',
+        'Clasificadoras y contadoras disponibles',
+        1
+    );
 -- Contacto
-INSERT INTO sections (order_num, type, title, subtitle, description, page_id)
-VALUES 
-(1, 'CONTACT', 'Contáctanos', 'Estamos aquí para ayudarte', 'Rellena el formulario y nos pondremos en contacto contigo.', 6);
-
-
+INSERT INTO sections (
+        order_num,
+        type,
+        title,
+        subtitle,
+        description,
+        page_id
+    )
+VALUES (
+        1,
+        'CONTACT',
+        'Contáctanos',
+        'Estamos aquí para ayudarte',
+        'Rellena el formulario y nos pondremos en contacto contigo.',
+        6
+    );
 -- ==========================================
 -- Tabla de Section Items
 -- ==========================================
@@ -205,37 +276,106 @@ CREATE TABLE section_items (
     CONSTRAINT fk_section_items_sections FOREIGN KEY (section_id) REFERENCES sections(id_section),
     CONSTRAINT fk_section_items_link FOREIGN KEY (link_id) REFERENCES links(id_link),
     CONSTRAINT fk_section_items_category FOREIGN KEY (category_id) REFERENCES categories(id_category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- Items de categorías en la sección 2
-INSERT INTO section_items (title, description, icon, order_num, section_id, category_id)
-VALUES
-('Clasificadoras de Billetes', 'Máquinas para clasificar billetes de forma precisa.', 'icon-clasificadora.png', 1, 2, 1),
-('Contadoras de Billetes', 'Equipos para conteo rápido y seguro.', 'icon-contadora.png', 2, 2, 2),
-('Sistemas de Depósito', 'Soluciones seguras de depósito.', 'icon-deposito.png', 3, 2, 3),
-('Recicladoras de Billetes', 'Tecnología para reutilizar billetes.', 'icon-recicladora.png', 4, 2, 4);
-
+INSERT INTO section_items (
+        title,
+        description,
+        icon,
+        order_num,
+        section_id,
+        category_id
+    )
+VALUES (
+        'Clasificadoras de Billetes',
+        'Máquinas para clasificar billetes de forma precisa.',
+        'icon-clasificadora.png',
+        1,
+        2,
+        1
+    ),
+    (
+        'Contadoras de Billetes',
+        'Equipos para conteo rápido y seguro.',
+        'icon-contadora.png',
+        2,
+        2,
+        2
+    ),
+    (
+        'Sistemas de Depósito',
+        'Soluciones seguras de depósito.',
+        'icon-deposito.png',
+        3,
+        2,
+        3
+    ),
+    (
+        'Recicladoras de Billetes',
+        'Tecnología para reutilizar billetes.',
+        'icon-recicladora.png',
+        4,
+        2,
+        4
+    );
 -- Items de productos en la sección 3
-INSERT INTO section_items (title, subtitle, description, image, text_button, link_id, order_num, section_id, category_id)
-VALUES
-('Kisan NEWTON 30', 'Clasificadora compacta', 'Clasificadora de billetes de alta velocidad y tamaño compacto.', 'newton30.jpg', 'Ver detalle', 3, 1, 3, 1),
-('Kisan K5-A', '5 bolsillos', 'Clasificadora de billetes de alta velocidad con 5 bolsillos.', 'k5a.jpg', 'Ver detalle', 4, 2, 3, 1),
-('Kisan K6', 'Modular', 'Clasificadora modular de alto volumen.', 'k6.jpg', 'Ver detalle', 5, 3, 3, 1);
-
-
+INSERT INTO section_items (
+        title,
+        subtitle,
+        description,
+        image,
+        text_button,
+        link_id,
+        order_num,
+        section_id,
+        category_id
+    )
+VALUES (
+        'Kisan NEWTON 30',
+        'Clasificadora compacta',
+        'Clasificadora de billetes de alta velocidad y tamaño compacto.',
+        'newton30.jpg',
+        'Ver detalle',
+        3,
+        1,
+        3,
+        1
+    ),
+    (
+        'Kisan K5-A',
+        '5 bolsillos',
+        'Clasificadora de billetes de alta velocidad con 5 bolsillos.',
+        'k5a.jpg',
+        'Ver detalle',
+        4,
+        2,
+        3,
+        1
+    ),
+    (
+        'Kisan K6',
+        'Modular',
+        'Clasificadora modular de alto volumen.',
+        'k6.jpg',
+        'Ver detalle',
+        5,
+        3,
+        3,
+        1
+    );
 -- ==========================================
 -- CONSULTA FINAL
 -- ==========================================
-SELECT 
-    p.title AS page,
+SELECT p.title AS page,
     s.title AS section,
     si.title AS item,
     si.subtitle,
     si.description,
     l.page_id
 FROM pages p
-JOIN sections s ON s.page_id = p.id_page
-LEFT JOIN section_items si ON si.section_id = s.id_section
-LEFT JOIN links l ON si.link_id = l.id_link
+    JOIN sections s ON s.page_id = p.id_page
+    LEFT JOIN section_items si ON si.section_id = s.id_section
+    LEFT JOIN links l ON si.link_id = l.id_link
 WHERE p.slug = 'procesamiento_billete'
-ORDER BY s.order_num, si.order_num;
+ORDER BY s.order_num,
+    si.order_num;

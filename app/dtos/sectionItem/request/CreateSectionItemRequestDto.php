@@ -30,6 +30,8 @@ class CreateSectionItemRequestDto
 
     public $fileIconUrl;
 
+    public $categoryId;
+
 
     public function __construct($data)
     {
@@ -46,6 +48,7 @@ class CreateSectionItemRequestDto
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
+        $this->categoryId = $data['categoryId'] ?? null;
     }
 
     public function validate()
@@ -95,7 +98,12 @@ class CreateSectionItemRequestDto
             ->optional("fileIcon")
 
             ->pattern("fileIconUrl", PatternsConst::$URL)
-            ->optional("fileIconUrl");
+            ->optional("fileIconUrl")
+            
+            ->integer("categoryId")
+            ->min("categoryId", 1)
+            ->optional("categoryId")
+            ;
 
 
         // if ($this->sectionType === SectionType::HERO->value) {
@@ -107,6 +115,7 @@ class CreateSectionItemRequestDto
             case SectionType::HERO->value:
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
+                $this->categoryId = null;
                 break;
 
             case SectionType::WHY_US->value:
@@ -117,6 +126,7 @@ class CreateSectionItemRequestDto
                 $this->backgroundImageUrl = null;
                 $this->linkId = null;
                 $this->linkTexted = null;
+                $this->categoryId = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
@@ -126,6 +136,7 @@ class CreateSectionItemRequestDto
                 $this->backgroundImageUrl = null;
                 $this->fileImage = null;
                 $this->imageUrl = null;
+                $this->categoryId = null;
                 break;
 
             case SectionType::VALUE_PROPOSITION->value:
@@ -137,6 +148,7 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
+                $this->categoryId = null;
                 break;
 
             case SectionType::CLIENT->value:
@@ -149,6 +161,7 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
+                $this->categoryId = null;
                 break;
 
 
@@ -174,6 +187,7 @@ class CreateSectionItemRequestDto
             "icon" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
+            "category_id" => $this->categoryId,
         ];
     }
 
