@@ -164,6 +164,18 @@ class CreateSectionItemRequestDto
                 $this->categoryId = null;
                 break;
 
+            case SectionType::CONTACT_TOP_BAR->value:
+                $this->subtitle = null;
+                $this->content = null;
+                $this->backgroundFileImage = null;
+                $this->backgroundImageUrl = null;
+                $this->linkId = null;
+                $this->linkTexted = null;
+                $this->imageUrl = null;
+                $this->fileImage = null;
+                $this->categoryId = null;
+                break;
+
 
         }
 

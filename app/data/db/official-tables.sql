@@ -178,6 +178,7 @@ CREATE TABLE sections (
         -- TODO Add more types as needed
         'CASH_PROCESSING_EQUIPMENT',
         'OUR_COMPANY',
+        'CONTACT_TOP_BAR',
         -- TODO --
         'BENEFIT',
         'MACHINE_TYPE',
@@ -363,6 +364,16 @@ VALUES (
         3,
         1
     );
+
+-- TODO: Add this table
+CREATE TABLE section_menus (
+    id_section INT NOT NULL,
+    id_menu INT NOT NULL,
+    PRIMARY KEY (id_section, id_menu),
+    FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
+    FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- TODO
 -- ==========================================
 -- CONSULTA FINAL
 -- ==========================================

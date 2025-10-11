@@ -17,7 +17,7 @@ class AppController
     }
 
 
-    // ✅ NUEVO: Método para FormData
+    // TODO: Check why when i send [1,2] it comes as string "1,2"
     protected function formData(array $fileNames)
     {
         $formData = $_POST;

@@ -15,7 +15,7 @@ class SectionService
     }
     public function getAll()
     {
-        return SectionModel::with('sectionItems', 'link:id_link,type')->orderBy('order_num', 'asc')->get();
+        return SectionModel::with('sectionItems', 'link:id_link,type', 'menus')->orderBy('order_num', 'asc')->get();
     }
 
     public function create(CreateSectionRequestDto $dto)
@@ -28,9 +28,14 @@ class SectionService
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             }
 
-            error_log(json_encode($dto) ." checking dto");
+            error_log(json_encode($dto) . " checking dto");
 
             $section = SectionModel::create(array_merge($dto->toInsertDB($imageUrl), ["order_num" => $maxOrder + 1]));
+
+            if ($dto->type === SectionType::MAIN_NAVIGATION_MENU->value && !empty($dto->menusIds)) {
+                $section->menus()->attach($dto->menusIds);
+            }
+
             return $section;
         } catch (Exception $e) {
             throw $e;

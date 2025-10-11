@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Database\Eloquent\Model;
+require_once "app/models/MenuModel.php";
 
 enum SectionType: string
 {
@@ -12,6 +13,10 @@ enum SectionType: string
     case OUR_COMPANY = 'OUR_COMPANY';
 
     case MACHINE = 'MACHINE';
+
+    case CONTACT_TOP_BAR = 'CONTACT_TOP_BAR';
+
+    case MAIN_NAVIGATION_MENU = 'MAIN_NAVIGATION_MENU';
 
 
     case BENEFITS = 'BENEFITS';
@@ -54,4 +59,10 @@ class SectionModel extends Model
     {
         return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
     }
+
+    public function menus()
+{
+    return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');
+}
+
 }

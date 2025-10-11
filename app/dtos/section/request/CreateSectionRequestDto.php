@@ -22,6 +22,8 @@ class CreateSectionRequestDto
 
     public $active;
 
+    public $menusIds;
+
     public function __construct($data)
     {
         $this->title = $data["title"] ?? '';
@@ -34,6 +36,7 @@ class CreateSectionRequestDto
         $this->linkId = $data["linkId"] ?? null;
         $this->fileImage = $data["fileImage"] ?? null;
         $this->imageUrl = $data["imageUrl"] ?? null;
+        $this->menusIds = $data["menusIds"] ?? null;
     }
 
     public function validate()
@@ -58,7 +61,10 @@ class CreateSectionRequestDto
             ->optional("fileImage")
 
             ->pattern("imageUrl", PatternsConst::$URL)
-            ->optional("imageUrl");
+            ->optional("imageUrl")
+
+            ->array("menusIds")
+            ->optional("menusIds");
 
 
 
@@ -83,6 +89,7 @@ class CreateSectionRequestDto
                 $this->subtitle = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
+                $this->menusIds = null; 
                 break;
 
             case SectionType::WHY_US->value:
@@ -90,6 +97,7 @@ class CreateSectionRequestDto
                 $this->linkId = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
+                $this->menusIds = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
@@ -97,6 +105,7 @@ class CreateSectionRequestDto
                 $this->description = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
+                $this->menusIds = null;
                 break;
 
             case SectionType::CLIENT->value:
@@ -105,6 +114,7 @@ class CreateSectionRequestDto
                 $this->description = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
+                $this->menusIds = null;
                 break;
 
             case SectionType::VALUE_PROPOSITION->value:
@@ -114,13 +124,16 @@ class CreateSectionRequestDto
                 $this->textButton = null;
                 $this->linkId = null;
                 $this->subtitle = null;
+                $this->menusIds = null;
                 break;
 
             case SectionType::OUR_COMPANY->value:
                 $this->textButton = null;
                 $this->linkId = null;
                 $this->subtitle = null;
+                $this->menusIds = null;
                 break;
+
 
             default:
                 # code...

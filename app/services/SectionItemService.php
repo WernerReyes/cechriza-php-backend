@@ -18,9 +18,11 @@ class SectionItemService
         if (!empty($dto->linkId)) {
             $link = LinkModel::find($dto->linkId);
             if (empty($link)) {
-                throw AppException::validationError("El enlace seleccionado no existe");
+                throw AppException::badRequest("El enlace seleccionado no existe");
             }
         }
+
+        error_log("Section type: " . json_encode($dto));
 
         $imageUrl = null;
         $backgroundImageUrl = null;
@@ -28,7 +30,7 @@ class SectionItemService
         if ($dto->sectionType == SectionType::HERO->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
-        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value) {
             $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
@@ -39,6 +41,8 @@ class SectionItemService
         // $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
 
         $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
+        
+
         return $sectionItem;
 
     }
@@ -61,7 +65,7 @@ class SectionItemService
         if ($dto->sectionType == SectionType::HERO->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
             $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
-        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value) {
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value) {
             $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
