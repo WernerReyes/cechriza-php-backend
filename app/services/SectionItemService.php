@@ -22,8 +22,7 @@ class SectionItemService
             }
         }
 
-        error_log("Section type: " . json_encode($dto));
-
+       
         $imageUrl = null;
         $backgroundImageUrl = null;
         $fileIconUrl = null;

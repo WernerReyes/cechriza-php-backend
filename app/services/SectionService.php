@@ -15,7 +15,18 @@ class SectionService
     }
     public function getAll()
     {
-        return SectionModel::with('sectionItems', 'link:id_link,type', 'menus')->orderBy('order_num', 'asc')->get();
+        return SectionModel::with([
+            'sectionItems',
+            'link:id_link,type',
+            'menus' => function ($query) {
+                $query->orderBy('menu.order_num', 'asc')
+              ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
+            },
+            'menus.parent:id_menu,title,order_num'
+        ])
+            ->orderBy('order_num', 'asc') // ordena las secciones también
+            ->get();
+
     }
 
     public function create(CreateSectionRequestDto $dto)
@@ -24,16 +35,16 @@ class SectionService
             $maxOrder = SectionModel::max('order_num') ?? 0;
 
             $imageUrl = null;
-            if ($dto->type === SectionType::OUR_COMPANY->value) {
+            if ($dto->type === SectionType::OUR_COMPANY->value || $dto->type === SectionType::MAIN_NAVIGATION_MENU->value) {
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             }
-
-            error_log(json_encode($dto) . " checking dto");
 
             $section = SectionModel::create(array_merge($dto->toInsertDB($imageUrl), ["order_num" => $maxOrder + 1]));
 
             if ($dto->type === SectionType::MAIN_NAVIGATION_MENU->value && !empty($dto->menusIds)) {
                 $section->menus()->attach($dto->menusIds);
+
+                $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
 
             return $section;
@@ -49,7 +60,21 @@ class SectionService
             throw AppException::validationError("La sección seleccionada no existe");
         }
 
-        $section->update($dto->toUpdateDB());
+        $imageUrl = null;
+        if ($dto->type === SectionType::OUR_COMPANY->value || $dto->type === SectionType::MAIN_NAVIGATION_MENU->value) {
+            $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
+        }
+
+        error_log("Image URL to update: " . $imageUrl);
+
+
+        $section->update($dto->toUpdateDB($imageUrl));
+
+        if ($dto->type === SectionType::MAIN_NAVIGATION_MENU->value && !empty($dto->menusIds)) {
+            $section->menus()->sync($dto->menusIds);
+
+            $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
+        }
         return $section;
     }
 
@@ -86,5 +111,22 @@ class SectionService
         }
 
         return $currentImageUrl;
+    }
+
+    private function getImageToUpdateDB($imageDB, $currentImageUrl, $newImageUrl, $fileImage)
+    {
+
+        if ($imageDB) {
+            $this->fileUploader->deleteImage($imageDB);
+        }
+
+        if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
+            return null;
+        } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
+            return $currentImageUrl;
+        }
+
+        return $this->getImageToInsertDB($newImageUrl, $fileImage);
+
     }
 }

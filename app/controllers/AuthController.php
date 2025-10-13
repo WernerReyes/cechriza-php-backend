@@ -36,6 +36,11 @@ class AuthController extends AppController
         return AppResponse::success($this->authService->login($dtoValidated));
     }
 
+    public function relogin()
+    {
+        return AppResponse::success($this->authService->relogin());
+    }
+
     public function logout()
     {
         $this->authService->logout();

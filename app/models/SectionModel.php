@@ -60,6 +60,7 @@ class SectionModel extends Model
         return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
     }
 
+
     public function menus()
 {
     return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');

@@ -117,8 +117,9 @@ class JwtUtil
     {
         self::init();
 
-        $issuedAt = time();
-        $expire = $issuedAt + (self::$expiry * 24 * 7); // 7 días
+       $issuedAt = time();
+       $extraTime = 60; // 1 minuto extra
+        $expire = $issuedAt + self::$expiry + $extraTime;
 
         $tokenPayload = [
             'iat' => $issuedAt,

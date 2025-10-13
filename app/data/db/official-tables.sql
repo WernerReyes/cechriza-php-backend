@@ -175,11 +175,10 @@ CREATE TABLE sections (
     type ENUM(
         'HERO',
         'WHY_US',
-        -- TODO Add more types as needed
         'CASH_PROCESSING_EQUIPMENT',
         'OUR_COMPANY',
         'CONTACT_TOP_BAR',
-        -- TODO --
+        'MAIN_NAVIGATION_MENU',
         'BENEFIT',
         'MACHINE_TYPE',
         'BILL_MACHINE',
@@ -190,9 +189,7 @@ CREATE TABLE sections (
         'FOOTER'
     ) NOT NULL,
     image VARCHAR(245),
-    -- TODO Add this property to the entity
     title VARCHAR(200),
-    -- TODO:  put varchar(200)
     subtitle VARCHAR(200),
     description TEXT,
     text_button VARCHAR(100),
@@ -365,7 +362,9 @@ VALUES (
         1
     );
 
--- TODO: Add this table
+-- ==========================================
+-- Tabla de section_menus
+-- ==========================================
 CREATE TABLE section_menus (
     id_section INT NOT NULL,
     id_menu INT NOT NULL,
@@ -373,7 +372,8 @@ CREATE TABLE section_menus (
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
--- TODO
+
+
 -- ==========================================
 -- CONSULTA FINAL
 -- ==========================================

@@ -31,18 +31,17 @@ class AuthService
             'role' => $user['role']
         ];
 
-        $token = JwtUtil::generateToken($tokenPayload);
+        $token = JwtUtil::generateToken(payload: $tokenPayload);
         $refreshToken = JwtUtil::generateRefreshToken($tokenPayload);
 
         // Set in HttpOnly Cookie
         CookieUtil::setAuthCookies($token, $refreshToken);
 
-        error_log("user: $user");
 
         return new LoginResponseDto($user->setHidden(['password']), $token, $refreshToken);
     }
 
-    public function refreshToken(): LoginResponseDto
+    public function relogin(): LoginResponseDto
     {
         $refreshToken = CookieUtil::getRefreshTokenFromCookie();
 
@@ -94,7 +93,11 @@ class AuthService
         if (!$user) {
             throw AppException::unauthorized("User no longer exists");
         }
-        return $user;
+
+        $token = CookieUtil::getJwtFromCookie();
+        $refreshToken = CookieUtil::getRefreshTokenFromCookie();
+
+        return new LoginResponseDto($user, $token, $refreshToken);
     }
 }
 ?>

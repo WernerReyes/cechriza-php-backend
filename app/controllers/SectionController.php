@@ -35,8 +35,10 @@ class SectionController extends AppController
 
     public function update($id)
     {
-        $body = $this->body();
-        $dto = new UpdateSectionRequestDto($body, $id);
+         $formData = $this->formData(["fileImage"]);
+
+         error_log(json_encode($formData) ." formData");
+        $dto = new UpdateSectionRequestDto($formData, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {
             throw AppException::validationError("Validation failed", $dto);

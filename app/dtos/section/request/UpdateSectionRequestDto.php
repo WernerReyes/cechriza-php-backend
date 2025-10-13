@@ -2,7 +2,7 @@
 require_once "app/utils/ValidationEngine.php";
 require_once "app/models/SectionModel.php";
 class UpdateSectionRequestDto
-{ 
+{
     public $id;
     public $title;
 
@@ -14,9 +14,19 @@ class UpdateSectionRequestDto
     public $type;
     public $textButton;
 
+    public $fileImage;
+
+    public $imageUrl;
+
+      public $currentImageUrl;
+
     public $linkId;
 
     public $active;
+
+    public $menusIds;
+
+  
 
     public function __construct($data, $id)
     {
@@ -28,6 +38,10 @@ class UpdateSectionRequestDto
         $this->description = $data["description"] ?? null;
         $this->textButton = $data["textButton"] ?? null;
         $this->linkId = $data["linkId"] ?? null;
+        $this->fileImage = $data["fileImage"] ?? null;
+        $this->imageUrl = $data["imageUrl"] ?? null;
+        $this->currentImageUrl = $data["currentImageUrl"] ?? null;
+        $this->menusIds = $data["menusIds"] ?? null;
     }
 
     public function validate()
@@ -47,6 +61,15 @@ class UpdateSectionRequestDto
 
             ->boolean("active")
             ->optional("active")
+
+             ->files("fileImage")
+            ->optional("fileImage")
+
+            ->pattern("imageUrl", PatternsConst::$URL)
+            ->optional("imageUrl")
+
+            ->array("menusIds")
+            ->optional("menusIds");
         ;
 
         if ($validation->fails()) {
@@ -56,7 +79,7 @@ class UpdateSectionRequestDto
         return $this;
     }
 
-    public function toUpdateDB(): array
+    public function toUpdateDB($image = null): array
     {
 
         // return array_filter([
@@ -76,6 +99,7 @@ class UpdateSectionRequestDto
             "type" => $this->type,
             "active" => $this->active,
             "subtitle" => $this->subtitle,
+            "image"=> $image,
             "description" => $this->description,
             "text_button" => $this->textButton,
             "link_id" => $this->linkId

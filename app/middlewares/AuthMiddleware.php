@@ -27,7 +27,7 @@ class AuthMiddleware
 
             // Verificar si necesita refresh automático
             if (JwtUtil::shouldRefresh($token)) {
-                self::autoRefresh();
+                // self::autoRefresh();
             }
 
             return $decoded['data'];
@@ -35,7 +35,7 @@ class AuthMiddleware
         } catch (Exception $e) {
             // Intentar refresh automático si el token expiró
             if (strpos($e->getMessage(), 'expired') !== false) {
-                return self::autoRefresh();
+                // return self::autoRefresh();
             }
 
             throw AppException::unauthorized("Invalid token: " . $e->getMessage());
@@ -66,7 +66,7 @@ class AuthMiddleware
             require_once 'app/models/UserModel.php';
 
             $authService = new AuthService();
-            $tokens = $authService->refreshToken();
+            $tokens = $authService->relogin();
 
             // Obtener datos del usuario del nuevo token
             $userPayload = JwtUtil::getUserFromToken($tokens->accessToken);
