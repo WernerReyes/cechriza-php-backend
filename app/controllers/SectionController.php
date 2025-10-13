@@ -59,5 +59,12 @@ class SectionController extends AppController
         $this->sectionService->updateOrder($dto);
         return AppResponse::success(null, "Orden de secciones actualizado correctamente");
     }
+
+
+    public function delete($id)
+    {
+        $this->sectionService->delete(intval($id));
+        return AppResponse::success(message: "Sección eliminada correctamente");
+    }
 }
 ?>

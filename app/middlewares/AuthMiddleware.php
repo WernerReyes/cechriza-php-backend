@@ -66,7 +66,7 @@ class AuthMiddleware
             require_once 'app/models/UserModel.php';
 
             $authService = new AuthService();
-            $tokens = $authService->relogin();
+            $tokens = $authService->refreshToken();
 
             // Obtener datos del usuario del nuevo token
             $userPayload = JwtUtil::getUserFromToken($tokens->accessToken);

@@ -37,4 +37,10 @@ class CategoryController extends AppController
         return AppResponse::success($this->categoryService->update(intval($id), $newTitle), "Categoría actualizada correctamente");
     }
 
+    public function delete($id)
+    {
+        $this->categoryService->delete(intval($id));
+        return AppResponse::success(message: "Categoría eliminada correctamente");
+    }
+
 }

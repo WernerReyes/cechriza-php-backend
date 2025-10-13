@@ -9,7 +9,7 @@ class CategoryService
     }
 
     public function create(string $title)
-    {   
+    {
         try {
             return CategoryModel::create(['title' => $title]);
         } catch (Exception $e) {
@@ -24,9 +24,10 @@ class CategoryService
         try {
             $category = CategoryModel::find($id);
             if (empty($category)) {
-                throw AppException::validationError("La categoría seleccionada no existe");
+                throw AppException::badRequest("La categoría seleccionada no existe");
             }
-            return $category->update(['title' => $newTitle]);
+            $category->update(['title' => $newTitle]);
+            return $category->fresh();
         } catch (Exception $e) {
             if (get_class($e) === "AppException") {
                 throw $e;
@@ -39,10 +40,22 @@ class CategoryService
 
     public function delete(int $id)
     {
-        $category = CategoryModel::find($id);
-        if (empty($category)) {
-            throw AppException::validationError("La categoría seleccionada no existe");
+        try {
+            $category = CategoryModel::find($id);
+            if (empty($category)) {
+                throw AppException::badRequest("La categoría seleccionada no existe");
+            }
+
+            $category->delete();
+
+        } catch (Exception $e) {
+            if (get_class($e) === "AppException") {
+                throw $e;
+            }
+            throw new DBExceptionHandler($e, [
+                ["name" => "fk_section_items_category", "message" => "No se puede eliminar la categoría porque está asociada a uno o más ítems de sección"]
+            ]);
         }
-        $category->delete();
+
     }
 }

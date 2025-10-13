@@ -3,6 +3,7 @@ require_once "app/models/SectionItemModel.php";
 require_once "app/models/LinkModel.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/utils/FileUploader.php";
+require_once "app/dtos/sectionItem/response/SectionItemResponseDto.php";
 class SectionItemService
 {
 
@@ -22,14 +23,14 @@ class SectionItemService
             }
         }
 
-       
+
         $imageUrl = null;
         $backgroundImageUrl = null;
         $fileIconUrl = null;
         if ($dto->sectionType == SectionType::HERO->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             $backgroundImageUrl = $this->getImageToInsertDB($dto->backgroundImageUrl, $dto->backgroundFileImage);
-        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value) {
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value || $dto->sectionType == SectionType::SOLUTIONS_OVERVIEW->value) {
             $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
@@ -40,9 +41,9 @@ class SectionItemService
         // $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
 
         $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
-        
 
-        return $sectionItem;
+
+        return new SectionItemResponseDto($sectionItem);
 
     }
 
@@ -64,7 +65,7 @@ class SectionItemService
         if ($dto->sectionType == SectionType::HERO->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
             $backgroundImageUrl = $this->getImageToUpdateDB($sectionItem->background_image, $dto->currentBackgroundImageUrl, $dto->backgroundImageUrl, $dto->backgroundFileImage);
-        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value) {
+        } elseif ($dto->sectionType == SectionType::WHY_US->value || $dto->sectionType == SectionType::CASH_PROCESSING_EQUIPMENT->value || $dto->sectionType == SectionType::CONTACT_TOP_BAR->value || $dto->sectionType == SectionType::SOLUTIONS_OVERVIEW->value) {
             $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
@@ -74,7 +75,7 @@ class SectionItemService
 
         $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
 
-        return $sectionItem;
+        return new SectionItemResponseDto($sectionItem);
     }
 
 
@@ -100,7 +101,7 @@ class SectionItemService
                 throw AppException::validationError("Image upload failed: " . $uploadResult);
             }
 
-            $currentImageUrl = $uploadResult['url'];
+            $currentImageUrl = $uploadResult['path'];
         }
 
         return $currentImageUrl;

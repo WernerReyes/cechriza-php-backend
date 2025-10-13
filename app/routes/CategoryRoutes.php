@@ -10,6 +10,7 @@ class CategoryRoutes
         $router->get(self::$prefix, "CategoryController@getAll", ["auth"]);
         $router->post(self::$prefix,"CategoryController@create", ["auth"]);
         $router->put(self::$prefix . "/{id}", "CategoryController@update", ["auth"]);
+        $router->delete(self::$prefix . "/{id}", "CategoryController@delete", ["auth"]);
     }
 }
 ?>

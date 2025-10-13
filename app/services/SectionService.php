@@ -3,6 +3,7 @@ require_once "app/models/SectionModel.php";
 require_once "app/models/PageModel.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/dtos/section/request/CreateSectionRequestDto.php";
+require_once "app/dtos/section/response/SectionResponseDto.php";
 use Illuminate\Database\Capsule\Manager as Capsule;
 class SectionService
 {
@@ -15,18 +16,19 @@ class SectionService
     }
     public function getAll()
     {
-        return SectionModel::with([
+        $sections = SectionModel::with([
             'sectionItems',
             'link:id_link,type',
             'menus' => function ($query) {
                 $query->orderBy('menu.order_num', 'asc')
-              ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
+                    ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
             },
             'menus.parent:id_menu,title,order_num'
         ])
             ->orderBy('order_num', 'asc') // ordena las secciones también
             ->get();
 
+        return $sections->map(fn($section) => new SectionResponseDto($section));
     }
 
     public function create(CreateSectionRequestDto $dto)
@@ -35,7 +37,8 @@ class SectionService
             $maxOrder = SectionModel::max('order_num') ?? 0;
 
             $imageUrl = null;
-            if ($dto->type === SectionType::OUR_COMPANY->value || $dto->type === SectionType::MAIN_NAVIGATION_MENU->value) {
+
+            if (in_array($dto->type, [SectionType::OUR_COMPANY->value, SectionType::MAIN_NAVIGATION_MENU->value, SectionType::CTA_BANNER->value, SectionType::MISSION_VISION->value])) {
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             }
 
@@ -47,7 +50,7 @@ class SectionService
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
 
-            return $section;
+            return new SectionResponseDto($section);
         } catch (Exception $e) {
             throw $e;
         }
@@ -61,7 +64,8 @@ class SectionService
         }
 
         $imageUrl = null;
-        if ($dto->type === SectionType::OUR_COMPANY->value || $dto->type === SectionType::MAIN_NAVIGATION_MENU->value) {
+    
+        if (in_array($dto->type, [SectionType::OUR_COMPANY->value, SectionType::MAIN_NAVIGATION_MENU->value, SectionType::CTA_BANNER->value, SectionType::MISSION_VISION->value])) {
             $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }
 
@@ -75,7 +79,7 @@ class SectionService
 
             $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
         }
-        return $section;
+        return new SectionResponseDto($section);
     }
 
     public function updateOrder(UpdateOrderRequestDto $dto)
@@ -96,6 +100,45 @@ class SectionService
 
     }
 
+    public function delete(int $id): void
+    {
+        try {
+            $section = SectionModel::with('sectionItems')->find($id);
+            if (empty($section)) {
+                throw AppException::validationError("La sección seleccionada no existe");
+            }
+
+
+            Capsule::connection()->transaction(function () use ($section) {
+
+                //* First, delete all images associated with section items
+                foreach ($section->sectionItems as $item) {
+                    if ($item->image) {
+                        $this->fileUploader->deleteImage($item->image);
+                    }
+                }
+
+                //* Delete all section items
+                SectionItemModel::where('section_id', $section->id_section)->delete();
+
+                //* Then, delete the section image if exists
+                if ($section->image) {
+                    $this->fileUploader->deleteImage($section->image);
+                }
+
+                $section->delete();
+            });
+        } catch (Exception $e) {
+            if (get_class($e) === "AppException") {
+                throw $e;
+            }
+            throw new DBExceptionHandler($e, [
+                ["name" => "fk_section_items_section", "message" => "No se puede eliminar la sección porque está asociada a uno o más ítems de sección"],
+                ["name" => "fk_menus_section", "message" => "No se puede eliminar la sección porque está asociada a uno o más menús"]
+            ]);
+        }
+    }
+
 
     private function getImageToInsertDB($imageUrl, $fileImage)
     {
@@ -107,7 +150,7 @@ class SectionService
                 throw AppException::validationError("Image upload failed: " . $uploadResult);
             }
 
-            $currentImageUrl = $uploadResult['url'];
+            $currentImageUrl = $uploadResult['path'];
         }
 
         return $currentImageUrl;

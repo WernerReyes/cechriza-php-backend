@@ -18,11 +18,7 @@ class MenuController extends AppController
         return AppResponse::success($this->menuService->getAll());
     }
 
-    public function getById(string $id)
-    {
-        $menu = $this->menuService->findMenuById(intval($id));
-        return AppResponse::success($menu);
-    }
+    
     public function create()
     {
         $body = $this->body();
@@ -63,8 +59,7 @@ class MenuController extends AppController
 
     public function delete(string $id)
     {
-        $type = $this->queryParam('type');
-        $this->menuService->delete(intval($id), $type);
+        $this->menuService->delete(intval($id));
         return AppResponse::success(null, "Menú eliminado exitosamente");
     }
 }

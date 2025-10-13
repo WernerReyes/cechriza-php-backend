@@ -16,8 +16,9 @@ class CategoryModel extends Model
         'title',
     ];
 
-    public function scopeWhereTitleCaseSensitive($query, $title)
+    public function sectionItem()
     {
-        return $query->whereRaw('BINARY title = ?', [$title]);
+        return $this->hasMany(SectionItemModel::class, 'category_id', 'id_category');
     }
+
 }

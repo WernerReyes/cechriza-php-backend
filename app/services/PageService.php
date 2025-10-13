@@ -41,4 +41,25 @@ class PageService
             ]);
         }
     }
+
+    public function delete(int $id)
+    {
+        try {
+            $page = PageModel::find($id);
+            if (empty($page)) {
+                throw AppException::validationError("La página seleccionada no existe");
+            }
+
+            $page->delete();
+
+        } catch (Exception $e) {
+            if (get_class($e) === "AppException") {
+                throw $e;
+            }
+            throw new DBExceptionHandler($e, [
+                ["name" => "fk_links_pages", "message" => "No se puede eliminar la página porque está asociada a uno o más enlaces"],
+                ["name" => "fk_sections_pages", "message" => "No se puede eliminar la página porque está asociada a uno o más secciones"]
+            ]);
+        }
+    }
 }

@@ -32,15 +32,6 @@ class MenuService
     }
 
 
-    public function findMenuById($id)
-    {
-        $menu = MenuModel::with(['page', 'children.page'])->find($id);
-        if (empty($menu)) {
-            throw AppException::notFound("No existe un menú con el ID proporcionado");
-        }
-
-        return $menu;
-    }
 
     public function create(CreateMenuRequestDto $dto)
     {
@@ -62,6 +53,7 @@ class MenuService
             $maxOrder = null;
             if ($dto->parentId === null) {
                 $maxOrder = MenuModel::whereNull('parent_id')->max('order_num');
+                $maxOrder = $maxOrder === null ? 1 : $maxOrder + 1;
             } else {
                 $maxOrder = MenuModel::where('parent_id', $dto->parentId)->max('order_num');
                 if ($maxOrder === null) {
@@ -150,7 +142,7 @@ class MenuService
 
             MenuModel::where('id_menu', $dto->id)->update($dto->toUpdateDB());
 
-        
+
 
             if ($menu->children->count() > 0) {
                 $menu = MenuModel::find($dto->id);
@@ -176,38 +168,24 @@ class MenuService
     }
 
 
-   
 
-    public function delete(int $id, string $type): void
+
+    public function delete(int $id): void
     {
 
-        $menu = $this->findMenuById($id);
-
-        error_log('Deleting menu: ' . $type);
-
-        if ($type === MenuTypes::INTERNAL_PAGE->value) {
-
-            if (!empty($menu->page)) {
-                PageModel::where('id_pages', $menu->page->id_pages)
-                    ->update(['menu_id' => null]);
-            }
-
-        } else if ($type === MenuTypes::DROPDOWN->value) {
-
-            if (!empty($menu->children) && count($menu->children) > 0) {
-
-
-                $menu->children->each(function ($child) {
-                    if (!empty($child->page)) {
-
-                        PageModel::where('id_pages', $child->page->id_pages)
-                            ->update(['menu_id' => null]);
-                    }
-                });
-
-                MenuModel::where('parent_id', $menu->id_menu)->delete();
-            }
+        $menu = MenuModel::with(['children'])->find($id);
+        if (empty($menu)) {
+            throw AppException::notFound("No existe un menú con el ID proporcionado");
         }
+
+
+        if (!empty($menu->children) && count($menu->children) > 0) {
+            $menu->children->each(function ($child) {
+
+            });
+            MenuModel::where('parent_id', $menu->id_menu)->delete();
+        }
+
 
         $menu->delete();
 

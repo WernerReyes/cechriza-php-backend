@@ -324,10 +324,24 @@ class FileUploader {
         return $protocol . $host . "$path/public/uploads/images/$fileName";
     }
 
+    public function getUrl($imagePath) {
+        if (empty($imagePath)) return null;
+
+        // Si ya es URL completa, devolverla
+        if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
+            return $imagePath;
+        }
+
+        // Construir URL pública
+        $fileName = basename($imagePath);
+        return $this->getPublicUrl($fileName);
+    }
+
     public function deleteImage($imagePath) {
-        $fullPath = $this->uploadDir . ltrim($imagePath, '/');
+        $fullPath = $this->uploadDir . ltrim(basename($imagePath), '/');
         
         if (file_exists($fullPath)) {
+            error_log('Exist ' . $fullPath);
             return unlink(filename: $fullPath);
         }
         

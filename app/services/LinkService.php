@@ -22,7 +22,8 @@ class LinkService
     }
 
 
-    public function update(UpdateLinkRequestDto $dto) {
+    public function update(UpdateLinkRequestDto $dto)
+    {
         $link = LinkModel::find($dto->id);
         if (empty($link)) {
             throw AppException::validationError("El enlace seleccionado no existe");
@@ -40,6 +41,27 @@ class LinkService
         $link = LinkModel::with('page:id_page,title,slug')->find($link->id_link);
 
         return $link;
+    }
+
+    public function delete(int $id)
+    {
+        try {
+
+            $link = LinkModel::find($id);
+            if (empty($link)) {
+                throw AppException::validationError("El enlace seleccionado no existe");
+            }
+
+            $link->delete();
+        } catch (Exception $e) {
+            if (get_class($e) === "AppException") {
+                throw $e;
+            }
+            throw new DBExceptionHandler($e, [
+                ["name" => "fk_section_items_link", "message" => "No se puede eliminar el enlace porque está asociado a uno o más ítems de sección"],
+                ["name" => "fk_menus_link", "message" => "No se puede eliminar el enlace porque está asociado a uno o más menús"]
+            ]);
+        }
     }
 
 }

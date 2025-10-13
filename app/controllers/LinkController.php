@@ -43,4 +43,10 @@ class LinkController extends AppController
 
         return AppResponse::success($this->linkService->update($dto), "Link actualizado exitosamente");
     }
+
+    public function delete($id)
+    {
+        $this->linkService->delete(intval($id));
+        return AppResponse::success(message: "Link eliminado exitosamente");
+    }
 }

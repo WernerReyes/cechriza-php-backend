@@ -45,5 +45,12 @@ class PageController extends AppController
 
         return AppResponse::success($this->pageService->update($dto), "Página actualizada exitosamente");
     }
+    
+
+    public function delete($id)
+    {
+        $this->pageService->delete(intval($id));
+        return AppResponse::success(message: "Página eliminada exitosamente");
+    }
 }
 ?>
