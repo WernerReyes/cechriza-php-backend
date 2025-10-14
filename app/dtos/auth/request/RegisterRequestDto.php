@@ -51,7 +51,7 @@ class RegisterRequestDto
             "name"=> $this->name,
             "lastname"=> $this->lastname,
             "email"=> $this->email,
-            "password"=> password_hash($this->password, PASSWORD_DEFAULT),
+            "password"=> password_hash($this->password, PASSWORD_BCRYPT),
             "role"=> 'USER'
         ];
     }

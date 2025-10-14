@@ -4,7 +4,8 @@ require_once "app/services/AuthService.php";
 require_once "app/middlewares/AuthMiddleware.php";
 require_once "app/dtos/auth/request/RegisterRequestDto.php";
 require_once "app/dtos/auth/request/LoginRequestDto.php";
-;
+require_once "app/dtos/auth/request/UpdateUserProfileDto.php";
+require_once "app/dtos/auth/request/ChangePasswordRequestDto.php";
 class AuthController extends AppController
 {
     private AuthService $authService;
@@ -50,6 +51,28 @@ class AuthController extends AppController
     public function me()
     {
         return AppResponse::success($this->authService->me());
+    }
+
+    public function updateProfile()
+    {
+        $data = $this->formData(["profileFile"]);
+        $dto = new UpdateUserProfileDto($data);
+        $dtoValidated = $dto->validate();
+        if (is_array($dtoValidated)) {
+            throw AppException::validationError("Validation failed", $dtoValidated);
+        }
+        return AppResponse::success($this->authService->updateProfile($dtoValidated), "Perfil actualizado correctamente");
+    }
+
+    public function updatePassword()
+    {
+        $data = $this->body();
+        $dto = new ChangePasswordRequestDto($data);
+        $dtoValidated = $dto->validate();
+        if (is_array($dtoValidated)) {
+            throw AppException::validationError("Validation failed", $dtoValidated);
+        }
+        return AppResponse::success($this->authService->updatePassword($dtoValidated), "La contraseña ha sido actualizada correctamente");
     }
 }
 ?>

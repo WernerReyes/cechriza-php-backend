@@ -1,8 +1,9 @@
 <?php
+require_once "app/dtos/user/response/UserResponseDto.php";
 
 class LoginResponseDto
 {
-    public $user;
+    public UserResponseDto $user;
     public string $accessToken;
 
     public string $refreshToken;
@@ -14,7 +15,7 @@ class LoginResponseDto
         string $refreshToken
     ) {
 
-        $this->user = $user;
+        $this->user = new UserResponseDto($user);
         $this->accessToken = $accessToken;
         $this->refreshToken = $refreshToken;
 

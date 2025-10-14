@@ -79,6 +79,7 @@ class UserModel extends Model
       'lastname',
       'email',
       'password',
+      'profile',
       'role'
    ];
 }

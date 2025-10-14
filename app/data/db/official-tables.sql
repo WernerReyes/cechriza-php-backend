@@ -19,6 +19,8 @@ CREATE TABLE users (
     email VARCHAR(45) NOT NULL,
     password VARCHAR(150) NOT NULL,
     role ENUM('USER') NOT NULL DEFAULT 'USER',
+    profile VARCHAR(255) DEFAULT NULL,
+    -- TODO: Add profile picture URL
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id_user)
@@ -179,6 +181,13 @@ CREATE TABLE sections (
         'OUR_COMPANY',
         'CONTACT_TOP_BAR',
         'MAIN_NAVIGATION_MENU',
+
+        -- TODO: Add these fields later
+        'CTA_BANNER',
+        'SOLUTIONS_OVERVIEW',
+        'MISSION_VISION',
+        -- TODO
+        
         'BENEFIT',
         'MACHINE_TYPE',
         'BILL_MACHINE',
@@ -361,7 +370,6 @@ VALUES (
         3,
         1
     );
-
 -- ==========================================
 -- Tabla de section_menus
 -- ==========================================
@@ -371,9 +379,7 @@ CREATE TABLE section_menus (
     PRIMARY KEY (id_section, id_menu),
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- CONSULTA FINAL
 -- ==========================================

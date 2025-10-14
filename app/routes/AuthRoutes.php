@@ -15,6 +15,8 @@ class AuthRoutes
         $router->post(self::$prefix ."/relogin", "AuthController@relogin");
         $router->post(self::$prefix . "/logout", "AuthController@logout", ["auth"]);
         $router->get(self::$prefix . "/me", "AuthController@me", ["auth"]);
+        $router->post(self::$prefix . "/update-profile", "AuthController@updateProfile", ["auth"]);
+        $router->put(self::$prefix . "/update-password", "AuthController@updatePassword", ["auth"]);
     }
 }
 ?>
