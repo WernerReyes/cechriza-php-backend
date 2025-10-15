@@ -37,6 +37,13 @@ use Illuminate\Database\Eloquent\Model;
 
 // }
 
+enum InputType: string
+{
+    case TEXT = 'TEXT';
+    case EMAIL = 'EMAIL';
+    case TEXTAREA = 'TEXTAREA';
+}
+
 class SectionItemModel extends Model
 {
     public $table = "section_items";
@@ -54,6 +61,7 @@ class SectionItemModel extends Model
         "text_button",
         "section_id",
         "category_id",
+        "input_type",
         "icon",
         "link_id"
     ];

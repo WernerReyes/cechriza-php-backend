@@ -39,6 +39,8 @@ class UpdateSectionItemRequestDto
 
     public $categoryId;
 
+    public $inputType;
+
 
     public function __construct($data, $id)
     {
@@ -59,6 +61,7 @@ class UpdateSectionItemRequestDto
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->categoryId = $data['categoryId'] ?? null;
+        $this->inputType = $data['inputType'] ?? null;
     }
 
     public function validate()
@@ -122,6 +125,9 @@ class UpdateSectionItemRequestDto
             ->integer("categoryId")
             ->min("categoryId", 1)
             ->optional("categoryId")
+
+            ->enum("inputType", InputType::class)
+            ->optional("inputType")
             ;
 
         if ($validation->fails()) {
@@ -145,6 +151,7 @@ class UpdateSectionItemRequestDto
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,
+            "input_type" => $this->inputType,
         ];
     }
 

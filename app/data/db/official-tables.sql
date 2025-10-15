@@ -186,6 +186,7 @@ CREATE TABLE sections (
         'CTA_BANNER',
         'SOLUTIONS_OVERVIEW',
         'MISSION_VISION',
+        'CONTACT_US',
         -- TODO
         
         'BENEFIT',
@@ -278,6 +279,11 @@ CREATE TABLE section_items (
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
     order_num INT,
+
+    -- TODO: Add these fields later
+    input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
+    -- TODO --
+
     section_id INT NOT NULL,
     category_id INT DEFAULT NULL,
     CONSTRAINT fk_section_items_sections FOREIGN KEY (section_id) REFERENCES sections(id_section),

@@ -30,6 +30,8 @@ class CreateSectionItemRequestDto
 
     public $fileIconUrl;
 
+    public $inputType;
+
     public $categoryId;
 
 
@@ -49,6 +51,7 @@ class CreateSectionItemRequestDto
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->categoryId = $data['categoryId'] ?? null;
+        $this->inputType = $data['inputType'] ?? null;
     }
 
     public function validate()
@@ -103,6 +106,9 @@ class CreateSectionItemRequestDto
             ->integer("categoryId")
             ->min("categoryId", 1)
             ->optional("categoryId")
+
+            ->enum("inputType", InputType::class)
+            ->optional("inputType")
             ;
 
 
@@ -116,6 +122,7 @@ class CreateSectionItemRequestDto
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
+                $this->inputType = null;
                 break;
 
             case SectionType::WHY_US->value:
@@ -127,6 +134,7 @@ class CreateSectionItemRequestDto
                 $this->linkId = null;
                 $this->linkTexted = null;
                 $this->categoryId = null;
+                 $this->inputType = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
@@ -137,6 +145,7 @@ class CreateSectionItemRequestDto
                 $this->fileImage = null;
                 $this->imageUrl = null;
                 $this->categoryId = null;
+                 $this->inputType = null;
                 break;
 
             case SectionType::VALUE_PROPOSITION->value:
@@ -149,6 +158,7 @@ class CreateSectionItemRequestDto
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
+                 $this->inputType = null;
                 break;
 
             case SectionType::CLIENT->value:
@@ -162,6 +172,7 @@ class CreateSectionItemRequestDto
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
+                 $this->inputType = null;
                 break;
 
             case SectionType::CONTACT_TOP_BAR->value:
@@ -174,9 +185,8 @@ class CreateSectionItemRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->categoryId = null;
+                 $this->inputType = null;
                 break;
-
-
         }
 
         if ($validation->fails()) {
@@ -200,6 +210,7 @@ class CreateSectionItemRequestDto
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,
+            "input_type" => $this->inputType,
         ];
     }
 

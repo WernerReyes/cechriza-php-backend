@@ -17,6 +17,8 @@ enum SectionType: string
     case CTA_BANNER = 'CTA_BANNER';
     case SOLUTIONS_OVERVIEW = 'SOLUTIONS_OVERVIEW';
     case MISSION_VISION = 'MISSION_VISION';
+    case CONTACT_US = 'CONTACT_US';
+    case FOOTER = 'FOOTER';
 
 
     case BENEFITS = 'BENEFITS';

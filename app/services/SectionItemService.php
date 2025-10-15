@@ -110,14 +110,14 @@ class SectionItemService
     private function getImageToUpdateDB($imageDB, $currentImageUrl, $newImageUrl, $fileImage)
     {
 
-        if ($imageDB) {
-            $this->fileUploader->deleteImage($imageDB);
-        }
-
         if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
             return null;
         } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
             return $currentImageUrl;
+        }
+
+        if ($fileImage && $imageDB) {
+            $this->fileUploader->deleteImage($imageDB);
         }
 
         return $this->getImageToInsertDB($newImageUrl, $fileImage);

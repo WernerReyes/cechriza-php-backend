@@ -38,13 +38,15 @@ class SectionService
 
             $imageUrl = null;
 
-            if (in_array($dto->type, [SectionType::OUR_COMPANY->value, SectionType::MAIN_NAVIGATION_MENU->value, SectionType::CTA_BANNER->value, SectionType::MISSION_VISION->value])) {
+            if (
+                $this->allowSectionTypeToUpsertImages($dto->type)
+            ) {
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             }
 
             $section = SectionModel::create(array_merge($dto->toInsertDB($imageUrl), ["order_num" => $maxOrder + 1]));
 
-            if ($dto->type === SectionType::MAIN_NAVIGATION_MENU->value && !empty($dto->menusIds)) {
+            if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
                 $section->menus()->attach($dto->menusIds);
 
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
@@ -64,8 +66,8 @@ class SectionService
         }
 
         $imageUrl = null;
-    
-        if (in_array($dto->type, [SectionType::OUR_COMPANY->value, SectionType::MAIN_NAVIGATION_MENU->value, SectionType::CTA_BANNER->value, SectionType::MISSION_VISION->value])) {
+
+        if ($this->allowSectionTypeToUpsertImages($dto->type)) {
             $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }
 
@@ -74,12 +76,24 @@ class SectionService
 
         $section->update($dto->toUpdateDB($imageUrl));
 
-        if ($dto->type === SectionType::MAIN_NAVIGATION_MENU->value && !empty($dto->menusIds)) {
+        if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
             $section->menus()->sync($dto->menusIds);
 
             $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
         }
         return new SectionResponseDto($section);
+    }
+
+    private function allowSectionTypeToUpsertImages(string $type)
+    {
+        return in_array($type, [
+            SectionType::OUR_COMPANY->value,
+            SectionType::MAIN_NAVIGATION_MENU->value,
+            SectionType::CTA_BANNER->value,
+            SectionType::MISSION_VISION->value,
+            SectionType::CONTACT_US->value,
+            SectionType::FOOTER->value,
+        ]);
     }
 
     public function updateOrder(UpdateOrderRequestDto $dto)
