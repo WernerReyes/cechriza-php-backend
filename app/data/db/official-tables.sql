@@ -1,4 +1,4 @@
-use cechriza_web_v2;
+use cechriza_web;
 -- ==========================================
 -- LIMPIEZA DE TABLAS EXISTENTES (orden inverso)
 -- ==========================================
@@ -139,35 +139,25 @@ VALUES ('Kisan NEWTON 30', 1, 1, 3, 3),
 -- ==========================================
 CREATE TABLE categories (
     id_category INT AUTO_INCREMENT PRIMARY KEY,
-    title VARCHAR(100) NOT NULL -- TODO: Put it UNIQUE,
-    -- TODO: Delete these fields
-    slug VARCHAR(100) NOT NULL UNIQUE,
-    description TEXT,
-    -- TODO --
+    title VARCHAR(100) NOT NULL UNIQUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
-INSERT INTO categories (title, slug, description)
+
+INSERT INTO categories (title)
 VALUES (
-        'Clasificadoras de Billetes',
-        'clasificadoras',
-        'Máquinas para clasificar billetes por denominación y estado.'
+        'Clasificadoras de Billetes'
     ),
     (
-        'Contadoras de Billetes',
-        'contadoras',
-        'Dispositivos para conteo rápido de billetes.'
+        'Contadoras de Billetes'
     ),
     (
-        'Sistemas de Depósito de Billetes',
-        'deposito',
-        'Soluciones para depositar billetes de forma segura.'
+        'Sistemas de Depósito de Billetes'
     ),
     (
-        'Recicladoras de Billetes',
-        'recicladoras',
-        'Equipos que permiten reutilizar billetes en circulación.'
+        'Recicladoras de Billetes'
     );
+
 -- ==========================================
 -- Tabla de Secciones
 -- ==========================================

@@ -45,7 +45,7 @@ class CreateSectionRequestDto
         $validation
             ->required("title")
             ->minLength("title", 2)
-            ->maxLength("title", 100)
+            ->maxLength("title", 200)
 
             ->required("type")
             ->enum("type", SectionType::class)

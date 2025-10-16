@@ -129,7 +129,7 @@ class SectionItemService
     {
         $sectionItem = SectionItemModel::find($id);
         if (empty($sectionItem)) {
-            throw AppException::validationError("El item de sección seleccionado no existe");
+            throw AppException::badRequest("El item de sección seleccionado no existe");
         }
 
         return $sectionItem;
