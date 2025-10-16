@@ -3,6 +3,8 @@
 require_once 'vendor/autoload.php';
 require_once 'app/controllers/OS_TICKET.php';
 
+
+
 //* Load environment variables
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__);
 $dotenv->load();

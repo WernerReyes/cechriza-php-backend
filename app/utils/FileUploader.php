@@ -16,6 +16,7 @@ class FileUploader {
             'image/gif',
             'image/webp',
             'image/svg+xml',
+            'text/html'
         ];
     }
 
@@ -203,8 +204,14 @@ class FileUploader {
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
 
+        error_log('viendo: '. $mimeType .''. $file['name']);
+
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
             return 'Tipo de archivo no válido';
+        }
+
+        if ($mimeType === 'text/html') {
+            return true;
         }
 
         // Verificar que sea una imagen real

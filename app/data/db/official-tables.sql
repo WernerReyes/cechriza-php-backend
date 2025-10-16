@@ -195,8 +195,8 @@ CREATE TABLE sections (
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
     active TINYINT DEFAULT 1,
-    page_id INT NOT NULL,
-    CONSTRAINT fk_sections_pages FOREIGN KEY (page_id) REFERENCES pages(id_page),
+    page_id INT NOT NULL, -- TODO: Remove this field later
+    CONSTRAINT fk_sections_pages FOREIGN KEY (page_id) REFERENCES pages(id_page), -- TODO: Remove this constraint later
     CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- HERO en Procesamiento de Billetes
@@ -207,7 +207,7 @@ INSERT INTO sections (
         subtitle,
         description,
         text_button,
-        page_id,
+        -- page_id,
         link_id
     )
 VALUES (
@@ -217,7 +217,7 @@ VALUES (
         'Soluciones Profesionales',
         'Ofrecemos máquinas de clasificación, conteo y reciclaje de billetes.',
         'Ver productos',
-        1,
+        -- 1,
         NULL
     );
 -- Sección de categorías
@@ -227,7 +227,7 @@ VALUES (
         'MACHINE_TYPE',
         'Categorías de Productos',
         'Filtra por categoría',
-        1
+        -- 1
     );
 -- Sección de productos
 INSERT INTO sections (order_num, type, title, subtitle, page_id)
@@ -236,7 +236,7 @@ VALUES (
         'BILL_MACHINE',
         'Nuestros Productos',
         'Clasificadoras y contadoras disponibles',
-        1
+        -- 1
     );
 -- Contacto
 INSERT INTO sections (
@@ -253,7 +253,7 @@ VALUES (
         'Contáctanos',
         'Estamos aquí para ayudarte',
         'Rellena el formulario y nos pondremos en contacto contigo.',
-        6
+        -- 6
     );
 -- ==========================================
 -- Tabla de Section Items
@@ -376,6 +376,24 @@ CREATE TABLE section_menus (
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
+
+
+
+-- TODO: Create this table later if needed
+-- ==========================================
+-- Tabla de page_sections
+-- ==========================================
+CREATE TABLE page_sections (
+    id_page INT NOT NULL,
+    id_section INT NOT NULL,
+    order_num INT DEFAULT 1,
+    active TINYINT DEFAULT 1,
+    PRIMARY KEY (id_page, id_section),
+    FOREIGN KEY (id_page) REFERENCES pages(id_page) ON DELETE CASCADE,
+    FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 -- ==========================================
 -- CONSULTA FINAL
 -- ==========================================

@@ -232,11 +232,10 @@ class ValidationEngine
         return $this;
     }
 
-    public function files($field, $allowExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'], $message = null)
+    public function files($field, $allowExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'], $message = null)
     {
         $fileUploader = new FileUploader();
 
-        error_log("Validating file for field: $field with data: " . json_encode($this->data[$field] ?? null));
 
         $validation = $fileUploader->validateFile($this->data[$field] ?? null, $allowExtensions);
         if (is_string($validation)) {

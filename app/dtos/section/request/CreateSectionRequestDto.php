@@ -111,7 +111,7 @@ class CreateSectionRequestDto
             case SectionType::CLIENT->value:
                 $this->textButton = null;
                 $this->linkId = null;
-                $this->description = null;
+                $this->subtitle = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->menusIds = null;
