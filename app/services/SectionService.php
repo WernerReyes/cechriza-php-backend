@@ -19,6 +19,7 @@ class SectionService
         $sections = SectionModel::with([
             'sectionItems',
             'link:id_link,type',
+            'sectionItems.link:id_link,type',   
             'menus' => function ($query) {
                 $query->orderBy('menu.order_num', 'asc')
                     ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');

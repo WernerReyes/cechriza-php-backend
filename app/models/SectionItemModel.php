@@ -65,6 +65,11 @@ class SectionItemModel extends Model
         "icon",
         "link_id"
     ];
+
+    public function link()
+    {
+        return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
+    }
 }
 
 ?>

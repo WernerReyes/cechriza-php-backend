@@ -7,6 +7,7 @@ enum LinkType: string
 {
     case PAGE = 'PAGE';
     case EXTERNAL = 'EXTERNAL';
+    case FILE = 'FILE';
 }
 
 class LinkModel extends Model
@@ -21,6 +22,7 @@ class LinkModel extends Model
         'id_link',
         'title',
         'url',
+        'file_path',
         'type',
         'page_id',
         'new_tab',

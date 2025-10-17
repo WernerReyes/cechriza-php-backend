@@ -15,14 +15,19 @@ class UpdateLinkRequestDto
 
     public $url;
 
-    public function __construct($data)
+    public $file;
+
+    
+
+    public function __construct($data, $id)
     {
-        $this->id = $data['id'] ?? 0;
+        $this->id = $id;
         $this->title = $data['title'] ?? null;
         $this->type = $data['type'] ?? null;
         $this->pageId = $data['pageId'] ?? null;
         $this->openInNewTab = $data['openInNewTab'] ?? null;
         $this->url = $data['url'] ?? null;
+        $this->file = $data['file'] ?? null;
     }
 
     public function validate()
@@ -49,12 +54,19 @@ class UpdateLinkRequestDto
                 ->min("pageId", 1)
                 ->required("pageId");
             $this->url = null;
+            $this->file = null;
         } else if (!empty($this->type) && $this->type === LinkType::EXTERNAL->value) {
             $validation
                 ->minLength("url", 10)
                 ->pattern("url", PatternsConst::$URL)
                 ->required("url");
             $this->pageId = null;
+            $this->file = null;
+        } else if (!empty($this->type) && $this->type === LinkType::FILE->value) {
+            $validation
+                ->files("file", ['pdf']);
+            $this->pageId = null;
+            $this->url = null;
         }
 
         if ($validation->fails()) {
@@ -64,28 +76,17 @@ class UpdateLinkRequestDto
         return $this;
     }
 
-    public function toUpdateDB(): array
+    public function toUpdateDB($fileUrl = null): array
     {
-        $data = array_filter(
-            array_merge(
-                $this->title !== null ? ["title" => $this->title] : [],
-                $this->type !== null ? ["type" => $this->type] : [],
-                $this->openInNewTab !== null ? ["new_tab" => $this->openInNewTab] : [],
-            ),
-            function ($value) {
-                return $value !== null;
-            }
-        );
 
-
-
-        return array_merge(
-            $data,
-            [
-                "page_id" => $this->pageId !== null ? intval($this->pageId) : null,
-                "url" => $this->url
-            ]
-        );
+        return [
+            "title" => $this->title,
+            "type" => $this->type,
+            "file_path" => $fileUrl,
+            "page_id" => $this->pageId !== null ? intval($this->pageId) : null,
+            "new_tab" => $this->openInNewTab,
+            "url" => $this->url,
+        ];
 
     }
 

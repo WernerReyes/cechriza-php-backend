@@ -14,6 +14,10 @@ class CreateLinkRequestDto
 
     public $url;
 
+    public $file;
+
+
+
     public function __construct($data)
     {
 
@@ -22,6 +26,7 @@ class CreateLinkRequestDto
         $this->pageId = $data['pageId'] ?? null;
         $this->openInNewTab = $data['openInNewTab'] ?? false;
         $this->url = $data['url'] ?? null;
+        $this->file = $data['file'] ?? null;
     }
 
     public function validate()
@@ -49,20 +54,36 @@ class CreateLinkRequestDto
             $this->pageId = null;
         }
 
+        if ($this->type === LinkType::FILE->value) {
+            $validation->required("file")
+                ->files("file", ['pdf']);
+            $this->pageId = null;
+            $this->url = null;
+        } else if ($this->type === LinkType::PAGE->value) {
+            $this->file = null;
+            $this->url = null;
+
+        } else if ($this->type === LinkType::EXTERNAL->value) {
+            $this->file = null;
+            $this->pageId = null;
+        }
+
         if ($validation->fails()) {
             return $validation->getErrors();
         }
 
         return $this;
+
     }
 
-    public function toInsertDB(): array
+    public function toInsertDB($filePath = null): array
     {
         return [
             "title" => $this->title,
             "type" => $this->type,
             "page_id" => $this->pageId ? intval($this->pageId) : null,
             "new_tab" => $this->openInNewTab,
+            "file_path" => $filePath,
             "url" => $this->url,
         ];
     }

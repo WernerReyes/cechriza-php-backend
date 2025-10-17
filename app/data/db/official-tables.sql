@@ -88,8 +88,9 @@ VALUES (
 -- ==========================================
 CREATE TABLE links (
     id_link INT AUTO_INCREMENT PRIMARY KEY,
-    type ENUM('PAGE', 'EXTERNAL') NOT NULL,
+    type ENUM('PAGE', 'EXTERNAL', 'FILE') NOT NULL, -- TODO: Add "FILE" later
     url VARCHAR(255) DEFAULT NULL,
+    file_path VARCHAR(255) DEFAULT NULL, -- TODO: Add this field later
     page_id INT DEFAULT NULL,
     title VARCHAR(100) NOT NULL,
     new_tab TINYINT DEFAULT 0,

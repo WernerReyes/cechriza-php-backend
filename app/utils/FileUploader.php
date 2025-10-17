@@ -1,26 +1,34 @@
 <?php
-class FileUploader {
+class FileUploader
+{
     private $uploadDir;
     private $allowedExtensions;
     private $maxFileSize;
     private $allowedMimeTypes;
 
-    public function __construct() {
-        $this->uploadDir = __DIR__ . '/../../public/uploads/images/';
+    public function __construct()
+    {
+        // $this->uploadDir = __DIR__ . '/../../public/uploads/images/';
         $this->allowedExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'];
         $this->maxFileSize = 5 * 1024 * 1024; // 5MB
         $this->allowedMimeTypes = [
             'image/jpeg',
-            'image/jpg', 
+            'image/jpg',
             'image/png',
             'image/gif',
             'image/webp',
             'image/svg+xml',
-            'text/html'
+            'text/html',
+            'application/pdf',
         ];
     }
 
-    public function uploadImage($file, $customName = null) {
+    private function uploadDir(string $folder) {
+        return __DIR__ . '/../../public/uploads/' . $folder . '/';
+    }
+
+    public function uploadImage($file, $customName = null)
+    {
         try {
             // // Validar archivo
             // $validation = $this->validateFile($file);
@@ -29,7 +37,7 @@ class FileUploader {
             // }
 
             // Crear directorio si no existe
-            $targetDir = $this->uploadDir;
+            $targetDir = $this->uploadDir('images');
             if (!is_dir($targetDir)) {
                 mkdir($targetDir, 0755, true);
             }
@@ -71,7 +79,49 @@ class FileUploader {
     }
 
 
-     /**
+    public function uploadFile($file, $customName = null)
+    {
+        try {
+            // Validar archivo
+            $validation = $this->validateFile($file, ['pdf', 'doc', 'docx', 'xls', 'xlsx', 'ppt', 'pptx', 'txt']);
+            if ($validation !== true) {
+                throw new Exception($validation);
+            }
+
+            // Crear directorio si no existe
+            $targetDir = $this->uploadDir('files');
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            // Generar nombre único
+            $fileName = $this->generateFileName($file, $customName);
+            $targetPath = $targetDir . $fileName;
+
+            // Mover archivo
+            if (!move_uploaded_file($file['tmp_name'], to: $targetPath)) {
+                throw new Exception('Error al mover el archivo');
+            }
+
+            return [
+                'success' => true,
+                'filename' => $fileName,
+                'path' => "/uploads/files/$fileName",
+                'full_path' => $targetPath,
+                'size' => filesize($targetPath),
+                'url' => $this->getPublicUrl($fileName)
+            ];
+
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+
+    /**
      * Limpia un archivo SVG para evitar código malicioso.
      */
     private function sanitizeSvg(string $filePath): void
@@ -89,100 +139,17 @@ class FileUploader {
     }
 
 
-     public function updateImage($file, $oldImagePath) {
-        try {
-            $customName = null;
-            
-            // Si quiere mantener el nombre original, extraerlo
-            if ($oldImagePath) {
-                $pathInfo = pathinfo($oldImagePath);
-                $customName = pathinfo($pathInfo['filename'], PATHINFO_FILENAME);
-                
-                // Remover timestamp si existe
-                $customName = preg_replace('/_\d{4}-\d{2}-\d{2}_\d{2}-\d{2}-\d{2}_[a-f0-9]{8}$/', '', $customName);
-            }
-
-            return $this->replaceImage($file, $oldImagePath, $customName);
-
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
-
-    public function replaceImage($file, $oldImagePath, $customName = null) {
-        try {
-            // 1. Subir nueva imagen
-            $uploadResult = $this->uploadImage($file, $customName);
-            
-            if (!$uploadResult['success']) {
-                return $uploadResult;
-            }
-
-            // 2. Eliminar imagen anterior (solo si la subida fue exitosa)
-            if ($oldImagePath) {
-                $this->deleteImage($oldImagePath);
-                
-                // También eliminar thumbnail si existe
-                $this->deleteThumbnail($oldImagePath);
-            }
-
-            return $uploadResult;
-
-        } catch (Exception $e) {
-            return [
-                'success' => false,
-                'error' => $e->getMessage()
-            ];
-        }
-    }
+    
 
 
-    /**
-     * ✅ Eliminar thumbnail
-     */
-    private function deleteThumbnail($imagePath) {
-        if (empty($imagePath)) return false;
+    
 
-        $fullPath = $this->buildFullPath($imagePath);
-        $pathInfo = pathinfo($fullPath);
-        $thumbnailPath = $pathInfo['dirname'] . '/thumb_' . $pathInfo['basename'];
-        
-        if (file_exists($thumbnailPath)) {
-            $deleted = unlink($thumbnailPath);
-            error_log("Deleted thumbnail: $thumbnailPath - " . ($deleted ? 'SUCCESS' : 'FAILED'));
-            return $deleted;
-        }
-        
-        return false;
-    }
-
-
-    /**
-     * ✅ Construir ruta completa desde path relativo
-     */
-    private function buildFullPath($imagePath) {
-        // Si ya es ruta completa, devolverla
-        if (strpos($imagePath, $this->uploadDir) === 0) {
-            return $imagePath;
-        }
-
-        // Si empieza con /uploads/images/, remover para evitar duplicación
-        $relativePath = ltrim($imagePath, '/');
-        if (strpos($relativePath, 'uploads/images/') === 0) {
-            $relativePath = substr($relativePath, strlen('uploads/images/'));
-        }
-
-        return $this->uploadDir . $relativePath;
-    }
-
-    public function validateFile($file, $allowExtensions = []) {
+    public function validateFile($file, $allowExtensions = [])
+    {
         if (empty(($file))) {
             return 'No se subió ningún archivo';
         }
-        
+
         // Verificar errores de PHP
         if ($file['error'] !== UPLOAD_ERR_OK) {
             return $this->getUploadError($file['error']);
@@ -204,13 +171,13 @@ class FileUploader {
         $mimeType = finfo_file($finfo, $file['tmp_name']);
         finfo_close($finfo);
 
-        error_log('viendo: '. $mimeType .''. $file['name']);
+        error_log('viendo: ' . $mimeType . '' . $file['name']);
 
         if (!in_array($mimeType, $this->allowedMimeTypes)) {
             return 'Tipo de archivo no válido';
         }
 
-        if ($mimeType === 'text/html') {
+        if ($mimeType === 'text/html' || $mimeType === 'application/pdf') {
             return true;
         }
 
@@ -222,9 +189,10 @@ class FileUploader {
         return true;
     }
 
-    private function generateFileName($file, $customName = null) {
+    private function generateFileName($file, $customName = null)
+    {
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
-        
+
         if ($customName) {
             // Limpiar nombre personalizado
             $customName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $customName);
@@ -236,9 +204,11 @@ class FileUploader {
         return date('Y-m-d_H-i-s') . '_' . $hash . '.' . $extension;
     }
 
-    private function optimizeImage($imagePath) {
+    private function optimizeImage($imagePath)
+    {
         $imageInfo = getimagesize($imagePath);
-        if (!$imageInfo) return false;
+        if (!$imageInfo)
+            return false;
 
         $mime = $imageInfo['mime'];
         $maxWidth = 1200;
@@ -262,7 +232,8 @@ class FileUploader {
                 return false;
         }
 
-        if (!$image) return false;
+        if (!$image)
+            return false;
 
         $width = imagesx($image);
         $height = imagesy($image);
@@ -270,11 +241,11 @@ class FileUploader {
         // Redimensionar si es necesario
         if ($width > $maxWidth || $height > $maxHeight) {
             $ratio = min($maxWidth / $width, $maxHeight / $height);
-            $newWidth = (int)($width * $ratio);
-            $newHeight = (int)($height * $ratio);
+            $newWidth = (int) ($width * $ratio);
+            $newHeight = (int) ($height * $ratio);
 
             $resized = imagecreatetruecolor($newWidth, $newHeight);
-            
+
             // Mantener transparencia para PNG
             if ($mime === 'image/png') {
                 imagealphablending($resized, false);
@@ -282,7 +253,7 @@ class FileUploader {
             }
 
             imagecopyresampled($resized, $image, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
-            
+
             // Guardar imagen optimizada
             switch ($mime) {
                 case 'image/jpeg':
@@ -303,7 +274,8 @@ class FileUploader {
         return true;
     }
 
-    private function getUploadError($errorCode) {
+    private function getUploadError($errorCode)
+    {
         switch ($errorCode) {
             case UPLOAD_ERR_INI_SIZE:
                 return 'El archivo excede el tamaño máximo permitido por PHP';
@@ -324,15 +296,18 @@ class FileUploader {
         }
     }
 
-    private function getPublicUrl($fileName) {
+    private function getPublicUrl($fileName, $folder = 'images')
+    {
         $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') ? 'https://' : 'http://';
         $host = $_SERVER['HTTP_HOST'];
         $path = $_ENV['BASE_PATH'] ?? '';
-        return $protocol . $host . "$path/public/uploads/images/$fileName";
+        return $protocol . $host . "$path/public/uploads/$folder/$fileName";
     }
 
-    public function getUrl($imagePath) {
-        if (empty($imagePath)) return null;
+    public function getUrl($imagePath, $folder = 'images')
+    {
+        if (empty($imagePath))
+            return null;
 
         // Si ya es URL completa, devolverla
         if (filter_var($imagePath, FILTER_VALIDATE_URL)) {
@@ -341,30 +316,43 @@ class FileUploader {
 
         // Construir URL pública
         $fileName = basename($imagePath);
-        return $this->getPublicUrl($fileName);
+        return $this->getPublicUrl($fileName, $folder);
     }
 
-    public function deleteImage($imagePath) {
-        $fullPath = $this->uploadDir . ltrim(basename($imagePath), '/');
-        
+    public function deleteImage($imagePath)
+    {
+        $fullPath = $this->uploadDir('images') . ltrim(basename($imagePath), '/');
+
         if (file_exists($fullPath)) {
-            error_log('Exist ' . $fullPath);
             return unlink(filename: $fullPath);
         }
-        
+
+        return false;
+    }
+
+    public function deleteFile($filePath)
+    {
+        $fullPath = $this->uploadDir('files') . ltrim(basename($filePath), '/');
+
+        if (file_exists($fullPath)) {
+            return unlink(filename: $fullPath);
+        }
+
         return false;
     }
 
     // Generar thumbnail
-    public function createThumbnail($imagePath, $width = 300, $height = 300) {
+    public function createThumbnail($imagePath, $width = 300, $height = 300)
+    {
         $pathInfo = pathinfo($imagePath);
         $thumbnailPath = $pathInfo['dirname'] . '/thumb_' . $pathInfo['basename'];
-        
+
         $imageInfo = getimagesize($imagePath);
-        if (!$imageInfo) return false;
-        
+        if (!$imageInfo)
+            return false;
+
         $mime = $imageInfo['mime'];
-        
+
         // Cargar imagen original
         switch ($mime) {
             case 'image/jpeg':
@@ -379,21 +367,21 @@ class FileUploader {
             default:
                 return false;
         }
-        
+
         $originalWidth = imagesx($source);
         $originalHeight = imagesy($source);
-        
+
         // Crear thumbnail
         $thumbnail = imagecreatetruecolor($width, $height);
-        
+
         // Mantener transparencia para PNG
         if ($mime === 'image/png') {
             imagealphablending($thumbnail, false);
             imagesavealpha($thumbnail, true);
         }
-        
+
         imagecopyresampled($thumbnail, $source, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
-        
+
         // Guardar thumbnail
         switch ($mime) {
             case 'image/jpeg':
@@ -406,10 +394,10 @@ class FileUploader {
                 imagewebp($thumbnail, $thumbnailPath, 85);
                 break;
         }
-        
+
         imagedestroy($source);
         imagedestroy($thumbnail);
-        
+
         return $thumbnailPath;
     }
 }

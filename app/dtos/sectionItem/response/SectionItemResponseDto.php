@@ -15,6 +15,8 @@ class SectionItemResponseDto
     public int $section_id;
     public ?int $category_id;
 
+    public $link;
+
     public  $input_type;
 
     public function __construct($data)
@@ -33,5 +35,6 @@ class SectionItemResponseDto
         $this->section_id = isset($data->section_id) ? $data->section_id : null;
         $this->category_id = isset($data->category_id) ? $data->category_id : null;
         $this->input_type = $data->input_type ?? null;
+        $this->link = isset($data->link) ? $data->link : null;
     }
 }

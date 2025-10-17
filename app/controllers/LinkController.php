@@ -22,7 +22,8 @@ class LinkController extends AppController
 
     public function create()
     {
-        $body = $this->body();
+        $body = $this->formData(['file']);
+        error_log('body: ' . json_encode($body));
         $dto = new CreateLinkRequestDto($body);
         $dto = $dto->validate();
         if (is_array($dto)) {
@@ -34,8 +35,8 @@ class LinkController extends AppController
 
     public function update($id)
     {
-        $body = $this->body();
-        $dto = new UpdateLinkRequestDto(array_merge($body, ["id" => $id]));
+        $body = $this->formData(['file']);
+        $dto = new UpdateLinkRequestDto($body, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {
             throw AppException::validationError("Validation failed", $dto);
