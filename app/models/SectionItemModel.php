@@ -70,6 +70,8 @@ class SectionItemModel extends Model
     {
         return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
     }
+
+  
 }
 
 ?>

@@ -20,7 +20,6 @@ CREATE TABLE users (
     password VARCHAR(150) NOT NULL,
     role ENUM('USER') NOT NULL DEFAULT 'USER',
     profile VARCHAR(255) DEFAULT NULL,
-    -- TODO: Add profile picture URL
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id_user)
@@ -88,9 +87,9 @@ VALUES (
 -- ==========================================
 CREATE TABLE links (
     id_link INT AUTO_INCREMENT PRIMARY KEY,
-    type ENUM('PAGE', 'EXTERNAL', 'FILE') NOT NULL, -- TODO: Add "FILE" later
+    type ENUM('PAGE', 'EXTERNAL', 'FILE') NOT NULL,
     url VARCHAR(255) DEFAULT NULL,
-    file_path VARCHAR(255) DEFAULT NULL, -- TODO: Add this field later
+    file_path VARCHAR(255) DEFAULT NULL,
     page_id INT DEFAULT NULL,
     title VARCHAR(100) NOT NULL,
     new_tab TINYINT DEFAULT 0,
@@ -172,22 +171,13 @@ CREATE TABLE sections (
         'OUR_COMPANY',
         'CONTACT_TOP_BAR',
         'MAIN_NAVIGATION_MENU',
-
-        -- TODO: Add these fields later
         'CTA_BANNER',
         'SOLUTIONS_OVERVIEW',
         'MISSION_VISION',
         'CONTACT_US',
-        -- TODO
-        
-        'BENEFIT',
-        'MACHINE_TYPE',
-        'BILL_MACHINE',
-        'VALUE_PROPOSITION',
-        'COIN_MACHINE',
         'CLIENT',
-        'CONTACT',
-        'FOOTER'
+        'FOOTER',
+        'VALUE_PROPOSITION',
     ) NOT NULL,
     image VARCHAR(245),
     title VARCHAR(200),
@@ -271,9 +261,9 @@ CREATE TABLE section_items (
     link_id INT DEFAULT NULL,
     order_num INT,
 
-    -- TODO: Add these fields later
+    
     input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
-    -- TODO --
+   
 
     section_id INT NOT NULL,
     category_id INT DEFAULT NULL,

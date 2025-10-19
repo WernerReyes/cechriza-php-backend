@@ -63,6 +63,12 @@ class PageModel extends Model
         // return $this->hasOne(PageModel::class, 'menu_id', 'id_pages');
         return $this->belongsTo(MenuModel::class, 'menu_id', 'id_menu');
     }
+
+   
+
+    public function sections() {
+        return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section')->orderBy('order_num', 'asc');
+    }
 }
 
 ?>

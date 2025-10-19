@@ -1,6 +1,7 @@
 <?php
 require_once "app/utils/ValidationEngine.php";
 require_once "app/models/SectionModel.php";
+
 class CreateSectionRequestDto
 {
     public $title;
@@ -24,11 +25,13 @@ class CreateSectionRequestDto
 
     public $menusIds;
 
+    public $mode; //* CUSTOM | LAYOUT
+
     public function __construct($data)
     {
         $this->title = $data["title"] ?? '';
         $this->type = $data["type"] ?? '';
-        $this->pageId = $data["pageId"] ?? 0;
+        $this->pageId = $data["pageId"] ?? null;
         $this->active = $data["active"] ? boolval($data["active"]) : true;
         $this->subtitle = $data["subtitle"] ?? null;
         $this->description = $data["description"] ?? null;
@@ -37,6 +40,7 @@ class CreateSectionRequestDto
         $this->fileImage = $data["fileImage"] ?? null;
         $this->imageUrl = $data["imageUrl"] ?? null;
         $this->menusIds = $data["menusIds"] ?? null;
+        $this->mode = $data["mode"] ?? '';
     }
 
     public function validate()
@@ -53,9 +57,10 @@ class CreateSectionRequestDto
             ->required("active")
             ->boolean("active")
 
-            ->required("pageId")
+
             ->integer("pageId")
             ->min("pageId", 1)
+            ->optional("pageId")
 
             ->files("fileImage")
             ->optional("fileImage")
@@ -64,13 +69,21 @@ class CreateSectionRequestDto
             ->optional("imageUrl")
 
             ->array("menusIds")
-            ->optional("menusIds");
+            ->optional("menusIds")
+            
+            ->required("mode")
+            ->enum("mode", SectionMode::class)
+            ;
 
 
 
 
         if ($validation->fails()) {
             return $validation->getErrors();
+        }
+
+        if ($this->mode === SectionMode::LAYOUT->value) {
+            $this->pageId = null;
         }
 
         $this->setFieldForSectionType();
@@ -146,8 +159,6 @@ class CreateSectionRequestDto
         return [
             "title" => $this->title,
             "type" => $this->type,
-            "active" => $this->active,
-            "page_id" => $this->pageId,
             "subtitle" => $this->subtitle,
             "image"=> $imageUrl,
             "description" => $this->description,

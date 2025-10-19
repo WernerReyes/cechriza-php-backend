@@ -96,15 +96,16 @@ class AuthService
     public function me()
     {
         $data = $GLOBALS[AuthConst::CURRENT_USER];
-        $user = UserModel::find($data['user_id'])->setHidden(['password']);
+        $user = UserModel::find($data['user_id']);
+        
         if (!$user) {
-            throw AppException::unauthorized("User no longer exists");
+            throw AppException::unauthorized("Las credenciales son incorrectas");
         }
 
         $token = CookieUtil::getJwtFromCookie();
         $refreshToken = CookieUtil::getRefreshTokenFromCookie();
 
-        return new LoginResponseDto($user, $token, $refreshToken);
+        return new LoginResponseDto($user->setHidden(['password']), $token, $refreshToken);
     }
 
 

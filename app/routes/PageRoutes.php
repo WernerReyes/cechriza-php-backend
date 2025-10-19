@@ -8,6 +8,7 @@ class PageRoutes
         Router $router
     ) {
         $router->get(self::$prefix, "PageController@getAll", ["auth"]);
+        $router->get(self::$prefix . "/{id}", "PageController@getById", ["auth"]);
         $router->post(self::$prefix, "PageController@create", ["auth"]);
         $router->put(self::$prefix . "/{id}", "PageController@update", ["auth"]);
         $router->delete(self::$prefix . "/{id}", "PageController@delete", ["auth"]);

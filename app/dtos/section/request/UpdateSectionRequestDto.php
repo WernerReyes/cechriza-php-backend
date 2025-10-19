@@ -20,12 +20,16 @@ class UpdateSectionRequestDto
 
       public $currentImageUrl;
 
+    public $pageId;
+
     public $linkId;
 
     public $active;
 
     public $menusIds;
 
+   
+ public $mode; //* CUSTOM | LAYOUT
   
 
     public function __construct($data, $id)
@@ -42,6 +46,8 @@ class UpdateSectionRequestDto
         $this->imageUrl = $data["imageUrl"] ?? null;
         $this->currentImageUrl = $data["currentImageUrl"] ?? null;
         $this->menusIds = $data["menusIds"] ?? null;
+        $this->pageId = $data["pageId"] ?? 0;
+        $this->mode = $data["mode"] ?? '';
     }
 
     public function validate()
@@ -51,6 +57,11 @@ class UpdateSectionRequestDto
             ->required("id")
             ->integer("id")
             ->min("id", 1)
+
+            // ->required("pageId")
+            ->integer("pageId")
+            ->min("pageId", 1)
+            ->optional("pageId")
 
             ->required("type")
             ->enum("type", SectionType::class)
@@ -76,6 +87,11 @@ class UpdateSectionRequestDto
             return $validation->getErrors();
         }
 
+         if ($this->mode === SectionMode::LAYOUT->value) {
+            return $this->pageId = null;
+        }
+
+
         return $this;
     }
 
@@ -97,7 +113,6 @@ class UpdateSectionRequestDto
         return [
             "title" => $this->title,
             "type" => $this->type,
-            "active" => $this->active,
             "subtitle" => $this->subtitle,
             "image"=> $image,
             "description" => $this->description,

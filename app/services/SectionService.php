@@ -1,6 +1,7 @@
 <?php
 require_once "app/models/SectionModel.php";
 require_once "app/models/PageModel.php";
+require_once "app/models/PageSectionModel.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/dtos/section/request/CreateSectionRequestDto.php";
 require_once "app/dtos/section/response/SectionResponseDto.php";
@@ -16,26 +17,36 @@ class SectionService
     }
     public function getAll()
     {
+       
+
         $sections = SectionModel::with([
             'sectionItems',
             'link:id_link,type',
-            'sectionItems.link:id_link,type',   
+            'sectionItems.link:id_link,type',
             'menus' => function ($query) {
                 $query->orderBy('menu.order_num', 'asc')
                     ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
             },
+            // 'pages:id_page,title,slug',
             'menus.parent:id_menu,title,order_num'
         ])
-            ->orderBy('order_num', 'asc') // ordena las secciones también
+            // ->whereHas('pivot', function ($query) {
+            //     $query->where('section_pages.type', SectionMode::CUSTOM->value);
+            // })
             ->get();
 
-        return $sections->map(fn($section) => new SectionResponseDto($section));
+
+        // return $sections->map(fn($section) => new SectionResponseDto($section));
+        return $sections->map(function ($section) {
+            return new SectionResponseDto($section);
+           
+        });
     }
 
     public function create(CreateSectionRequestDto $dto)
     {
         try {
-            $maxOrder = SectionModel::max('order_num') ?? 0;
+            // $maxOrder = SectionModel::max('order_num') ?? 0;
 
             $imageUrl = null;
 
@@ -45,13 +56,27 @@ class SectionService
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
             }
 
-            $section = SectionModel::create(array_merge($dto->toInsertDB($imageUrl), ["order_num" => $maxOrder + 1]));
+            $section = SectionModel::create($dto->toInsertDB($imageUrl));
 
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
                 $section->menus()->attach($dto->menusIds);
 
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
+
+            // Asociar la sección a una página específica con orden
+            if ($dto->pageId) {
+                $maxOrder = PageSectionModel::where('id_page', $dto->pageId)->max('order_num') ?? 0;
+                $section->pages()->attach($dto->pageId, [
+                    'order_num' => $maxOrder + 1,
+                    'active' => $dto->active,
+                    'type' => $dto->mode
+                ]);
+
+                $section->load('pivot:id_page,id_section,order_num,active,type');
+            }
+
+            error_log("Created section ID: " . json_encode($section));
 
             return new SectionResponseDto($section);
         } catch (Exception $e) {
@@ -61,7 +86,7 @@ class SectionService
 
     public function update(UpdateSectionRequestDto $dto)
     {
-        $section = SectionModel::find($dto->id);
+        $section = SectionModel::with('pivot')->find($dto->id);
         if (empty($section)) {
             throw AppException::validationError("La sección seleccionada no existe");
         }
@@ -72,16 +97,30 @@ class SectionService
             $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }
 
-        error_log("Image URL to update: " . $imageUrl);
+        // error_log("Image URL to update: " . $imageUrl);
 
 
         $section->update($dto->toUpdateDB($imageUrl));
+
+        if ($dto->active !== null && $dto->pageId !== null) {
+            PageSectionModel::where('id_page', $dto->pageId)
+                ->where('id_section', $dto->id)
+                ->update([
+                    'active' => $dto->active,
+                ]);
+            $section->load('pivot');
+        }
 
         if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
             $section->menus()->sync($dto->menusIds);
 
             $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
         }
+
+        // if ($section->pivotPages) {
+        //     $section->load('pivotPages:id_page,id_section,order_num,active,type');
+        // }
+
         return new SectionResponseDto($section);
     }
 
@@ -107,7 +146,10 @@ class SectionService
 
         Capsule::connection()->transaction(function () use ($dto) {
             foreach ($dto->orderArray as $item) {
-                SectionModel::where('id_section', $item['id'])->update([
+                // SectionModel::where('id_section', $item['id'])->update([
+                //     'order_num' => $item['order'],
+                // ]);
+                PageSectionModel::where('id_section', $item['id'])->update([
                     'order_num' => $item['order'],
                 ]);
             }

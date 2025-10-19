@@ -22,6 +22,12 @@ class PageController extends AppController
         return AppResponse::success($this->pageService->getAll($dto));
     }
 
+    public function getById($id)
+    {
+        $page = $this->pageService->getById(intval($id));
+        return AppResponse::success($page);
+    }
+
     public function create()
     {
         $body = $this->body();

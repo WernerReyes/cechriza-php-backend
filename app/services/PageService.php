@@ -1,5 +1,6 @@
 <?php
 require_once "app/models/PageModel.php";
+require_once "app/dtos/page/response/PageResponseDto.php";
 require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 class PageService
@@ -11,6 +12,16 @@ class PageService
 
         return PageModel::orderBy('updated_at', 'desc')->get();
     }
+
+    public function getById(int $id)
+    {
+        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'sections.pivotPages')->find($id);
+        if (empty($page)) {
+            throw AppException::validationError("La página seleccionada no existe");
+        }
+        return new PageResponseDto($page);
+    }
+
     public function create(CreatePageRequestDto $dto)
     {
         try {

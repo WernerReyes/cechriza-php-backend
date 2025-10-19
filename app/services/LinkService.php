@@ -35,7 +35,7 @@ class LinkService
 
         $link = LinkModel::create($dto->toInsertDB($filePath));
         // $link = LinkModel::with('page:id_page,title,slug')->find($link->id_link);
-        $link->load('page:id_page, title, slug');
+        $link->load('page:id_page,title,slug');
         return new LinkResponseDto($link);
     }
 
@@ -65,7 +65,7 @@ class LinkService
 
         $link->update($dto->toUpdateDB($filePath));
         // $link = LinkModel::with('page:id_page,title,slug')->find($link->id_link);
-        $link->load('page:id_page, title, slug');
+        $link->load('page:id_page,title,slug');
 
         return new LinkResponseDto($link);
     }
@@ -90,7 +90,7 @@ class LinkService
             }
             throw new DBExceptionHandler($e, [
                 ["name" => "fk_section_items_link", "message" => "No se puede eliminar el enlace porque está asociado a uno o más ítems de sección"],
-                ["name" => "fk_menus_link", "message" => "No se puede eliminar el enlace porque está asociado a uno o más menús"]
+                ["name" => "fk_menu_links", "message" => "No se puede eliminar el enlace porque está asociado a uno o más menús"]
             ]);
         }
     }

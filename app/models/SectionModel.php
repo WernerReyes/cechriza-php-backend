@@ -24,7 +24,7 @@ enum SectionType: string
     case BENEFITS = 'BENEFITS';
     case MACHINE_TYPE = 'MACHINE_TYPE';
 
-    
+
 }
 
 class SectionModel extends Model
@@ -45,8 +45,8 @@ class SectionModel extends Model
         'image',
         'link_id',
         'type',
-        'order_num',
-        'page_id'
+        // 'order_num',
+        // 'page_id'
         // 'created_at',
         // 'updated_at',
     ];
@@ -57,6 +57,8 @@ class SectionModel extends Model
         return $this->hasMany(SectionItemModel::class, 'section_id', 'id_section');
     }
 
+
+
     public function link()
     {
         return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
@@ -64,8 +66,27 @@ class SectionModel extends Model
 
 
     public function menus()
-{
-    return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');
-}
+    {
+        return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');
+    }
+
+    public function pivot()
+    {
+        return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');
+    }
+
+    public function pages()
+    {
+        return $this->belongsToMany(PageModel::class, 'section_pages', 'id_section', 'id_page');
+        // withPivot(['type', 'active', 'order_num'])->
+        // orderBy('order_num', 'asc');
+    }
+
+//     public function pivotPages()
+// {
+//     return $this->belongsToMany(PageModel::class, 'section_pages', 'id_section', 'id_page')
+//         ->withPivot(['type', 'active', 'order_num']);
+// }
+
 
 }
