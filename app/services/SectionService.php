@@ -6,6 +6,8 @@ require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/dtos/section/request/CreateSectionRequestDto.php";
 require_once "app/dtos/section/response/SectionResponseDto.php";
 use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Support\Facades\DB;
+
 class SectionService
 {
 
@@ -16,32 +18,27 @@ class SectionService
         $this->fileUploader = new FileUploader();
     }
     public function getAll()
-    {
-       
+{
+    $sections = SectionModel::with([
+        'sectionItems',
+        'link:id_link,type',
+        'sectionItems.link:id_link,type',
+        'menus' => function ($query) {
+            $query->orderBy('menu.order_num', 'asc')
+                  ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
+        },
+        'menus.parent:id_menu,title,order_num',
+        // 'pivot' // asegúrate de tener esta relación
+    ])->get();
 
-        $sections = SectionModel::with([
-            'sectionItems',
-            'link:id_link,type',
-            'sectionItems.link:id_link,type',
-            'menus' => function ($query) {
-                $query->orderBy('menu.order_num', 'asc')
-                    ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
-            },
-            // 'pages:id_page,title,slug',
-            'menus.parent:id_menu,title,order_num'
-        ])
-            // ->whereHas('pivot', function ($query) {
-            //     $query->where('section_pages.type', SectionMode::CUSTOM->value);
-            // })
-            ->get();
+    // 🔽 Ordenar por el menor order_num del pivot
+    $sorted = $sections->sortBy(function ($section) {
+        return $section->pivot->min('order_num') ?? 9999;
+    })->values();
 
+    return $sections->map(fn($section) => new SectionResponseDto($section));
+}
 
-        // return $sections->map(fn($section) => new SectionResponseDto($section));
-        return $sections->map(function ($section) {
-            return new SectionResponseDto($section);
-           
-        });
-    }
 
     public function create(CreateSectionRequestDto $dto)
     {
@@ -136,20 +133,78 @@ class SectionService
         ]);
     }
 
+    public function associeteToPages(AssocieteToPagesRequestDto $dto)
+{
+    $section = SectionModel::with('pivot')->find($dto->id);
+
+    if (empty($section)) {
+        throw AppException::badRequest("La sección seleccionada no existe");
+    }
+
+    $pages = PageModel::whereIn('id_page', $dto->pagesIds)->get();
+    if ($pages->count() !== count($dto->pagesIds)) {
+        throw AppException::badRequest("Una o más páginas no existen con los IDs proporcionados.");
+    }
+
+    // IDs de páginas actuales
+    $currentPageIds = $section->pivot->pluck('id_page')->toArray();
+
+    // IDs nuevos que vienen del front
+    $newPageIds = $dto->pagesIds;
+
+    // ➕ Páginas a agregar
+    $toAttach = array_diff($newPageIds, $currentPageIds);
+
+    // ➖ Páginas a eliminar
+    $toDetach = array_diff($currentPageIds, $newPageIds);
+
+    
+    // Eliminar las que ya no deben estar
+    if (!empty($toDetach)) {
+        PageSectionModel::where('id_section', $section->id_section)
+            ->whereIn('id_page', $toDetach)
+            ->delete();
+    }
+
+    // Agregar nuevas con el siguiente orden por cada página
+    foreach ($toAttach as $pageId) {
+        $maxOrder = PageSectionModel::where('id_page', $pageId)->max('order_num') ?? 0;
+
+        PageSectionModel::create([
+            'id_page' => $pageId,
+            'id_section' => $section->id_section,
+            'order_num' => $maxOrder + 1,
+            'type' => SectionMode::LAYOUT->value,
+            'active' => 1,
+        ]);
+    }
+
+    // Recargar pivote actualizado
+    $section->load('pivot');
+
+    return new SectionResponseDto($section);
+}
+
+
+
     public function updateOrder(UpdateOrderRequestDto $dto)
     {
 
         $sections = SectionModel::whereIn('id_section', array_column($dto->orderArray, 'id'))->get();
-        if (count($sections) !== count($dto->orderArray)) {
+        if (count($sections) !== count(value: $dto->orderArray)) {
             throw AppException::badRequest("Una o más secciones no existen con los IDs proporcionados.");
         }
+
+        error_log("Updating order for sections: " . json_encode($dto->orderArray));
 
         Capsule::connection()->transaction(function () use ($dto) {
             foreach ($dto->orderArray as $item) {
                 // SectionModel::where('id_section', $item['id'])->update([
                 //     'order_num' => $item['order'],
                 // ]);
-                PageSectionModel::where('id_section', $item['id'])->update([
+                PageSectionModel::where('id_section', $item['id'])
+                 ->where('id_page', $item['pageId'])
+                ->update([
                     'order_num' => $item['order'],
                 ]);
             }
@@ -157,16 +212,41 @@ class SectionService
 
     }
 
-    public function delete(int $id): void
+    public function delete(int $id, $pageId): void
     {
         try {
-            $section = SectionModel::with('sectionItems')->find($id);
+            $section = SectionModel::with('sectionItems', 'pivot')->find($id);
             if (empty($section)) {
-                throw AppException::validationError("La sección seleccionada no existe");
+                throw AppException::notFound("La sección seleccionada no existe");
             }
 
 
-            Capsule::connection()->transaction(function () use ($section) {
+            Capsule::connection()->transaction(function () use ($section, $pageId) {
+
+                
+                // 🔹 Caso 1: Eliminar solo la asociación con una página específica
+                if ($pageId) {
+                    // Validar que la sección esté asociada realmente a esa página
+                    $isLinked = $section->pages->contains('id_page', $pageId);
+                    if (!$isLinked) {
+                        throw AppException::notFound("La sección no está asociada con la página indicada.");
+                    }
+                    
+                    // Usar detach() en lugar de delete() directo en el modelo pivote
+                    $section->pages()->detach($pageId);
+                    
+                    error_log("Linked: " . json_encode($isLinked));
+                    // Si deseas, puedes verificar si ya no queda asociada a ninguna página y eliminarla
+                    // if ($section->pages()->count() === 0) {
+                    //     $section->delete();
+                    // }
+
+                    return;
+                }
+
+                // 🔹 Caso 2: Eliminar completamente la sección
+                //* Delete all section items
+                SectionItemModel::where('section_id', $section->id_section)->delete();
 
                 //* First, delete all images associated with section items
                 foreach ($section->sectionItems as $item) {
@@ -174,9 +254,6 @@ class SectionService
                         $this->fileUploader->deleteImage($item->image);
                     }
                 }
-
-                //* Delete all section items
-                SectionItemModel::where('section_id', $section->id_section)->delete();
 
                 //* Then, delete the section image if exists
                 if ($section->image) {

@@ -3,6 +3,7 @@ require_once "app/utils/FileUploader.php";
 require_once "app/services/SectionService.php";
 require_once "app/dtos/section/request/UpdateSectionRequestDto.php";
 require_once "app/dtos/common/request/UpdateOrderRequestDto.php";
+require_once "app/dtos/section/request/AssocieteToPagesRequestDto.php";
 class SectionController extends AppController
 {
     private SectionService $sectionService;
@@ -47,6 +48,18 @@ class SectionController extends AppController
         return AppResponse::success($this->sectionService->update($dto), "Sección actualizada correctamente");
     }
 
+    public function associeteToPages($id)
+    {
+        $body = $this->body();
+        $dto = new AssocieteToPagesRequestDto($body, $id);
+        $dto = $dto->validate();
+        if (is_array($dto)) {
+            throw AppException::validationError("Validation failed", $dto);
+        }
+
+        return AppResponse::success($this->sectionService->associeteToPages($dto), "Sección asociada a páginas correctamente");
+    }
+
     public function updateOrder()
     {
         $body = $this->body();
@@ -63,7 +76,8 @@ class SectionController extends AppController
 
     public function delete($id)
     {
-        $this->sectionService->delete(intval($id));
+        $pageId = $this->queryParam("pageId");
+        $this->sectionService->delete(intval($id), $pageId);
         return AppResponse::success(message: "Sección eliminada correctamente");
     }
 }

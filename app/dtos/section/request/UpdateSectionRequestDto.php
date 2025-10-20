@@ -88,7 +88,7 @@ class UpdateSectionRequestDto
         }
 
          if ($this->mode === SectionMode::LAYOUT->value) {
-            return $this->pageId = null;
+           $this->pageId = null;
         }
 
 

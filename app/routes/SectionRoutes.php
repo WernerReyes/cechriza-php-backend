@@ -12,6 +12,7 @@ class SectionRoutes
         $router->post(self::$prefix, "SectionController@create", ["auth"]);
         $router->post(self::$prefix . "/{id}", "SectionController@update", ["auth"]);
         $router->put(self::$prefix . "/order", "SectionController@updateOrder", ["auth"]);
+        $router->post(self::$prefix . "/{id}/pages", "SectionController@associeteToPages", ["auth"]);
         $router->delete(self::$prefix . "/{id}", "SectionController@delete", ["auth"]);
 
     }

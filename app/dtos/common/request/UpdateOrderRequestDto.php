@@ -16,7 +16,7 @@ class UpdateOrderRequestDto
         $validation->required('orderArray')
             ->array('orderArray')
             ->minItems('orderArray', 1)
-            ->fieldsMatchInArray(['id', 'order'], $this->orderArray);
+            ->fieldsMatchInArray(['id', 'order', 'idPage'], $this->orderArray);
 
 
         if ($validation->fails()) {

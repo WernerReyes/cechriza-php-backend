@@ -69,6 +69,12 @@ class PageModel extends Model
     public function sections() {
         return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section')->orderBy('order_num', 'asc');
     }
+
+    public function pivot()
+    {
+        return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');
+    }
+
 }
 
 ?>

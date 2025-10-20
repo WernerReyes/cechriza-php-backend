@@ -82,11 +82,7 @@ class SectionModel extends Model
         // orderBy('order_num', 'asc');
     }
 
-//     public function pivotPages()
-// {
-//     return $this->belongsToMany(PageModel::class, 'section_pages', 'id_section', 'id_page')
-//         ->withPivot(['type', 'active', 'order_num']);
-// }
+
 
 
 }

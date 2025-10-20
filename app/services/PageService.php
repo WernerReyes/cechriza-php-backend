@@ -15,11 +15,12 @@ class PageService
 
     public function getById(int $id)
     {
-        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'sections.pivotPages')->find($id);
+        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'pivot:id_page,id_section,order_num,active,type')->find($id);
         if (empty($page)) {
             throw AppException::validationError("La página seleccionada no existe");
         }
-        return new PageResponseDto($page);
+        // return new PageResponseDto($page);
+        return $page;
     }
 
     public function create(CreatePageRequestDto $dto)
