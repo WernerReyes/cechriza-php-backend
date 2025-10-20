@@ -2,6 +2,7 @@
 require_once "app/AppController.php";
 require_once "app/AppResponse.php";
 require_once "app/services/CategoryService.php";
+require_once "app/dtos/category/request/CreateCategoryDto.php";
 class CategoryController extends AppController
 {
 
@@ -20,11 +21,12 @@ class CategoryController extends AppController
     public function create()
     {
         $body = $this->body();
-        $title = $body['title'] ?? null;
-        if (empty($title)) {
-            throw AppException::validationError("El título es obligatorio");
+        $dto = new CreateCategoryDto($body);
+        $errors = $dto->validate();
+        if (!empty($errors)) {
+            throw AppException::validationError($errors);
         }
-        return AppResponse::success($this->categoryService->create($title), "Categoría creada correctamente");
+        return AppResponse::success($this->categoryService->create($dto), "Categoría creada correctamente");
     }
 
     public function update($id)

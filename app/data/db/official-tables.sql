@@ -1,8 +1,6 @@
 -- drop database cechriza_web_v3;
 -- create database cechriza_web_v3;
 use cechriza_web_v2;
-
-
 -- ==========================================
 -- LIMPIEZA DE TABLAS EXISTENTES (orden inverso)
 -- ==========================================
@@ -15,9 +13,6 @@ DROP TABLE IF EXISTS menu;
 DROP TABLE IF EXISTS links;
 DROP TABLE IF EXISTS pages;
 DROP TABLE IF EXISTS users;
-
-
-
 -- ==========================================
 -- Tabla de Usuarios
 -- ==========================================
@@ -28,14 +23,11 @@ CREATE TABLE users (
     email VARCHAR(45) NOT NULL,
     password VARCHAR(150) NOT NULL,
     role ENUM('USER') NOT NULL DEFAULT 'USER',
-   profile VARCHAR(255) DEFAULT NULL,
+    profile VARCHAR(255) DEFAULT NULL,
     created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (id_user)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Páginas
 -- ==========================================
@@ -47,10 +39,7 @@ CREATE TABLE pages (
     active TINYINT DEFAULT 1,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Links
 -- ==========================================
@@ -65,11 +54,7 @@ CREATE TABLE links (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_links_pages FOREIGN KEY (page_id) REFERENCES pages(id_page)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Menú (estructura jerárquica)
 -- ==========================================
@@ -82,22 +67,18 @@ CREATE TABLE menu (
     link_id INT NULL,
     CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES menu(id_menu),
     CONSTRAINT fk_menu_links FOREIGN KEY (link_id) REFERENCES links(id_link)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Categorías
 -- ==========================================
 CREATE TABLE categories (
     id_category INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL UNIQUE,
+    type ENUM('COIN', 'BILL') NOT NULL, -- TODO: Add type
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
-
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT uk_categories_type_title unique (type, title) -- TODO: Add this constraint
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Secciones
 -- ==========================================
@@ -112,6 +93,11 @@ CREATE TABLE sections (
         'MAIN_NAVIGATION_MENU',
         'CTA_BANNER',
         'SOLUTIONS_OVERVIEW',
+        -- TODO: Add THESE types
+        'ADVANTAGES',
+        'MACHINE',
+        'SUPPORT_MAINTENANCE',
+        -- TODO
         'MISSION_VISION',
         'CONTACT_US',
         'CLIENT',
@@ -125,9 +111,7 @@ CREATE TABLE sections (
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
     CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de Section Items
 -- ==========================================
@@ -141,16 +125,14 @@ CREATE TABLE section_items (
     icon VARCHAR(100),
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
-      input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
+    input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
     order_num INT,
     section_id INT NOT NULL,
     category_id INT DEFAULT NULL,
     CONSTRAINT fk_section_items_sections FOREIGN KEY (section_id) REFERENCES sections(id_section),
     CONSTRAINT fk_section_items_link FOREIGN KEY (link_id) REFERENCES links(id_link),
     CONSTRAINT fk_section_items_category FOREIGN KEY (category_id) REFERENCES categories(id_category)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 -- ==========================================
 -- Tabla de section_menus
 -- ==========================================
@@ -161,8 +143,6 @@ CREATE TABLE section_menus (
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
 );
-
-
 -- ==========================================
 -- Tabla de page_sections
 -- ==========================================
@@ -171,11 +151,24 @@ CREATE TABLE section_pages (
     id_section INT NOT NULL,
     order_num INT DEFAULT 1,
     active TINYINT DEFAULT 1,
-    type ENUM('LAYOUT', 'CUSTOM') DEFAULT 'CUSTOM', 
+    type ENUM('LAYOUT', 'CUSTOM') DEFAULT 'CUSTOM',
     PRIMARY KEY (id_page, id_section),
     FOREIGN KEY (id_page) REFERENCES pages(id_page) ON DELETE CASCADE,
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE
-) 
-
-
-
+) -- TODO: ADD THESE TABLES FOR MACHINES AND IMAGESENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+-- Tabla de máquinas
+CREATE TABLE machines (
+    id_machine INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(150) NOT NULL,
+    description VARCHAR(255),
+    long_description TEXT,
+    images JSON,
+    -- Max 5 imágenes por máquina
+    tecnical_specifications JSON,
+    -- Para especificaciones técnicas flexibles
+    category_id INT NOT NULL,
+    -- Relación con categoría
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    CONSTRAINT fk_machines_category FOREIGN KEY (category_id) REFERENCES categories(id_category) ON DELETE CASCADE
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;

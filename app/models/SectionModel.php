@@ -20,9 +20,11 @@ enum SectionType: string
     case CONTACT_US = 'CONTACT_US';
     case FOOTER = 'FOOTER';
 
+    case ADVANTAGES = 'ADVANTAGES';
 
-    case BENEFITS = 'BENEFITS';
-    case MACHINE_TYPE = 'MACHINE_TYPE';
+    case SUPPORT_MAINTENANCE = 'SUPPORT_MAINTENANCE';
+
+    case PRODUCT_DETAILS = 'PRODUCT_DETAILS';
 
 
 }

@@ -5,16 +5,16 @@ class CategoryService
 {
     public function getAll()
     {
-        return CategoryModel::orderBy('created_at', 'asc')->get();
+        return CategoryModel::with('machines')->orderBy('created_at', 'asc')->get();
     }
 
-    public function create(string $title)
+    public function create(CreateCategoryDto $dto)
     {
         try {
-            return CategoryModel::create(['title' => $title]);
+            return CategoryModel::create($dto->toArray());
         } catch (Exception $e) {
             throw new DBExceptionHandler($e, [
-                ["name" => "title_UNIQUE", "message" => "Ya existe una categoría con este título"]
+                ["name" => "uk_categories_type_title", "message" => "Ya existe una categoría con este título"]
             ]);
         }
     }
