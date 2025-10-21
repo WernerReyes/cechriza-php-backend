@@ -155,7 +155,9 @@ CREATE TABLE section_pages (
     PRIMARY KEY (id_page, id_section),
     FOREIGN KEY (id_page) REFERENCES pages(id_page) ON DELETE CASCADE,
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE
-) -- TODO: ADD THESE TABLES FOR MACHINES AND IMAGESENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+)
+
+ -- TODO: ADD THESE TABLES FOR MACHINES AND IMAGESENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 -- Tabla de máquinas
 CREATE TABLE machines (
     id_machine INT AUTO_INCREMENT PRIMARY KEY,
@@ -164,7 +166,7 @@ CREATE TABLE machines (
     long_description TEXT,
     images JSON,
     -- Max 5 imágenes por máquina
-    tecnical_specifications JSON,
+    technical_specifications JSON,
     -- Para especificaciones técnicas flexibles
     category_id INT NOT NULL,
     -- Relación con categoría

@@ -12,7 +12,7 @@ class MachineModel extends Model
         'description',
         'long_description',
         'images',
-        'tecnical_specifications',
+        'technical_specifications',
         'category_id',
     ];
 

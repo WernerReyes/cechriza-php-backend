@@ -19,21 +19,21 @@ class CategoryService
         }
     }
 
-    public function update(int $id, string $newTitle)
+    public function update(UpdateCategoryDto $dto)
     {
         try {
-            $category = CategoryModel::find($id);
+            $category = CategoryModel::find($dto->id);
             if (empty($category)) {
                 throw AppException::badRequest("La categoría seleccionada no existe");
             }
-            $category->update(['title' => $newTitle]);
+            $category->update($dto->toArray());
             return $category->fresh();
         } catch (Exception $e) {
             if (get_class($e) === "AppException") {
                 throw $e;
             }
             throw new DBExceptionHandler($e, [
-                ["name" => "title_UNIQUE", "message" => "Ya existe una categoría con este título"]
+                ["name" => "uk_categories_type_title", "message" => "Ya existe una categoría con este título"]
             ]);
         }
     }
