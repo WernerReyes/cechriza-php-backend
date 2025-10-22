@@ -168,6 +168,21 @@ class ValidationEngine
         return $this;
     }
 
+    public function maxItems($field, $maxItems, $message = null)
+    {
+
+        if (
+            array_key_exists($field, $this->data) &&
+            !$this->isEmpty($this->data[$field]) &&
+            is_array($this->data[$field]) &&
+            count($this->data[$field]) > $maxItems
+        ) {
+
+            $this->errors[$field] = $message ?? "$field must not exceed $maxItems items";
+        }
+        return $this;
+    }
+
     public function numeric($field, $message = null)
     {
         if (
@@ -232,7 +247,7 @@ class ValidationEngine
         return $this;
     }
 
-    public function files($field, $allowExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'], $message = null)
+     public function files($field, $allowExtensions = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg'], $message = null)
     {
         $fileUploader = new FileUploader();
 

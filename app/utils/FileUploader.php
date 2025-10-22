@@ -146,6 +146,8 @@ class FileUploader
 
     public function validateFile($file, $allowExtensions = [])
     {
+
+        error_log('Validating file: ' . json_encode($file));
         if (empty(($file))) {
             return 'No se subió ningún archivo';
         }

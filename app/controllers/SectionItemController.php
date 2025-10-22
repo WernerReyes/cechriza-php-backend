@@ -15,6 +15,7 @@ class SectionItemController extends AppController
     public function create()
     {
         $formData = $this->formData(["fileImage", "backgroundFileImage", "fileIcon"]);
+        error_log(json_encode($formData));
         $dto = new CreateSectionItemRequestDto($formData);
         $dto = $dto->validate();
         if (is_array($dto)) {

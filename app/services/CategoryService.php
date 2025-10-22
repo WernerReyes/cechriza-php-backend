@@ -1,11 +1,13 @@
 <?php
 require_once "app/models/CategoryModel.php";
+require_once "app/dtos/category/response/CategoryResponseDto.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 class CategoryService
 {
     public function getAll()
     {
-        return CategoryModel::with('machines')->orderBy('created_at', 'asc')->get();
+        $categories = CategoryModel::with('machines')->orderBy('created_at', 'asc')->get();
+        return $categories->map(fn($category) => new CategoryResponseDto($category));
     }
 
     public function create(CreateCategoryDto $dto)

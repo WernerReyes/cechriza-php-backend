@@ -34,7 +34,7 @@ class OS_TICKET
 
     private function readExcelFile($conn)
     {
-        $inputFileName = 'C:\Users\Cechriza\Downloads\Copia de Sistema Web.xlsx';
+        $inputFileName = 'C:\Users\Cechriza\Downloads\Copia de Sistema Web (1).xlsx';
         $spreadsheet = IOFactory::load($inputFileName);
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -175,22 +175,79 @@ class OS_TICKET
     }
 
 
+    private function getArea($conn, $excelData)
+    {
+        foreach ($excelData as $index => $row) {
+            $areaName = $row[3]; // Columna D (índice 3)
+
+            $stmt = $conn->prepare("SELECT id_area FROM area WHERE descripcion_area = ?");
+            $stmt->execute([$areaName]);
+            $area = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($area) {
+                // echo "Área encontrada: " . json_encode($area) . "\n";
+                $excelData[$index][3] = $area['id_area']; // Reemplaza nombre por ID
+            } else {
+                // echo "Área no encontrada para: $areaName\n";
+                // Puedes mantener el nombre o asignar null si prefieres
+                $excelData[$index][3] = null;
+            }
+        }
+
+        return $excelData; // Devuelve el array modificado
+    }
+
+    private function getCargo($conn, $excelData)
+    {
+        $CESADO_AREA_ID = 5; // ID del área "CESADO" (ajusta según tu base de datos)
+        foreach ($excelData as $index => $row) {
+            $cargoName = $row[4]; // Columna E (índice 4)
+
+            $stmt = $conn->prepare("SELECT id_cargo, id_area FROM cargo WHERE descripcion_cargo = ?");
+            $stmt->execute([$cargoName]);
+            $cargo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($cargo) {
+                echo $cargo['id_area'];
+                // echo "Cargo encontrado: " . json_encode($cargo) . "\n";
+                if ($excelData[$index][3] == $CESADO_AREA_ID) {
+                    // Si el área es "CESADO", asigna un cargo específico o null
+                    $excelData[$index][3] = $cargo['id_area'];
+
+                }
+                $excelData[$index][4] = $cargo['id_cargo']; // Reemplaza nombre por ID
+            } else {
+                // echo "Cargo no encontrado para: $cargoName\n";
+                // Puedes mantener el nombre o asignar null si prefieres
+                $excelData[$index][4] = null;
+            }
+        }
+
+        return $excelData; // Devuelve el array modificado
+    }
+
+
+
+
+
     private function excelParsed($excelData)
     {
         return array_map(function ($row) {
             return [
                 'id' => $row[1],
-                'CDepartamento' => $row[2],
-                'Nombre' => $row[3],
-                'DNI' => $row[4],
-                'Usuario' => $row[5],
-                'Email' => $row[6],
-                'Departamento' => $row[7],
-                'Provincia' => $row[8], // Ya convertido a ID
-                'Distrito' => $row[9],   // Ya convertido a ID
-                'Empresa' => $row[10],    // Ya convertido a ID
-                'Fecha_ingreso' => $this->parseDate($row[11]),
-                'N_contacto' => $row[12],
+                'Area' => $row[3],
+                'Cargo' => $row[4],
+                // 'CDepartamento' => $row[2],
+                // 'Nombre' => $row[3],
+                // 'DNI' => $row[4],
+                // 'Usuario' => $row[5],
+                // 'Email' => $row[6],
+                // 'Departamento' => $row[7],
+                // 'Provincia' => $row[8], // Ya convertido a ID
+                // 'Distrito' => $row[9],   // Ya convertido a ID
+                // 'Empresa' => $row[10],    // Ya convertido a ID
+                // 'Fecha_ingreso' => $this->parseDate($row[11]),
+                // 'N_contacto' => $row[12],
             ];
         }, $excelData);
     }
@@ -209,53 +266,69 @@ class OS_TICKET
     }
 
     private function updateDB($conn, $dataToUpdate)
-{
-    $limit = 2; // Límite de registros a procesar
-    $counter = 0;
-    $totalUpdated = 0;
-    $totalNotUpdated = 0;
+    {
+        $limit = 3; // Límite de registros a procesar
+        $counter = 0;
+        $totalUpdated = 0;
+        $totalNotUpdated = 0;
 
-    foreach ($dataToUpdate as $row) {
-        // if (++$counter > $limit) break;
+        $ids = [
+            3,
+            16,
+            19,
+            29,
+            52,
+            53,
+            58,
+            59,
+            63,
+            67,
+            77,
+            79,
+            82,
+            83,
+            106,
+            122,
+            133,
+            138,
+            139,
+            143,
+            147,
+            162,
+            164,
+            169
+        ];
 
-        $stmt = $conn->prepare("UPDATE ost_staff SET
-            dept_id = ?,
-            dni = ?,
-            id_departamento = ?,
-            id_provincia = ?,
-            id_distrito = ?,
-            id_empresa = ?,
-            fecha_ingreso = ?
+
+        foreach ($ids as $id) {
+            // if (++$counter > $limit) break;
+
+            $stmt = $conn->prepare("UPDATE ost_staff SET
+            activo = ?
             WHERE staff_id = ?");
 
-        $stmt->execute([
-            $row['CDepartamento'] ?? null,
-            $row['DNI'] ?? null,
-            $row['Departamento'] ?? null,
-            $row['Provincia'] ?? null,
-            $row['Distrito'] ?? null,
-            $row['Empresa'] ?? null,
-            $row['Fecha_ingreso'] ?? null,
-            $row['id'] ?? null,
-        ]);
+            $stmt->execute([
+                0,
+                $id
+            ]);
 
-        if ($stmt->rowCount() > 0) {
-            $totalUpdated++;
-            echo "✅ Registro actualizado correctamente (staff_id = {$row['id']})\n";
-        } else {
-            $totalNotUpdated++;
-            echo "⚠️ No se actualizó el registro (staff_id = {$row['id']}) — posiblemente no existe o no cambió.\n";
+            if ($stmt->rowCount() > 0) {
+                $totalUpdated++;
+                echo "✅ Registro actualizado correctamente (staff_id = {$id})\n";
+            } else {
+                $totalNotUpdated++;
+                echo "⚠️ No se actualizó el registro (staff_id = {$id}) — posiblemente no existe o no cambió.\n";
+            }
         }
-    }
 
-    echo json_encode([
-        'summary' => [
-            'total_processed' => $counter <= $limit ? $counter : $limit,
-            'total_updated' => $totalUpdated,
-            'total_not_updated' => $totalNotUpdated
-        ]
-    ], JSON_PRETTY_PRINT) . "\n";
-}
+        echo json_encode([
+            'summary' => [
+                'total_processed' => $counter <= $limit ? $counter : $limit,
+                'total_updated' => $totalUpdated,
+                'total_not_updated' => $totalNotUpdated
+            ]
+        ], JSON_PRETTY_PRINT) . "\n";
+    }
 
 
 
@@ -269,12 +342,14 @@ class OS_TICKET
         $exelData = $this->readExcelFile($conn);
 
         $dataToUpdate = $exelData;
-        $dataToUpdate = $this->getCDepartment($conn, $dataToUpdate);
-        $dataToUpdate = $this->getDepartments($conn, $dataToUpdate);
-        $dataToUpdate = $this->getProvinces($conn, $dataToUpdate);
-        $dataToUpdate = $this->getDistricts($conn, $dataToUpdate);
-        $dataToUpdate = $this->getCompanies($conn, $dataToUpdate);
-        $dataToUpdate = $this->excelParsed($dataToUpdate);
+        // $dataToUpdate = $this->getCDepartment($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getDepartments($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getProvinces($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getDistricts($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getCompanies($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getArea($conn, $dataToUpdate);
+        // $dataToUpdate = $this->getCargo($conn, $dataToUpdate);
+        // $dataToUpdate = $this->excelParsed($dataToUpdate);
         $this->updateDB($conn, $dataToUpdate);
 
         echo "Datos leídos del archivo Excel: " . count($dataToUpdate) . " filas.\n";

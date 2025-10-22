@@ -7,6 +7,7 @@ require_once "app/routes/SectionRoutes.php";
 require_once "app/routes/SectionItemRoutes.php";
 require_once "app/routes/CategoryRoutes.php";
 require_once "app/routes/LinkRoutes.php";
+require_once "app/routes/MachineRoutes.php";
 
 class AppRoutes
 {
@@ -21,6 +22,7 @@ class AppRoutes
         SectionItemRoutes::routes($router);
         CategoryRoutes::routes($router);
         LinkRoutes::routes($router);
+        MachineRoutes::routes($router);
 
         $router->dispatch();
     }
