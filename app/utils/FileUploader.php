@@ -1,4 +1,5 @@
 <?php
+require_once 'app/utils/UuidUtil.php';
 class FileUploader
 {
     private $uploadDir;
@@ -27,7 +28,7 @@ class FileUploader
         return __DIR__ . '/../../public/uploads/' . $folder . '/';
     }
 
-    public function uploadImage($file, $customName = null)
+    public function uploadImage($file)
     {
         try {
             // // Validar archivo
@@ -43,7 +44,7 @@ class FileUploader
             }
 
             // Generar nombre único
-            $fileName = $this->generateFileName($file, $customName);
+            $fileName = $this->generateFileName($file);
             $targetPath = $targetDir . $fileName;
 
             // Mover archivo
@@ -79,7 +80,7 @@ class FileUploader
     }
 
 
-    public function uploadFile($file, $customName = null)
+    public function uploadFile($file)
     {
         try {
             // Validar archivo
@@ -95,7 +96,7 @@ class FileUploader
             }
 
             // Generar nombre único
-            $fileName = $this->generateFileName($file, $customName);
+            $fileName = $this->generateFileName($file);
             $targetPath = $targetDir . $fileName;
 
             // Mover archivo
@@ -191,19 +192,12 @@ class FileUploader
         return true;
     }
 
-    private function generateFileName($file, $customName = null)
+    private function generateFileName($file)
     {
         $extension = strtolower(pathinfo($file['name'], PATHINFO_EXTENSION));
 
-        if ($customName) {
-            // Limpiar nombre personalizado
-            $customName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $customName);
-            return $customName . '_' . time() . '.' . $extension;
-        }
-
         // Nombre único basado en timestamp y hash
-        $hash = substr(md5($file['name'] . time()), 0, 8);
-        return date('Y-m-d_H-i-s') . '_' . $hash . '.' . $extension;
+        return UuidUtil::v4() . '.' . $extension;
     }
 
     private function optimizeImage($imagePath)

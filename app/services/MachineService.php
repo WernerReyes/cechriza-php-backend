@@ -20,19 +20,34 @@ class MachineService
     {
         $imagePaths = [];
         foreach ($dto->fileImages as $image) {
-            $uploadResult = $this->fileUploader->uploadImage($image, 'machines');
-            error_log("Upload result: " . json_encode($uploadResult));
-            if (
-                isset($uploadResult["error"]) &&
-                $uploadResult["error"]
-            ) {
-                throw AppException::badRequest("Image upload failed: " . $uploadResult["error"]);
-            }
-            $imagePaths[] = $uploadResult['path'];
+            $imagePaths[] = $this->uploadFile($image);
         }
 
-        $machine = MachineModel::create($dto->toArray($imagePaths));
+        $manualPath = null;
+        if ($dto->manualFile) {
+            $manualPath = $this->uploadFile($dto->manualFile, true);
+        }
+
+        $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
         return new MachineResponseDto($machine);
+    }
+
+
+    private function uploadFile($file, $isManual = false)
+    {
+        $uploadResult = null;
+        if ($isManual) {
+            $uploadResult = $this->fileUploader->uploadFile($file);
+        } else {
+            $uploadResult = $this->fileUploader->uploadImage($file);
+        }
+        if (
+            isset($uploadResult["error"]) &&
+            $uploadResult["error"]
+        ) {
+            throw AppException::badRequest("File upload failed: " . $uploadResult["error"]);
+        }
+        return $uploadResult['path'];
     }
 }

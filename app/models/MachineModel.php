@@ -14,6 +14,7 @@ class MachineModel extends Model
         'images',
         'technical_specifications',
         'category_id',
+        'manual'
     ];
 
     public $timestamps = true;

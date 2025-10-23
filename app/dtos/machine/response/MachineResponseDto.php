@@ -9,6 +9,8 @@ class MachineResponseDto
 
     public $images;
 
+    public $manual;
+
     public $technical_specifications;
 
     public $category_id;
@@ -30,6 +32,7 @@ class MachineResponseDto
         $this->name = $machine->name;
         $this->description = $machine->description;
         $this->long_description = $machine->long_description;
+        $this->manual = isset($machine->manual) ? $fileUploader->getUrl($machine->manual, 'files') : null;
         $this->images = array_map(function ($imagePath) use ($fileUploader) {
             return $fileUploader->getUrl($imagePath);
         }, json_decode($machine->images, true));

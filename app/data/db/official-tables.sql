@@ -169,6 +169,7 @@ CREATE TABLE machines (
     technical_specifications JSON,
     -- Para especificaciones técnicas flexibles
     category_id INT NOT NULL,
+    manual TEXT NULL,
     -- Relación con categoría
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,

@@ -19,7 +19,7 @@ class MachineController extends AppController
 
     public function create()
     {
-        $formData = $this->formData(["fileImages"]);
+        $formData = $this->formData(["fileImages", "manualFile"]);
         error_log(json_encode($formData));
         $dto = new CreateMachineDto($formData);
         $dto = $dto->validate();
