@@ -6,6 +6,7 @@ require_once "app/exceptions/DBExceptionHandler.php";
 class PageService
 {
 
+    
 
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {

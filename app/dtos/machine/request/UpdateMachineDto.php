@@ -68,9 +68,6 @@ class UpdateMachineDto
         ;
 
 
-
-        ;
-
         if ($validation->fails()) {
             return $validation->getErrors();
         }
