@@ -9,16 +9,25 @@ class PageService
     //* Public Methods
     public function getBySlug(string $slug)
     {
-        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'sections.menus.parent'
-         
-        )->where('slug', $slug)->first();
+        $page = PageModel::with($this->withRelations())->where('slug', $slug)->first();
         if (empty($page)) {
-            $principal = PageModel::with('sections.sectionItems', 'sections.menus')->get()->first();
-            if ($principal) return $principal;
+            $principal = PageModel::with($this->withRelations())->get()->first();
+            if ($principal)
+                return new PageResponseDto($principal);
             throw AppException::validationError("La página seleccionada no existe");
         }
         return new PageResponseDto($page);
         // return $page;
+    }
+
+    private function withRelations()
+    {
+        return [
+            'sections.sectionItems',
+            'sections.menus',
+            'sections.menus.parent',
+
+        ];
     }
 
 
