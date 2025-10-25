@@ -12,6 +12,13 @@ class PageController extends AppController
         $this->pageService = new PageService();
     }
 
+
+    public function getBySlug($slug)
+    {
+        $page = $this->pageService->getBySlug($slug);
+        return AppResponse::success($page);
+    }
+
     public function getAll()
     {
         $query = $_GET;

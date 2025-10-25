@@ -10,6 +10,7 @@ class PageRoutes
         Router $router
     ) {
         $router->get(self::$publicPrefix, "PageController@getAll");
+        $router->get(self::$publicPrefix . "/{slug}", "PageController@getBySlug");
 
 
         $router->get(self::$prefix, "PageController@getAll", ["auth"]);

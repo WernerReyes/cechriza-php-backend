@@ -46,7 +46,7 @@ class Router
         $method = $_SERVER["REQUEST_METHOD"];
 
         foreach ($this->routes as $route) {
-            $pattern = "@^" . preg_replace('/\{[a-zA-Z0-9_]+\}/', '([0-9]+)', $route["path"]) . "$@";
+            $pattern = "@^" . preg_replace('/\{[a-zA-Z0-9_]+\}/', '([^/]+)', $route["path"]) . "$@";
             if ($method === $route["method"] && preg_match($pattern, $url, $matches)) {
                 array_shift($matches);
                 list($controller, $method) = explode("@", $route["action"]);

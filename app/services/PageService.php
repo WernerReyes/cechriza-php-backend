@@ -6,13 +6,29 @@ require_once "app/exceptions/DBExceptionHandler.php";
 class PageService
 {
 
-    
+    //* Public Methods
+    public function getBySlug(string $slug)
+    {
+        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'sections.menus.parent'
+         
+        )->where('slug', $slug)->first();
+        if (empty($page)) {
+            $principal = PageModel::with('sections.sectionItems', 'sections.menus')->get()->first();
+            if ($principal) return $principal;
+            throw AppException::validationError("La página seleccionada no existe");
+        }
+        return new PageResponseDto($page);
+        // return $page;
+    }
 
+
+    //* Private Methods
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {
 
         return PageModel::orderBy('updated_at', 'desc')->get();
     }
+
 
     public function getById(int $id)
     {

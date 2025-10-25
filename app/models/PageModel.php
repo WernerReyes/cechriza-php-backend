@@ -64,10 +64,13 @@ class PageModel extends Model
         return $this->belongsTo(MenuModel::class, 'menu_id', 'id_menu');
     }
 
-   
 
-    public function sections() {
-        return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section')->orderBy('order_num', 'asc');
+
+    public function sections()
+    {
+        return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section')->withPivot('order_num', 'active', 'type')->
+            where('active', 1)->
+            orderBy('pivot_order_num', 'asc');
     }
 
     public function pivot()
