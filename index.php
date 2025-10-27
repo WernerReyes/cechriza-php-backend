@@ -15,7 +15,7 @@ ErrorHandler::register();
 
 require_once 'app/AppRoutes.php';
 
-$allowOrigins = ['http://localhost:4200'];
+$allowOrigins = ['http://localhost:4200', 'https://cechriza-dasbhoard.netlify.app'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 
