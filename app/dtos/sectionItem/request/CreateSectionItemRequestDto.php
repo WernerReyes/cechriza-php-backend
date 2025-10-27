@@ -26,6 +26,10 @@ class CreateSectionItemRequestDto
 
     public $linkTexted;
 
+    public $icon;
+
+    public $iconType;
+
     public $fileIcon;
 
     public $fileIconUrl;
@@ -48,6 +52,8 @@ class CreateSectionItemRequestDto
         $this->linkTexted = $data['linkTexted'] ?? null;
         $this->backgroundFileImage = $data['backgroundFileImage'] ?? null;
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
+        $this->icon = $data['icon'] ?? null;
+        $this->iconType = $data['iconType'] ?? null;
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->categoryId = $data['categoryId'] ?? null;
@@ -97,19 +103,26 @@ class CreateSectionItemRequestDto
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
+            ->files("icon")
+            ->optional("icon")
+
+            ->enum("iconType", IconType::class)
+            ->optional("iconType")
+
             ->files("fileIcon", ['svg'])
             ->optional("fileIcon")
 
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl")
-            
+
             ->integer("categoryId")
             ->min("categoryId", 1)
             ->optional("categoryId")
 
             ->enum("inputType", InputType::class)
             ->optional("inputType")
-            ;
+
+        ;
 
 
         // if ($this->sectionType === SectionType::HERO->value) {
@@ -123,6 +136,8 @@ class CreateSectionItemRequestDto
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
                 $this->inputType = null;
+                $this->icon = null;
+                $this->iconType = null;
                 break;
 
             case SectionType::WHY_US->value:
@@ -134,7 +149,7 @@ class CreateSectionItemRequestDto
                 $this->linkId = null;
                 $this->linkTexted = null;
                 $this->categoryId = null;
-                 $this->inputType = null;
+                $this->inputType = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
@@ -145,7 +160,7 @@ class CreateSectionItemRequestDto
                 $this->fileImage = null;
                 $this->imageUrl = null;
                 $this->categoryId = null;
-                 $this->inputType = null;
+                $this->inputType = null;
                 break;
 
             case SectionType::VALUE_PROPOSITION->value:
@@ -158,7 +173,9 @@ class CreateSectionItemRequestDto
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
-                 $this->inputType = null;
+                $this->inputType = null;
+                $this->icon = null;
+                $this->iconType = null;
                 break;
 
             case SectionType::CLIENT->value:
@@ -172,7 +189,9 @@ class CreateSectionItemRequestDto
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
                 $this->categoryId = null;
-                 $this->inputType = null;
+                $this->inputType = null;
+                $this->icon = null;
+                $this->iconType = null;
                 break;
 
             case SectionType::CONTACT_TOP_BAR->value:
@@ -185,8 +204,16 @@ class CreateSectionItemRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->categoryId = null;
-                 $this->inputType = null;
+                $this->inputType = null;
+                ;
                 break;
+        }
+
+        if ($this->iconType === IconType::IMAGE->value) {
+            $this->icon = null;
+        } else if ($this->iconType === IconType::LIBRARY->value) {
+            $this->fileIcon = null;
+            $this->fileIconUrl = null;
         }
 
         if ($validation->fails()) {
@@ -206,8 +233,10 @@ class CreateSectionItemRequestDto
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
-            "icon" => $fileIconUrl,
+            "icon_url" => $fileIconUrl,
             "link_id" => $this->linkId,
+            "icon_type" => $this->iconType,
+            "icon" => $this->icon,
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,
             "input_type" => $this->inputType,

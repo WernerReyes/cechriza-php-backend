@@ -93,11 +93,9 @@ CREATE TABLE sections (
         'MAIN_NAVIGATION_MENU',
         'CTA_BANNER',
         'SOLUTIONS_OVERVIEW',
-        -- TODO: Add THESE types
         'ADVANTAGES',
         'MACHINE',
         'SUPPORT_MAINTENANCE',
-        -- TODO
         'MISSION_VISION',
         'CONTACT_US',
         'CLIENT',
@@ -122,7 +120,11 @@ CREATE TABLE section_items (
     description TEXT,
     image VARCHAR(245),
     background_image VARCHAR(100),
-    icon VARCHAR(100),
+    icon_url VARCHAR(100), -- TODO: Update the name to icon_url
+    -- TODO: Add icon_type and icon fields
+    icon_type  ENUM('IMAGE', 'LIBRARY') DEFAULT NULL,
+    icon JSON DEFAULT NULL,
+    -- TODO: End
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
     input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,

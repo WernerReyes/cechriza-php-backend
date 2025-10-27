@@ -147,7 +147,7 @@ class UpdateSectionItemRequestDto
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
-            "icon" => $fileIconUrl,
+            "icon_url" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,

@@ -79,6 +79,12 @@ class FileUploader
         }
     }
 
+    public function getPathFromUrl($url, $folder = 'images')
+    {
+        $fileName = basename($url);
+        return "/uploads/$folder/$fileName";
+    }
+
 
     public function uploadFile($file)
     {

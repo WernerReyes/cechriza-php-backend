@@ -28,7 +28,7 @@ class SectionItemResponseDto
         $this->description = isset($data->description) ? $data->description : null;
         $this->image = isset($data->image) ? $fileUploader->getUrl($data->image) : null;
         $this->background_image = isset($data->background_image) ? $fileUploader->getUrl($data->background_image) : null;
-        $this->icon = isset($data->icon) ? $fileUploader->getUrl($data->icon) : null;
+        $this->icon_url = isset($data->icon_url) ? $fileUploader->getUrl($data->icon_url) : null;
         $this->text_button = isset($data->text_button) ? $data->text_button : null;
         $this->link_id = isset($data->link_id) ? $data->link_id : null;
         $this->order_num = isset($data->order_num) ? $data->order_num : null;

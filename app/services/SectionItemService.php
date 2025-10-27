@@ -136,7 +136,7 @@ class SectionItemService
         if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
             return null;
         } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
-            return $currentImageUrl;
+            return $this->fileUploader->getPathFromUrl($currentImageUrl);
         }
 
         if ($fileImage && $imageDB) {
