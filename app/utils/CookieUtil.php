@@ -73,6 +73,7 @@ class CookieUtil
      */
     public static function clearJwtCookie($name = 'access_token')
     {
+        self::init();
         $options = [
             'expires' => time() - 3600,
             'path' => '/',
@@ -90,6 +91,7 @@ class CookieUtil
      */
     public static function clearRefreshTokenCookie($name = 'refresh_token')
     {
+        self::init();
         $options = [
             'expires' => time() - 3600,
             'path' => '/',
