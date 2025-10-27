@@ -27,6 +27,8 @@ class SectionResponseDto
 
     public ?Collection $menus;
 
+   
+
     public function __construct($data)
     {
         $fileUploader = new FileUploader();
@@ -47,5 +49,7 @@ class SectionResponseDto
 
         $this->pivot_pages = isset($data->pivot) ? $data->pivot : null;
         $this->pages = isset($data->pages) ? $data->pages : null;
+
+      
     }
 }

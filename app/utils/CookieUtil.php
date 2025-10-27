@@ -4,10 +4,12 @@ class CookieUtil
 {
 
     private static $expiry = 3600; // 1 hora por defecto
+    private static $sameSite = 'Strict';
 
     public static function init()
     {
         self::$expiry = $_ENV['JWT_EXPIRY'];
+        self::$sameSite = ($_ENV['APP_ENV'] === 'production') ? 'None' : 'Strict';
     }
 
     /**
@@ -15,6 +17,8 @@ class CookieUtil
      */
     public static function setJwtCookie($token, $name = 'access_token')
     {
+
+
         self::init();
         $options = [
             'expires' => time() + self::$expiry,
@@ -22,7 +26,7 @@ class CookieUtil
             'domain' => '', // Dejar vacío para el dominio actual
             'secure' => self::isHttps(), // Solo HTTPS en producción
             'httponly' => true, // No accesible desde JavaScript
-            'samesite' => 'Strict' // Protección CSRF
+            'samesite' => self::$sameSite
         ];
 
         return setcookie($name, $token, $options);
@@ -41,7 +45,7 @@ class CookieUtil
             'domain' => '',
             'secure' => self::isHttps(),
             'httponly' => true,
-            'samesite' => 'Strict'
+            'samesite' => self::$sameSite
         ];
 
         return setcookie($name, $refreshToken, $options);
@@ -75,7 +79,7 @@ class CookieUtil
             'domain' => '',
             'secure' => self::isHttps(),
             'httponly' => true,
-            'samesite' => 'Strict'
+            'samesite' => self::$sameSite
         ];
 
         return setcookie($name, '', $options);
@@ -92,7 +96,7 @@ class CookieUtil
             'domain' => '',
             'secure' => self::isHttps(),
             'httponly' => true,
-            'samesite' => 'Strict'
+            'samesite' => self::$sameSite
         ];
 
         return setcookie($name, '', $options);

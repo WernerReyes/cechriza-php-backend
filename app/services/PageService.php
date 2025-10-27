@@ -26,9 +26,19 @@ class PageService
             'sections.sectionItems',
             'sections.menus',
             'sections.menus.parent',
+            'sections.menus.link:id_link,page_id,new_tab',
+            'sections.menus.link.page:id_page,title,slug',
 
         ];
     }
+
+    //  "id_link": 1,
+    //                         "type": "PAGE",
+    //                         "url": null,
+    //                         "page_id": 1,
+    //                         "title": "Inicio",
+    //                         "file_path": null,
+    //                         "new_tab": 0,
 
 
     //* Private Methods
