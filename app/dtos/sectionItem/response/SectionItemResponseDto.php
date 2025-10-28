@@ -8,7 +8,11 @@ class SectionItemResponseDto
     public ?string $description;
     public ?string $image;
     public ?string $background_image;
-    public ?string $icon;
+    public $icon;
+
+    public $icon_type;
+
+
     public ?string $text_button;
     public ?int $link_id;
     public ?int $order_num;
@@ -29,6 +33,8 @@ class SectionItemResponseDto
         $this->image = isset($data->image) ? $fileUploader->getUrl($data->image) : null;
         $this->background_image = isset($data->background_image) ? $fileUploader->getUrl($data->background_image) : null;
         $this->icon_url = isset($data->icon_url) ? $fileUploader->getUrl($data->icon_url) : null;
+        $this->icon = isset($data->icon) ? json_decode($data->icon, true) : null;
+        $this->icon_type = isset($data->icon_type) ? $data->icon_type : null;
         $this->text_button = isset($data->text_button) ? $data->text_button : null;
         $this->link_id = isset($data->link_id) ? $data->link_id : null;
         $this->order_num = isset($data->order_num) ? $data->order_num : null;

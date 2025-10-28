@@ -28,7 +28,9 @@ class UpdateSectionItemRequestDto
 
     public $currentBackgroundImageUrl;
 
+public $icon;
 
+    public $iconType;
     public $linkId;
 
     public $linkTexted;
@@ -62,6 +64,8 @@ class UpdateSectionItemRequestDto
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->categoryId = $data['categoryId'] ?? null;
         $this->inputType = $data['inputType'] ?? null;
+        $this->icon = $data['icon'] ?? null;
+        $this->iconType = $data['iconType'] ?? null;
     }
 
     public function validate()
@@ -128,10 +132,20 @@ class UpdateSectionItemRequestDto
 
             ->enum("inputType", InputType::class)
             ->optional("inputType")
+
+            ->enum("iconType", IconType::class)
+            ->optional("iconType")
             ;
 
         if ($validation->fails()) {
             return $validation->getErrors();
+        }
+
+        if ($this->iconType === IconType::IMAGE->value) {
+            $this->icon = null;
+        } else if ($this->iconType === IconType::LIBRARY->value) {
+            $this->fileIcon = null;
+            $this->fileIconUrl = null;
         }
 
 
@@ -152,6 +166,8 @@ class UpdateSectionItemRequestDto
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,
             "input_type" => $this->inputType,
+            "icon_type" => $this->iconType,
+            "icon" => json_encode($this->icon),
         ];
     }
 

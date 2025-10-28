@@ -16,6 +16,7 @@ class SectionItemService
 
     public function create(CreateSectionItemRequestDto $dto)
     {
+
         if (!empty($dto->linkId)) {
             $link = LinkModel::find($dto->linkId);
             if (empty($link)) {
@@ -35,7 +36,9 @@ class SectionItemService
         elseif (
             $this->allowIconDeletion($dto->sectionType)
         ) {
-            $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+            if ($dto->iconType == IconType::IMAGE->value) {
+                $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+            }
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
         }
@@ -43,6 +46,8 @@ class SectionItemService
 
 
         // $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+
+        error_log("Dto " . json_encode($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl)));
 
         $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
 
@@ -74,7 +79,17 @@ class SectionItemService
         elseif (
             $this->allowIconDeletion($dto->sectionType)
         ) {
-            $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
+
+            if ($dto->iconType == IconType::IMAGE->value) {
+                $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
+            } elseif ($dto->iconType == IconType::LIBRARY->value) {
+                // If switching to library icon, delete existing image icon if any
+                if ($sectionItem->icon) {
+                    $this->fileUploader->deleteImage($sectionItem->icon);
+                }
+
+                $fileIconUrl = null;
+            }
         } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }

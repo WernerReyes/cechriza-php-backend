@@ -103,8 +103,7 @@ class CreateSectionItemRequestDto
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
-            ->files("icon")
-            ->optional("icon")
+       
 
             ->enum("iconType", IconType::class)
             ->optional("iconType")
@@ -236,7 +235,7 @@ class CreateSectionItemRequestDto
             "icon_url" => $fileIconUrl,
             "link_id" => $this->linkId,
             "icon_type" => $this->iconType,
-            "icon" => $this->icon,
+            "icon" => json_encode($this->icon),
             "text_button" => $this->linkTexted,
             "category_id" => $this->categoryId,
             "input_type" => $this->inputType,

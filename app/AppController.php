@@ -79,6 +79,8 @@ class AppController
         $formData = $_POST;
         $data = [];
 
+        error_log("Form Data Received: " . json_encode($formData));
+
         foreach ($formData as $key => $value) {
 
             // 🔹 Si es string y JSON válido → decodificar
