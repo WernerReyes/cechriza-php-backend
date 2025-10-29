@@ -276,12 +276,21 @@ class SectionService
 
     private function getImageToInsertDB($imageUrl, $fileImage)
     {
-        $currentImageUrl = $imageUrl;
+        $currentImageUrl = null;
         if (!empty($fileImage)) {
             $uploadResult = $this->fileUploader->uploadImage($fileImage);
 
             if (is_string($uploadResult)) {
                 throw AppException::validationError("Image upload failed: " . $uploadResult);
+            }       
+
+            $currentImageUrl = $uploadResult['path'];
+        }
+
+        if (!empty($imageUrl)) {
+            $uploadResult = $this->fileUploader->uploadImageFromUrl($imageUrl);
+            if (is_string($uploadResult)) {
+                throw AppException::validationError("Image upload from URL failed: " . $uploadResult);
             }
 
             $currentImageUrl = $uploadResult['path'];
