@@ -33,6 +33,54 @@ class MachineService
         return new MachineResponseDto($machine);
     }
 
+    public function update(UpdateMachineDto $dto)
+    {
+        $machine = MachineModel::find($dto->id);
+        if (!$machine) {
+            throw AppException::notFound("Machine not found");
+        }
+
+        $imagePaths = $machine->imagePaths;
+
+        if ($dto->fileImages) {
+            foreach ($dto->fileImages as $image) {
+                $imagePaths[] = $this->uploadFile($image);
+            }
+        }
+
+        if ($dto->imagesToUpdate) {
+            foreach ($dto->imagesToUpdate as $imageUpdate) {
+                $oldImage = $imageUpdate['oldImage'];
+                $newFile = $imageUpdate['newFile'];
+                $newImagePath = $this->uploadFile($newFile);
+                $key = array_search($oldImage, $imagePaths);
+                if ($key !== false) {
+                    $imagePaths[$key] = $newImagePath;
+                }
+            }
+        }
+
+        if ($dto->imagesToRemove) {
+            foreach ($dto->imagesToRemove as $imageToRemove) {
+                $key = array_search($imageToRemove, $imagePaths);
+                if ($key !== false) {
+                    unset($imagePaths[$key]);
+                }
+            }
+            // Reindex array
+            $imagePaths = array_values($imagePaths);
+        }
+
+        $manualPath = $machine->manualPath;
+        if ($dto->manualFile) {
+            $manualPath = $this->uploadFile($dto->manualFile, true);
+        }
+
+        $machine->update($dto->toArray($imagePaths, $manualPath));
+
+        return new MachineResponseDto($machine);
+    }
+
 
     private function uploadFile($file, $isManual = false)
     {

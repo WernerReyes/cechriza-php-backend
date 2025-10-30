@@ -13,6 +13,8 @@ class UpdateMachineDto
 
     public $imagesToRemove;
 
+    public $imagesToUpdate;
+
     public $manualFile;
 
     public $technicalSpecifications;
@@ -27,6 +29,7 @@ class UpdateMachineDto
         $this->fileImages = $body['fileImages'] ?? null;
         $this->imagesToRemove = $body['imagesToRemove'] ?? null;
         $this->technicalSpecifications = $body['technicalSpecifications'] ?? null;
+        $this->imagesToUpdate = $body['imagesToUpdate'] ?? null;
         $this->manualFile = $body['manualFile'] ?? null;
     }
 
@@ -62,9 +65,16 @@ class UpdateMachineDto
             ->optional("manualFile")
 
             ->array("imagesToRemove")
+            // ->fieldsMatchInArray(['delete', 'newFile'], $this->imagesToRemove)
             ->minItems("imagesToRemove", 1)
             ->maxItems("imagesToRemove", 5)
             ->optional("imagesToRemove")
+
+            ->array("imagesToUpdate")
+            ->fieldsMatchInArray(['oldImage', 'newFile'], $this->imagesToUpdate)
+            ->minItems("imagesToUpdate", 1)
+            ->maxItems("imagesToUpdate", 5)
+            ->optional("imagesToUpdate")
         ;
 
 
