@@ -32,15 +32,6 @@ class PageService
         ];
     }
 
-    //  "id_link": 1,
-    //                         "type": "PAGE",
-    //                         "url": null,
-    //                         "page_id": 1,
-    //                         "title": "Inicio",
-    //                         "file_path": null,
-    //                         "new_tab": 0,
-
-
     //* Private Methods
     public function getAll(GetAllPagesFilterRequestDto $dto)
     {

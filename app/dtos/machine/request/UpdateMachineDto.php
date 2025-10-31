@@ -27,11 +27,36 @@ class UpdateMachineDto
         $this->shortDescription = $body['shortDescription'] ?? null;
         $this->fullDescription = $body['fullDescription'] ?? null;
         $this->fileImages = $body['fileImages'] ?? null;
+        $this->imagesToUpdate = isset($body['imagesToUpdateOld']) ? $this->mapImagesToUpdate($body) : null;
         $this->imagesToRemove = $body['imagesToRemove'] ?? null;
         $this->technicalSpecifications = $body['technicalSpecifications'] ?? null;
-        $this->imagesToUpdate = $body['imagesToUpdate'] ?? null;
         $this->manualFile = $body['manualFile'] ?? null;
     }
+
+    private function mapImagesToUpdate($body): array
+    {
+        $mapped = [];
+        foreach ($body['imagesToUpdateOld'] as $index => $item) {
+            $mapped[] = [
+                'oldImage' => $item ?? null,
+                'newFile' => $body['imagesToUpdateNew'][$index] ?? null,
+            ];
+        }
+        return $mapped;
+    }
+
+    // private function mapImagesToRemove($body): array
+    // {
+    //     $mapped = [];
+    //     foreach ($body['imagesToRemove'] as $index => $item) {
+    //         $mapped[] = [
+    //             'delete' => $item ?? null,
+    //             'newFile' => $body['imagesToRemoveNew'][$index] ?? null,
+    //         ];
+    //     }
+    //     return $mapped;
+    // }
+
 
     public function validate()
     {

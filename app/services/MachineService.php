@@ -12,7 +12,9 @@ class MachineService
 
     public function getAll()
     {
-        $machines = MachineModel::orderBy('updated_at', 'desc')->get();
+        $machines = MachineModel::with(
+            'category:id_category,title,type',
+        )->orderBy('updated_at', 'desc')->get();
         return $machines->map(fn($machine) => new MachineResponseDto($machine));
     }
 
@@ -35,12 +37,14 @@ class MachineService
 
     public function update(UpdateMachineDto $dto)
     {
+        error_log("Updating machine with DTO: " . json_encode($dto));
+
         $machine = MachineModel::find($dto->id);
         if (!$machine) {
             throw AppException::notFound("Machine not found");
         }
 
-        $imagePaths = $machine->imagePaths;
+        $imagePaths = json_decode($machine->images ?? [], true);
 
         if ($dto->fileImages) {
             foreach ($dto->fileImages as $image) {
@@ -53,7 +57,8 @@ class MachineService
                 $oldImage = $imageUpdate['oldImage'];
                 $newFile = $imageUpdate['newFile'];
                 $newImagePath = $this->uploadFile($newFile);
-                $key = array_search($oldImage, $imagePaths);
+                $path = $this->fileUploader->getPathFromUrl($oldImage);
+                $key = array_search($path, $imagePaths);
                 if ($key !== false) {
                     $imagePaths[$key] = $newImagePath;
                 }
@@ -62,10 +67,16 @@ class MachineService
 
         if ($dto->imagesToRemove) {
             foreach ($dto->imagesToRemove as $imageToRemove) {
-                $key = array_search($imageToRemove, $imagePaths);
+                $path = $this->fileUploader->getPathFromUrl($imageToRemove);
+                $key = array_search($path, $imagePaths);
                 if ($key !== false) {
                     unset($imagePaths[$key]);
-                }
+                } 
+
+                // if ($imageToRemove->newFile) {
+                //     $newImagePath = $this->uploadFile($imageToRemove->newFile);
+                //     $imagePaths[$key] = $newImagePath;
+                // }
             }
             // Reindex array
             $imagePaths = array_values($imagePaths);

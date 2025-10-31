@@ -34,7 +34,7 @@ class AuthController extends AppController
             throw AppException::validationError("Validation failed", $dtoValidated);
         }
         // Implement login logic here
-        return AppResponse::success($this->authService->login($dtoValidated));
+        return AppResponse::success($this->authService->login($dtoValidated), "Inicio de sesión exitoso");
     }
 
     public function relogin()

@@ -25,6 +25,9 @@ class CreateSectionRequestDto
 
     public $menusIds;
 
+
+    public $machinesIds;
+
     public $mode; //* CUSTOM | LAYOUT
 
     public function __construct($data)
@@ -40,6 +43,7 @@ class CreateSectionRequestDto
         $this->fileImage = $data["fileImage"] ?? null;
         $this->imageUrl = $data["imageUrl"] ?? null;
         $this->menusIds = $data["menusIds"] ?? null;
+        $this->machinesIds = $data["machinesIds"] ?? null;
         $this->mode = $data["mode"] ?? '';
     }
 
@@ -70,6 +74,9 @@ class CreateSectionRequestDto
 
             ->array("menusIds")
             ->optional("menusIds")
+
+            ->array("machinesIds")
+            ->optional("machinesIds")
             
             ->required("mode")
             ->enum("mode", SectionMode::class)
@@ -102,7 +109,8 @@ class CreateSectionRequestDto
                 $this->subtitle = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
-                $this->menusIds = null; 
+                $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
             case SectionType::WHY_US->value:
@@ -111,6 +119,7 @@ class CreateSectionRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
             case SectionType::CASH_PROCESSING_EQUIPMENT->value:
@@ -119,6 +128,7 @@ class CreateSectionRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
             case SectionType::CLIENT->value:
@@ -128,6 +138,7 @@ class CreateSectionRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
             case SectionType::VALUE_PROPOSITION->value:
@@ -138,6 +149,7 @@ class CreateSectionRequestDto
                 $this->linkId = null;
                 $this->subtitle = null;
                 $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
             case SectionType::OUR_COMPANY->value:
@@ -145,6 +157,7 @@ class CreateSectionRequestDto
                 $this->linkId = null;
                 $this->subtitle = null;
                 $this->menusIds = null;
+                $this->machinesIds = null;
                 break;
 
 

@@ -28,6 +28,8 @@ class UpdateSectionRequestDto
 
     public $menusIds;
 
+    public $machinesIds;
+
    
  public $mode; //* CUSTOM | LAYOUT
   
@@ -48,6 +50,7 @@ class UpdateSectionRequestDto
         $this->menusIds = $data["menusIds"] ?? null;
         $this->pageId = $data["pageId"] ?? 0;
         $this->mode = $data["mode"] ?? '';
+        $this->machinesIds = $data["machinesIds"] ?? null;
     }
 
     public function validate()
@@ -80,7 +83,10 @@ class UpdateSectionRequestDto
             ->optional("imageUrl")
 
             ->array("menusIds")
-            ->optional("menusIds");
+            ->optional("menusIds")
+
+            ->array("machinesIds")
+            ->optional("machinesIds");
         ;
 
         if ($validation->fails()) {

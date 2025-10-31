@@ -72,6 +72,11 @@ class SectionModel extends Model
         return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');
     }
 
+    public function machines()
+    {
+        return $this->belongsToMany(MachineModel::class, 'section_machines', 'id_section', 'id_machine');
+    }
+
     public function pivot()
     {
         return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');

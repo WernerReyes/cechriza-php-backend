@@ -27,6 +27,8 @@ class SectionService
             $query->orderBy('menu.order_num', 'asc')
                   ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
         },
+        'machines:id_machine,name,images,description,category_id',
+        'machines.category:id_category,title,type',
         'menus.parent:id_menu,title,order_num',
         // 'pivot' // asegúrate de tener esta relación
     ])->get();
@@ -61,6 +63,12 @@ class SectionService
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
 
+            if (in_array($dto->type, [SectionType::MACHINE->value]) && !empty($dto->machinesIds)) {
+                $section->machines()->attach($dto->machinesIds);
+
+                $section->load('machines:id_machine,name,images,description,category_id', 'machines.category:id_category,title,type');
+            }
+
             // Asociar la sección a una página específica con orden
             if ($dto->pageId) {
                 $maxOrder = PageSectionModel::where('id_page', $dto->pageId)->max('order_num') ?? 0;
@@ -73,7 +81,6 @@ class SectionService
                 $section->load('pivot:id_page,id_section,order_num,active,type');
             }
 
-            error_log("Created section ID: " . json_encode($section));
 
             return new SectionResponseDto($section);
         } catch (Exception $e) {
@@ -112,6 +119,12 @@ class SectionService
             $section->menus()->sync($dto->menusIds);
 
             $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
+        }
+
+        if (in_array($dto->type, [SectionType::MACHINE->value]) && !empty($dto->machinesIds)) {
+            $section->machines()->sync($dto->machinesIds);
+
+            $section->load('machines:id_machine,name,images,description,category_id', 'machines.category:id_category,title,type');
         }
 
         // if ($section->pivotPages) {

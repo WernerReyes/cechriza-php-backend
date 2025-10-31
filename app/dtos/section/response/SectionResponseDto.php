@@ -27,6 +27,8 @@ class SectionResponseDto
 
     public ?Collection $menus;
 
+    public  $machines;
+
    
 
     public function __construct($data)
@@ -44,6 +46,9 @@ class SectionResponseDto
         $this->image = isset($data->image) ? $fileUploader->getUrl($data->image) : null;
         // $this->page_id = isset($data->page_id) ? $data->page_id : null;
         $this->section_items = isset($data->sectionItems) ? $data->sectionItems->map(fn($item) => new SectionItemResponseDto($item)) : null;
+
+        $this->machines = isset($data->machines) ? $data->machines->map(fn($item) => new MachineResponseDto($item)) : null;
+
         $this->link = isset($data->link) ? $data->link : null;
         $this->menus = isset($data->menus) ? $data->menus : null;
 

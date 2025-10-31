@@ -36,7 +36,7 @@ class CreateSectionItemRequestDto
 
     public $inputType;
 
-    public $categoryId;
+
 
 
     public function __construct($data)
@@ -56,7 +56,6 @@ class CreateSectionItemRequestDto
         $this->iconType = $data['iconType'] ?? null;
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
-        $this->categoryId = $data['categoryId'] ?? null;
         $this->inputType = $data['inputType'] ?? null;
     }
 
@@ -114,9 +113,7 @@ class CreateSectionItemRequestDto
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl")
 
-            ->integer("categoryId")
-            ->min("categoryId", 1)
-            ->optional("categoryId")
+           
 
             ->enum("inputType", InputType::class)
             ->optional("inputType")
@@ -133,7 +130,6 @@ class CreateSectionItemRequestDto
             case SectionType::HERO->value:
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 $this->icon = null;
                 $this->iconType = null;
@@ -147,7 +143,6 @@ class CreateSectionItemRequestDto
                 $this->backgroundImageUrl = null;
                 $this->linkId = null;
                 $this->linkTexted = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 break;
 
@@ -158,7 +153,6 @@ class CreateSectionItemRequestDto
                 $this->backgroundImageUrl = null;
                 $this->fileImage = null;
                 $this->imageUrl = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 break;
 
@@ -171,7 +165,6 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 $this->icon = null;
                 $this->iconType = null;
@@ -187,7 +180,6 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 $this->fileIcon = null;
                 $this->fileIconUrl = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 $this->icon = null;
                 $this->iconType = null;
@@ -202,7 +194,6 @@ class CreateSectionItemRequestDto
                 $this->linkTexted = null;
                 $this->imageUrl = null;
                 $this->fileImage = null;
-                $this->categoryId = null;
                 $this->inputType = null;
                 ;
                 break;
@@ -237,7 +228,6 @@ class CreateSectionItemRequestDto
             "icon_type" => $this->iconType,
             "icon" => json_encode($this->icon),
             "text_button" => $this->linkTexted,
-            "category_id" => $this->categoryId,
             "input_type" => $this->inputType,
         ];
     }
