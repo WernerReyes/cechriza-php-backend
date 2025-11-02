@@ -9,9 +9,16 @@ class MenuService
     public function getAll()
     {
         $menus = MenuModel::with([
-            'children' => function ($query) {
-                $query->orderBy('order_num');
+            // 'children' => function ($query) {
+            //     $query->orderBy('order_num');
+            // },
+            'children.children.parent',
+            'children.children',
+            'children.children.link' => function ($query) {
+                $query->select('id_link', 'type', 'title', 'page_id');
             },
+
+            'children.parent',
             'children.link' => function ($query) {
                 $query->select('id_link', 'type', 'title', 'page_id');
             },
@@ -26,7 +33,7 @@ class MenuService
             }
         ])
             ->whereNull('parent_id')
-            ->orderBy('order_num')
+            // ->orderBy('order_num')
             ->get();
         return $menus;
     }
@@ -35,9 +42,12 @@ class MenuService
 
     public function create(CreateMenuRequestDto $dto)
     {
-        $existLink = LinkModel::find($dto->linkId);
-        if (empty($existLink)) {
-            throw AppException::badRequest("El enlace no existe");
+        if ($dto->linkId) {
+
+            $existLink = LinkModel::find($dto->linkId);
+            if (empty($existLink)) {
+                throw AppException::badRequest("El enlace no existe");
+            }
         }
 
 
@@ -50,26 +60,8 @@ class MenuService
         }
 
         $menuCreated = Capsule::connection()->transaction(function () use ($dto, $parentMenu) {
-            $maxOrder = null;
-            if ($dto->parentId === null) {
-                $maxOrder = MenuModel::whereNull('parent_id')->max('order_num');
-                $maxOrder = $maxOrder === null ? 1 : $maxOrder + 1;
-            } else {
-                $maxOrder = MenuModel::where('parent_id', $dto->parentId)->max('order_num');
-                if ($maxOrder === null) {
-                    $maxOrder = 1;
-                } else {
-                    $maxOrder += 1;
-                }
-            }
-            if ($maxOrder === null) {
-                throw AppException::badRequest("No se puede crear un menú hijo sin que el padre tenga al menos un hijo.");
-            }
 
-            $menuCreated = MenuModel::create(array_merge($dto->toInsertDB(), [
-                "order_num" => $maxOrder,
-            ]));
-
+            $menuCreated = MenuModel::create(array_merge($dto->toInsertDB()));
             $menuCreated->load(['link:title,type,page_id,id_link']);
 
             //* Si tiene padre, actualizar el menú padre para que sea dropdown
@@ -111,9 +103,10 @@ class MenuService
             throw AppException::notFound("No existe un menú con el ID proporcionado");
         }
 
-        if ($dto->linkId && $menu->children->count() > 0) {
-            throw AppException::badRequest("Un menú que es padre no puede tener un enlace asignado.");
-        } else if ($dto->linkId) {
+        // if ($dto->linkId && $menu->children->count() > 0) {
+        //     throw AppException::badRequest("Un menú que es padre no puede tener un enlace asignado.");
+        // } else
+        if ($dto->linkId) {
             $link = LinkModel::find($dto->linkId);
             if (empty($link)) {
                 throw AppException::badRequest("El enlace no existe");
@@ -133,21 +126,31 @@ class MenuService
             }
         }
 
-        if ($dto->parentId !== null && $menu->children->count() > 0) {
+        if ($dto->parentId !== null && $dto->parentId !== $menu->parent_id &&  $menu->children->count() > 0) {
             throw AppException::badRequest("Un menú con submenús no puede ser hijo de otro menú.");
         }
 
         $menu = Capsule::connection()->transaction(function () use ($dto, $menu, $parentMenu) {
 
 
-            MenuModel::where('id_menu', $dto->id)->update($dto->toUpdateDB());
+            $menu->update($dto->toUpdateDB());
 
 
 
             if ($menu->children->count() > 0) {
-                $menu = MenuModel::find($dto->id);
-            } else {
-                $menu = MenuModel::with('link:title,type,page_id,id_link')->find($dto->id);
+                // $menu = MenuModel::find($dto->id);
+                $menu->load('children');
+                
+            } 
+             if ($menu->parent_id) {
+                // $menu = MenuModel::find($dto->id);
+                $menu->load('parent');
+
+            } 
+            if ($menu->link_id) {
+                // $menu = MenuModel::find($dto->id);
+                // $menu->load('children');
+                $menu->load('link:title,type,page_id,id_link');
             }
 
 

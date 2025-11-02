@@ -14,6 +14,7 @@ class MachineService
     {
         $machines = MachineModel::with(
             'category:id_category,title,type',
+                        'link:id_link,url,title,file_path,type'
         )->orderBy('updated_at', 'desc')->get();
         return $machines->map(fn($machine) => new MachineResponseDto($machine));
     }
@@ -30,6 +31,13 @@ class MachineService
             $manualPath = $this->uploadFile($dto->manualFile, true);
         }
 
+        if ($dto->linkId) {
+            $link = LinkModel::find($dto->linkId);
+            if (empty($link)) {
+                throw AppException::badRequest("El enlace seleccionado no existe");
+            }
+        }
+
         $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
         return new MachineResponseDto($machine);
@@ -42,6 +50,13 @@ class MachineService
         $machine = MachineModel::find($dto->id);
         if (!$machine) {
             throw AppException::notFound("Machine not found");
+        }
+
+        if ($dto->linkId) {
+            $link = LinkModel::find($dto->linkId);
+            if (empty($link)) {
+                throw AppException::badRequest("El enlace seleccionado no existe");
+            }
         }
 
         $imagePaths = json_decode($machine->images ?? [], true);

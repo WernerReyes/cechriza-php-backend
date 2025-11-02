@@ -39,7 +39,7 @@ class SectionItemService
             if ($dto->iconType == IconType::IMAGE->value) {
                 $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
             }
-        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
+        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value || $dto->sectionType == SectionType::OPERATIONAL_BENEFITS->value) {
             $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
         }
 
@@ -90,7 +90,7 @@ class SectionItemService
 
                 $fileIconUrl = null;
             }
-        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value) {
+        } elseif ($dto->sectionType == SectionType::CLIENT->value || $dto->sectionType == SectionType::MACHINE->value || $dto->sectionType == SectionType::OPERATIONAL_BENEFITS->value) {
             $imageUrl = $this->getImageToUpdateDB($sectionItem->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
         }
 

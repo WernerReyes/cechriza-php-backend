@@ -21,6 +21,11 @@ class MachineResponseDto
 
     public $category;
 
+    public $link_id;
+    public $link;
+
+    public $text_button;
+
 
 
 
@@ -48,6 +53,9 @@ class MachineResponseDto
         }, json_decode($machine->technical_specifications, true)) : null;
         $this->category_id = $machine->category_id;
         $this->category = $machine->category;
+        $this->link_id = $machine->link_id;
+        $this->link = $machine->link;
+        $this->text_button = $machine->text_button;
         $this->created_at = $machine->created_at;
         $this->updated_at = $machine->updated_at;
     }

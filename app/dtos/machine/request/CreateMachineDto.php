@@ -16,6 +16,10 @@ class CreateMachineDto
 
     public $categoryId;
 
+    public $linkId;
+
+    public $textButton;
+
     public function __construct($body)
     {
         $this->name = $body['name'] ?? '';
@@ -25,6 +29,8 @@ class CreateMachineDto
         $this->technicalSpecifications = $body['technicalSpecifications'] ?? [];
         $this->categoryId = $body['categoryId'] ?? 0;
         $this->manualFile = $body['manualFile'] ?? null;
+        $this->linkId = $body['linkId'] ?? null;
+        $this->textButton = $body['textButton'] ?? null;
     }
 
     public function validate()
@@ -61,6 +67,13 @@ class CreateMachineDto
             ->files("manualFile", ['pdf'])
             ->optional("manualFile")
 
+            ->integer("linkId")
+            ->min("linkId", 1)
+            ->optional("linkId")
+
+            ->maxLength("textButton", 50)
+            ->optional("textButton")
+
 
 
         ;
@@ -90,6 +103,8 @@ class CreateMachineDto
                 ];
             }, $this->technicalSpecifications)),
             'category_id' => $this->categoryId,
+            'link_id' => $this->linkId,
+            'text_button' => $this->textButton,
         ];
     }
 

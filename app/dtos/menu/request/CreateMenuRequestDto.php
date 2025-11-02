@@ -19,7 +19,7 @@ class CreateMenuRequestDto
     public function __construct($data)
     {
         $this->title = $data['title'] ?? '';
-        $this->linkId = $data['linkId'] ?? 0;
+        $this->linkId = $data['linkId'] ?? null;
         $this->parentId = $data['parentId'] ?? null;
         $this->active = $data['active'] ?? true;
     }
@@ -30,9 +30,11 @@ class CreateMenuRequestDto
         $validation->required("title")
             ->minLength("title", 2)
             ->maxLength("title", 100)
-            ->required("linkId")
+
+         
             ->integer("linkId")
             ->min("linkId", 1)
+            ->optional("linkId")
 
             ->integer("parentId")
             ->min("parentId", 1)
@@ -54,7 +56,7 @@ class CreateMenuRequestDto
     {
         return [
             "title" => $this->title,
-            "link_id" => intval($this->linkId),
+            "link_id" => $this->linkId === null ? null : intval($this->linkId),
             "parent_id" => $this->parentId == null ? null : intval($this->parentId),
             "active" => boolval($this->active) ? 1 : 0,
         ];

@@ -24,7 +24,11 @@ enum SectionType: string
 
     case SUPPORT_MAINTENANCE = 'SUPPORT_MAINTENANCE';
 
-    case PRODUCT_DETAILS = 'PRODUCT_DETAILS';
+    case OPERATIONAL_BENEFITS = 'OPERATIONAL_BENEFITS';
+
+    case MACHINE_DETAILS = 'MACHINE_DETAILS';
+
+    case MACHINES_CATALOG = 'MACHINES_CATALOG';
 
 
 }
@@ -69,7 +73,7 @@ class SectionModel extends Model
 
     public function menus()
     {
-        return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu');
+        return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu')->orderBy('order_num');
     }
 
     public function machines()

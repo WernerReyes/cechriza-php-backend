@@ -14,6 +14,8 @@ class MachineModel extends Model
         'images',
         'technical_specifications',
         'category_id',
+        'link_id',
+        'text_button',
         'manual'
     ];
 
@@ -22,6 +24,11 @@ class MachineModel extends Model
     public function category()
     {
         return $this->belongsTo(CategoryModel::class, 'category_id', 'id_category');
+    }
+
+    public function link()
+    {
+        return $this->belongsTo(LinkModel::class, 'link_id', 'id_link');
     }
 }
 

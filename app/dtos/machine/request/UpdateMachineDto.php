@@ -19,6 +19,10 @@ class UpdateMachineDto
 
     public $technicalSpecifications;
 
+    public $linkId;
+
+    public $textButton;
+
 
     public function __construct($body, $id)
     {
@@ -31,6 +35,8 @@ class UpdateMachineDto
         $this->imagesToRemove = $body['imagesToRemove'] ?? null;
         $this->technicalSpecifications = $body['technicalSpecifications'] ?? null;
         $this->manualFile = $body['manualFile'] ?? null;
+        $this->linkId = $body['linkId'] ?? null;
+        $this->textButton = $body['textButton'] ?? null;
     }
 
     private function mapImagesToUpdate($body): array
@@ -100,6 +106,14 @@ class UpdateMachineDto
             ->minItems("imagesToUpdate", 1)
             ->maxItems("imagesToUpdate", 5)
             ->optional("imagesToUpdate")
+
+            ->integer("linkId")
+            ->min("linkId", 1)
+            ->optional("linkId")
+
+            ->maxLength("textButton", 50)
+            ->optional("textButton")
+
         ;
 
 
@@ -127,6 +141,8 @@ class UpdateMachineDto
                     'description' => $spec['description']
                 ];
             }, $this->technicalSpecifications)),
+            'link_id' => $this->linkId,
+            'text_button' => $this->textButton,
         ];
     }
 

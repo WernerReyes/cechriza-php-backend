@@ -23,20 +23,23 @@ class SectionService
         'sectionItems',
         'link:id_link,type',
         'sectionItems.link:id_link,type',
-        'menus' => function ($query) {
-            $query->orderBy('menu.order_num', 'asc')
-                  ->select('menu.id_menu', 'menu.title', 'menu.parent_id', 'menu.order_num');
-        },
-        'machines:id_machine,name,images,description,category_id',
+        // 'menus' => function ($query) {
+        //     $query
+        //           ->select('menu.id_menu', 'menu.title', 'menu.parent_id');
+        // },
+        'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
         'machines.category:id_category,title,type',
-        'menus.parent:id_menu,title,order_num',
+        // 'menus.parent:id_menu,title',
+        'menus.parent.parent:id_menu,title',
+        // 'menus.children:id_menu,title,parent_id',
+        // 'menus.children.children:id_menu,title,parent_id',
         // 'pivot' // asegúrate de tener esta relación
     ])->get();
 
     // 🔽 Ordenar por el menor order_num del pivot
-    $sorted = $sections->sortBy(function ($section) {
-        return $section->pivot->min('order_num') ?? 9999;
-    })->values();
+    // $sorted = $sections->sortBy(function ($section) {
+    //     return $section->pivot->min('order_num') ?? 9999;
+    // })->values();
 
     return $sections->map(fn($section) => new SectionResponseDto($section));
 }
@@ -58,15 +61,19 @@ class SectionService
             $section = SectionModel::create($dto->toInsertDB($imageUrl));
 
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
-                $section->menus()->attach($dto->menusIds);
+                foreach ($dto->menusIds as $index => $menuId) {
+                    $section->menus()->attach($menuId, [
+                        'order_num' =>  $index + 1
+                    ]);
+                }
 
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
 
-            if (in_array($dto->type, [SectionType::MACHINE->value]) && !empty($dto->machinesIds)) {
+            if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value]) && !empty($dto->machinesIds)) {
                 $section->machines()->attach($dto->machinesIds);
 
-                $section->load('machines:id_machine,name,images,description,category_id', 'machines.category:id_category,title,type');
+                $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
             }
 
             // Asociar la sección a una página específica con orden
@@ -116,15 +123,20 @@ class SectionService
         }
 
         if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
-            $section->menus()->sync($dto->menusIds);
+            // $section->menus()->sync($dto->menusIds);
+            foreach ($dto->menusIds as $index => $menuId) {
+                $section->menus()->syncWithoutDetaching([
+                    $menuId => ['order_num' => $index + 1]
+                ]);
+            }
 
-            $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
+            $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title,parent_id', 'menus.parent.parent:id_menu,title');
         }
 
-        if (in_array($dto->type, [SectionType::MACHINE->value]) && !empty($dto->machinesIds)) {
+        if (in_array($dto->type, [SectionType::MACHINE->value,  SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value]) && !empty($dto->machinesIds)) {
             $section->machines()->sync($dto->machinesIds);
 
-            $section->load('machines:id_machine,name,images,description,category_id', 'machines.category:id_category,title,type');
+            $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
         }
 
         // if ($section->pivotPages) {

@@ -197,8 +197,6 @@
 
 
 
--- drop database cechriza_web_v3;
--- create database cechriza_web_v3;
 use cechriza_web_v2;
 
 
@@ -277,7 +275,6 @@ CREATE TABLE links (
 CREATE TABLE menu (
     id_menu INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
-    order_num INT NOT NULL,
     active TINYINT DEFAULT 1,
     parent_id INT DEFAULT NULL,
     link_id INT NULL,
@@ -323,7 +320,10 @@ CREATE TABLE sections (
         'CONTACT_US',
         'CLIENT',
         'FOOTER',
-        'VALUE_PROPOSITION'
+        'VALUE_PROPOSITION',
+        'OPERATIONAL_BENEFITS',
+        'MACHINE_DETAILS',
+        'MACHINES_CATALOG'
     ) NOT NULL,
     image VARCHAR(245),
     title VARCHAR(200),
@@ -370,12 +370,17 @@ CREATE TABLE machines (
     technical_specifications JSON, -- Para especificaciones técnicas flexibles
     category_id INT NOT NULL, -- Relación con categoría
     manual TEXT NULL,
+    link_id INT DEFAULT NULL,
+    text_button VARCHAR(100),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_machines_category FOREIGN KEY (category_id)
         REFERENCES categories(id_category)
-        ON DELETE CASCADE
+        ON DELETE CASCADE,
+	CONSTRAINT fk_machines_link FOREIGN KEY (link_id) REFERENCES links(id_link)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 
 -- ==========================================
 -- Tabla de section_menus
@@ -383,6 +388,7 @@ CREATE TABLE machines (
 CREATE TABLE section_menus (
     id_section INT NOT NULL,
     id_menu INT NOT NULL,
+        order_num INT NULL default 1,
     PRIMARY KEY (id_section, id_menu),
     FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE

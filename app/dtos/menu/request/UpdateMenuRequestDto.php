@@ -57,14 +57,13 @@ class UpdateMenuRequestDto
 
     public function toUpdateDB(): array
     {
-        return array_filter([
+        return [
             "title" => $this->title === null ? null : $this->title,
             "link_id" => $this->linkId === null ? null : intval($this->linkId),
             "parent_id" => $this->parentId === null ? null : intval($this->parentId),
-            "active" => $this->active === null ? null : (boolval($this->active) ? 1 : 0),
-        ], function ($value) {
-            return $value !== null;
-        });
+            "active" => $this->active === null ? null : (boolval($this->active) ? 1 : 0)
+        ];
+        
     }
 
 }

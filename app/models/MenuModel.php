@@ -87,7 +87,7 @@ class MenuModel extends Model {
     public $timestamps = false;
     protected $fillable = [
         'title',
-        'order_num',
+        // 'order_num',     
         'parent_id',
         'link_id',
         'active',
