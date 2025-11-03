@@ -18,31 +18,31 @@ class SectionService
         $this->fileUploader = new FileUploader();
     }
     public function getAll()
-{
-    $sections = SectionModel::with([
-        'sectionItems',
-        'link:id_link,type',
-        'sectionItems.link:id_link,type',
-        // 'menus' => function ($query) {
-        //     $query
-        //           ->select('menu.id_menu', 'menu.title', 'menu.parent_id');
-        // },
-        'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
-        'machines.category:id_category,title,type',
-        // 'menus.parent:id_menu,title',
-        'menus.parent.parent:id_menu,title',
-        // 'menus.children:id_menu,title,parent_id',
-        // 'menus.children.children:id_menu,title,parent_id',
-        // 'pivot' // asegúrate de tener esta relación
-    ])->get();
+    {
+        $sections = SectionModel::with([
+            'sectionItems',
+            'link:id_link,type',
+            'sectionItems.link:id_link,type',
+            // 'menus' => function ($query) {
+            //     $query
+            //           ->select('menu.id_menu', 'menu.title', 'menu.parent_id');
+            // },
+            'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
+            'machines.category:id_category,title,type',
+            // 'menus.parent:id_menu,title',
+            'menus.parent.parent:id_menu,title',
+            // 'menus.children:id_menu,title,parent_id',
+            // 'menus.children.children:id_menu,title,parent_id',
+            // 'pivot' // asegúrate de tener esta relación
+        ])->get();
 
-    // 🔽 Ordenar por el menor order_num del pivot
-    // $sorted = $sections->sortBy(function ($section) {
-    //     return $section->pivot->min('order_num') ?? 9999;
-    // })->values();
+        // 🔽 Ordenar por el menor order_num del pivot
+        // $sorted = $sections->sortBy(function ($section) {
+        //     return $section->pivot->min('order_num') ?? 9999;
+        // })->values();
 
-    return $sections->map(fn($section) => new SectionResponseDto($section));
-}
+        return $sections->map(fn($section) => new SectionResponseDto($section));
+    }
 
 
     public function create(CreateSectionRequestDto $dto)
@@ -63,14 +63,14 @@ class SectionService
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
                 foreach ($dto->menusIds as $index => $menuId) {
                     $section->menus()->attach($menuId, [
-                        'order_num' =>  $index + 1
+                        'order_num' => $index + 1
                     ]);
                 }
 
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
             }
 
-            if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value]) && !empty($dto->machinesIds)) {
+            if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value, SectionType::CASH_PROCESSING_EQUIPMENT->value]) && !empty($dto->machinesIds)) {
                 $section->machines()->attach($dto->machinesIds);
 
                 $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
@@ -123,17 +123,22 @@ class SectionService
         }
 
         if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
-            // $section->menus()->sync($dto->menusIds);
-            foreach ($dto->menusIds as $index => $menuId) {
-                $section->menus()->syncWithoutDetaching([
-                    $menuId => ['order_num' => $index + 1]
-                ]);
+            $menusSync = [];
+
+            // Si existen menús asociados en el request
+            if (!empty($dto->menusIds)) {
+                foreach ($dto->menusIds as $index => $menuId) {
+                    $menusSync[$menuId] = ['order_num' => $index + 1];
+                }
             }
+
+            // Esta línea asocia solo los actuales y desasocia los que faltan
+            $section->menus()->sync($menusSync);
 
             $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title,parent_id', 'menus.parent.parent:id_menu,title');
         }
 
-        if (in_array($dto->type, [SectionType::MACHINE->value,  SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value]) && !empty($dto->machinesIds)) {
+        if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value, SectionType::CASH_PROCESSING_EQUIPMENT->value]) && !empty($dto->machinesIds)) {
             $section->machines()->sync($dto->machinesIds);
 
             $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
@@ -159,56 +164,56 @@ class SectionService
     }
 
     public function associeteToPages(AssocieteToPagesRequestDto $dto)
-{
-    $section = SectionModel::with('pivot')->find($dto->id);
+    {
+        $section = SectionModel::with('pivot')->find($dto->id);
 
-    if (empty($section)) {
-        throw AppException::badRequest("La sección seleccionada no existe");
+        if (empty($section)) {
+            throw AppException::badRequest("La sección seleccionada no existe");
+        }
+
+        $pages = PageModel::whereIn('id_page', $dto->pagesIds)->get();
+        if ($pages->count() !== count($dto->pagesIds)) {
+            throw AppException::badRequest("Una o más páginas no existen con los IDs proporcionados.");
+        }
+
+        // IDs de páginas actuales
+        $currentPageIds = $section->pivot->pluck('id_page')->toArray();
+
+        // IDs nuevos que vienen del front
+        $newPageIds = $dto->pagesIds;
+
+        // ➕ Páginas a agregar
+        $toAttach = array_diff($newPageIds, $currentPageIds);
+
+        // ➖ Páginas a eliminar
+        $toDetach = array_diff($currentPageIds, $newPageIds);
+
+
+        // Eliminar las que ya no deben estar
+        if (!empty($toDetach)) {
+            PageSectionModel::where('id_section', $section->id_section)
+                ->whereIn('id_page', $toDetach)
+                ->delete();
+        }
+
+        // Agregar nuevas con el siguiente orden por cada página
+        foreach ($toAttach as $pageId) {
+            $maxOrder = PageSectionModel::where('id_page', $pageId)->max('order_num') ?? 0;
+
+            PageSectionModel::create([
+                'id_page' => $pageId,
+                'id_section' => $section->id_section,
+                'order_num' => $maxOrder + 1,
+                'type' => SectionMode::LAYOUT->value,
+                'active' => 1,
+            ]);
+        }
+
+        // Recargar pivote actualizado
+        $section->load('pivot');
+
+        return new SectionResponseDto($section);
     }
-
-    $pages = PageModel::whereIn('id_page', $dto->pagesIds)->get();
-    if ($pages->count() !== count($dto->pagesIds)) {
-        throw AppException::badRequest("Una o más páginas no existen con los IDs proporcionados.");
-    }
-
-    // IDs de páginas actuales
-    $currentPageIds = $section->pivot->pluck('id_page')->toArray();
-
-    // IDs nuevos que vienen del front
-    $newPageIds = $dto->pagesIds;
-
-    // ➕ Páginas a agregar
-    $toAttach = array_diff($newPageIds, $currentPageIds);
-
-    // ➖ Páginas a eliminar
-    $toDetach = array_diff($currentPageIds, $newPageIds);
-
-    
-    // Eliminar las que ya no deben estar
-    if (!empty($toDetach)) {
-        PageSectionModel::where('id_section', $section->id_section)
-            ->whereIn('id_page', $toDetach)
-            ->delete();
-    }
-
-    // Agregar nuevas con el siguiente orden por cada página
-    foreach ($toAttach as $pageId) {
-        $maxOrder = PageSectionModel::where('id_page', $pageId)->max('order_num') ?? 0;
-
-        PageSectionModel::create([
-            'id_page' => $pageId,
-            'id_section' => $section->id_section,
-            'order_num' => $maxOrder + 1,
-            'type' => SectionMode::LAYOUT->value,
-            'active' => 1,
-        ]);
-    }
-
-    // Recargar pivote actualizado
-    $section->load('pivot');
-
-    return new SectionResponseDto($section);
-}
 
 
 
@@ -228,10 +233,10 @@ class SectionService
                 //     'order_num' => $item['order'],
                 // ]);
                 PageSectionModel::where('id_section', $item['id'])
-                 ->where('id_page', $item['pageId'])
-                ->update([
-                    'order_num' => $item['order'],
-                ]);
+                    ->where('id_page', $item['pageId'])
+                    ->update([
+                        'order_num' => $item['order'],
+                    ]);
             }
         });
 
@@ -248,7 +253,7 @@ class SectionService
 
             Capsule::connection()->transaction(function () use ($section, $pageId) {
 
-                
+
                 // 🔹 Caso 1: Eliminar solo la asociación con una página específica
                 if ($pageId) {
                     // Validar que la sección esté asociada realmente a esa página
@@ -256,10 +261,10 @@ class SectionService
                     if (!$isLinked) {
                         throw AppException::notFound("La sección no está asociada con la página indicada.");
                     }
-                    
+
                     // Usar detach() en lugar de delete() directo en el modelo pivote
                     $section->pages()->detach($pageId);
-                    
+
                     error_log("Linked: " . json_encode($isLinked));
                     // Si deseas, puedes verificar si ya no queda asociada a ninguna página y eliminarla
                     // if ($section->pages()->count() === 0) {
@@ -307,7 +312,7 @@ class SectionService
 
             if (is_string($uploadResult)) {
                 throw AppException::validationError("Image upload failed: " . $uploadResult);
-            }       
+            }
 
             $currentImageUrl = $uploadResult['path'];
         }

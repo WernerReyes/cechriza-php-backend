@@ -128,7 +128,7 @@ class CreateSectionRequestDto
                 $this->imageUrl = null;
                 $this->fileImage = null;
                 $this->menusIds = null;
-                $this->machinesIds = null;
+                // $this->machinesIds = null;
                 break;
 
             case SectionType::CLIENT->value:

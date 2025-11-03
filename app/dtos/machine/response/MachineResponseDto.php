@@ -43,7 +43,10 @@ class MachineResponseDto
         $this->long_description = $machine->long_description;
         $this->manual = isset($machine->manual) ? $fileUploader->getUrl($machine->manual, 'files') : null;
         $this->images = isset($machine->images) ? array_map(function ($imagePath) use ($fileUploader) {
-            return $fileUploader->getUrl($imagePath);
+            return [
+                'url' => $fileUploader->getUrl($imagePath['url']),
+                'isMain' => $imagePath['isMain']
+            ];
         }, json_decode($machine->images, true)) : null;
 
         $this->technical_specifications = isset($machine->technical_specifications) ? array_map(function ($spec) {

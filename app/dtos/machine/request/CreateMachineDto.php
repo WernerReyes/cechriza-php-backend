@@ -93,7 +93,13 @@ class CreateMachineDto
             'name' => $this->name,
             'description' => $this->shortDescription,
             'long_description' => $this->fullDescription,
-            'images' => json_encode($imagesPath),
+            'images' => json_encode(array_map(function ($path) {
+                return [
+                    'isMain' => false,
+                    'url' => $path
+                ];
+            }, $imagesPath)),
+            
             'manual' => $manualPath,
             'technical_specifications' => json_encode(array_map(function ($spec) {
                 return [

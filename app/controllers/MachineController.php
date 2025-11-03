@@ -55,6 +55,19 @@ class MachineController extends AppController
         );
     }
 
+    public function setImageAsMain($id)
+    {
+        $imageUrl = $this->body('imageUrl');
+        if (empty($imageUrl)) {
+            throw AppException::badRequest("La ruta de la imagen es obligatoria");
+        }
+
+        return AppResponse::success(
+            $this->machineService->setImageasMain($id, $imageUrl),
+            "Imagen principal establecida exitosamente"
+        );
+    }
+
     public function delete($id)
     {
         return AppResponse::success(

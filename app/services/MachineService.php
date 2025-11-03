@@ -63,7 +63,10 @@ class MachineService
 
         if ($dto->fileImages) {
             foreach ($dto->fileImages as $image) {
-                $imagePaths[] = $this->uploadFile($image);
+                $imagePaths[] = [
+                    'isMain' => false,
+                    'url' => $this->uploadFile($image)
+                ];
             }
         }
 
@@ -73,17 +76,22 @@ class MachineService
                 $newFile = $imageUpdate['newFile'];
                 $newImagePath = $this->uploadFile($newFile);
                 $path = $this->fileUploader->getPathFromUrl($oldImage);
-                $key = array_search($path, $imagePaths);
+                $key = array_search($path, array_column($imagePaths, 'url'));
                 if ($key !== false) {
-                    $imagePaths[$key] = $newImagePath;
+                    $imagePaths[$key] = [
+                        'isMain' => $imagePaths[$key]['isMain'],
+                        'url' => $newImagePath
+                    ];
                 }
+
+                $this->fileUploader->deleteImage($path);
             }
         }
 
         if ($dto->imagesToRemove) {
             foreach ($dto->imagesToRemove as $imageToRemove) {
                 $path = $this->fileUploader->getPathFromUrl($imageToRemove);
-                $key = array_search($path, $imagePaths);
+                $key = array_search($path, array_column($imagePaths, 'url'));
                 if ($key !== false) {
                     unset($imagePaths[$key]);
                 }
@@ -92,9 +100,16 @@ class MachineService
                 //     $newImagePath = $this->uploadFile($imageToRemove->newFile);
                 //     $imagePaths[$key] = $newImagePath;
                 // }
+
+                $deleted = $this->fileUploader->deleteImage($path);
+                if ($deleted) {
+                    error_log("Successfully deleted image file at path: " . $path);
+                } else {
+                    error_log("Failed to delete image file at path: " . $path);
+                }
             }
             // Reindex array
-            $imagePaths = array_values($imagePaths);
+            $imagePaths = array_values(array: $imagePaths);
         }
 
         $manualPath = $machine->manualPath;
@@ -105,6 +120,35 @@ class MachineService
         $machine->update($dto->toArray($imagePaths, $manualPath));
 
         $machine->load('sections:id_section');
+
+        return new MachineResponseDto($machine);
+    }
+
+    public function setImageAsMain(int $id, $imageUrl)
+    {
+        $machine = MachineModel::find($id);
+        if (!$machine) {
+            throw AppException::notFound("Machine not found");
+        }
+
+        $path = $this->fileUploader->getPathFromUrl($imageUrl);
+
+        $images = array_map(function ($img) use ($path) {
+            if ($img['url'] === $path) {
+                return [
+                    'isMain' => true,
+                    'url' => $img['url']
+                ];
+            }
+            return [
+                'isMain' => false,
+                'url' => $img['url']
+            ];
+
+        }, json_decode($machine->images, true));
+
+
+        $machine->update(['images' => json_encode($images)]);
 
         return new MachineResponseDto($machine);
     }
@@ -126,7 +170,7 @@ class MachineService
             if ($machine->images) {
                 $images = json_decode($machine->images, true);
                 foreach ($images as $imagePath) {
-                    $this->fileUploader->deleteFile($imagePath);
+                    $this->fileUploader->deleteImage($imagePath['url']);
                 }
             }
 

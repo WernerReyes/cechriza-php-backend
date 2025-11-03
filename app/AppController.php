@@ -6,14 +6,17 @@ class AppController
 
     }
 
-    protected function body()
+    protected function body($expectedFields = null)
     {
         $jsonInput = file_get_contents('php://input');
         $data = json_decode($jsonInput, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
             throw AppException::internalServer('Error decoding JSON: ' . json_last_error_msg());
         }
-        return $data;
+        return $expectedFields ? 
+            is_array($expectedFields) ? 
+                array_intersect_key($data, array_flip($expectedFields)) : $data[$expectedFields]
+        : $data;
     }
 
 

@@ -9,9 +9,11 @@ class UpdatePageRequestDto
 
     public $slug;
 
+
+
     public function __construct($data, $id)
     {
-        $this->id = $id;    
+        $this->id = $id;
         $this->title = $data['title'] ?? null;
         $this->description = $data['description'] ?? null;
         $this->slug = $data['slug'] ?? null;
@@ -36,7 +38,10 @@ class UpdatePageRequestDto
             ->optional("slug")
 
             ->minLength("description", 10)
-            ->optional("description");
+            ->optional("description")
+
+
+        ;
 
 
         if ($validation->fails()) {
@@ -48,13 +53,11 @@ class UpdatePageRequestDto
 
     public function toUpdateDB(): array
     {
-        return array_filter([
-            "title" => $this->title !== null ? $this->title : null,
-            "description" => $this->description !== null ? $this->description : null,
-            "slug" => $this->slug !== null ? $this->slug : null,
-        ], function ($value) {
-            return $value !== null;
-        });
+        return [
+            "title" => $this->title,
+            "description" => $this->description,
+            "slug" => $this->slug,
+        ];
     }
 
 

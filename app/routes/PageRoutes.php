@@ -9,7 +9,6 @@ class PageRoutes
     public static function routes(
         Router $router
     ) {
-        $router->get(self::$publicPrefix, "PageController@getAll");
         $router->get(self::$publicPrefix . "/{slug}", "PageController@getBySlug");
 
 
@@ -17,6 +16,7 @@ class PageRoutes
         $router->get(self::$prefix . "/{id}", "PageController@getById", ["auth"]);
         $router->post(self::$prefix, "PageController@create", ["auth"]);
         $router->put(self::$prefix . "/{id}", "PageController@update", ["auth"]);
+        $router->put(self::$prefix . "/{id}/set-main", "PageController@setMain", ["auth"]);
         $router->delete(self::$prefix . "/{id}", "PageController@delete", ["auth"]);
     }
 }

@@ -132,7 +132,12 @@ class UpdateMachineDto
             'name' => $this->name,
             'description' => $this->shortDescription,
             'long_description' => $this->fullDescription,
-            'images' => json_encode($imagesPath),
+            'images' => json_encode(array_map(function ($path) {
+                return [
+                    'isMain' => $path["isMain"],
+                    'url' => $path["url"]
+                ];
+            }, $imagesPath)),
             'manual' => $manualPath,
             'technical_specifications' => json_encode(array_map(function ($spec) {
                 return [

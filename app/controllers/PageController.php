@@ -58,6 +58,12 @@ class PageController extends AppController
 
         return AppResponse::success($this->pageService->update($dto), "Página actualizada exitosamente");
     }
+
+    public function setMain($id)
+    {
+        $this->pageService->setMain(intval($id));
+        return AppResponse::success(message: "Página establecida como principal exitosamente");
+    }
     
 
     public function delete($id)

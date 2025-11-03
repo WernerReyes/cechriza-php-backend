@@ -11,10 +11,18 @@ class PageService
     {
         $page = PageModel::with($this->withRelations())->where('slug', $slug)->first();
         if (empty($page)) {
-            $principal = PageModel::with($this->withRelations())->get()->first();
-            if ($principal)
-                return new PageResponseDto($principal);
-            throw AppException::validationError("La página seleccionada no existe");
+            $principal = PageModel::with($this->withRelations())->where('is_main', true)->first();
+            if (empty($principal)) {
+                $firstPage = PageModel::with($this->withRelations())->first();
+                if (empty($firstPage)) {
+                    throw AppException::validationError("La página seleccionada no existe");
+                }
+
+                return new PageResponseDto($firstPage);
+            }
+
+            return new PageResponseDto($principal);
+
         }
         return new PageResponseDto($page);
         // return $page;
@@ -66,6 +74,7 @@ class PageService
 
     public function update(UpdatePageRequestDto $dto)
     {
+
         try {
             $page = PageModel::find($dto->id);
             if (empty($page)) {
@@ -79,6 +88,22 @@ class PageService
                 ["name" => "pages.slug", "message" => "Ya existe una página con este slug"]
             ]);
         }
+    }
+
+    public function setMain(int $id)
+    {
+        $page = PageModel::find($id);
+        if (empty($page)) {
+            throw AppException::validationError("La página seleccionada no existe");
+        }
+
+        // Desmarcar la página principal actual
+        PageModel::where('is_main', true)->update(['is_main' => null]);
+
+        // Marcar la nueva página principal
+        $page->update(['is_main' => true]);
+
+        return $page;
     }
 
     public function delete(int $id)
