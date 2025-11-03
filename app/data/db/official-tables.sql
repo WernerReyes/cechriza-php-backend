@@ -375,8 +375,7 @@ CREATE TABLE machines (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_machines_category FOREIGN KEY (category_id)
-        REFERENCES categories(id_category)
-        ON DELETE CASCADE,
+        REFERENCES categories(id_category),
 	CONSTRAINT fk_machines_link FOREIGN KEY (link_id) REFERENCES links(id_link)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -390,8 +389,8 @@ CREATE TABLE section_menus (
     id_menu INT NOT NULL,
         order_num INT NULL default 1,
     PRIMARY KEY (id_section, id_menu),
-    FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
-    FOREIGN KEY (id_menu) REFERENCES menu(id_menu) ON DELETE CASCADE
+    CONSTRAINT fk_section_menus_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
+    CONSTRAINT fk_section_menus_menu FOREIGN KEY (id_menu) REFERENCES menu(id_menu)
 );
 
 
@@ -405,8 +404,8 @@ CREATE TABLE section_pages (
     active TINYINT DEFAULT 1,
     type ENUM('LAYOUT', 'CUSTOM') DEFAULT 'CUSTOM',
     PRIMARY KEY (id_page, id_section),
-    FOREIGN KEY (id_page) REFERENCES pages(id_page) ON DELETE CASCADE,
-    FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE
+    CONSTRAINT fk_section_pages_page FOREIGN KEY (id_page) REFERENCES pages(id_page),
+    CONSTRAINT fk_section_pages_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE
 );
 
 
@@ -417,6 +416,7 @@ CREATE TABLE section_machines (
      id_section INT NOT NULL,
     id_machine INT NOT NULL,
     PRIMARY KEY (id_section, id_machine),
-    FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
-    FOREIGN KEY (id_machine) REFERENCES machines(id_machine) ON DELETE CASCADE
+    CONSTRAINT fk_section_machines_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
+    CONSTRAINT fk_section_machines_machine FOREIGN KEY (id_machine) REFERENCES machines(id_machine)
 );
+
