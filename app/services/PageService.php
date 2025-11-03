@@ -97,7 +97,7 @@ class PageService
             }
             throw new DBExceptionHandler($e, [
                 ["name" => "fk_links_pages", "message" => "No se puede eliminar la página porque está asociada a uno o más enlaces"],
-                ["name" => "fk_sections_pages", "message" => "No se puede eliminar la página porque está asociada a uno o más secciones"]
+                ["name" => "fk_section_pages_page", "message" => "No se puede eliminar la página porque está asociada a uno o más secciones"]
             ]);
         }
     }

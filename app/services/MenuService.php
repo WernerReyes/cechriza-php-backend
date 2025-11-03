@@ -57,6 +57,11 @@ class MenuService
             if (empty($parentMenu)) {
                 throw AppException::badRequest("El menú padre no existe");
             }
+
+            $parentMenu->load('parent.parent');
+            if (isset($parentMenu->parent->parent)) {
+                throw AppException::badRequest("Un menú no puede tener más de dos niveles de profundidad.");
+            }
         }
 
         $menuCreated = Capsule::connection()->transaction(function () use ($dto, $parentMenu) {
@@ -64,11 +69,27 @@ class MenuService
             $menuCreated = MenuModel::create(array_merge($dto->toInsertDB()));
             $menuCreated->load(['link:title,type,page_id,id_link']);
 
-            //* Si tiene padre, actualizar el menú padre para que sea dropdown
-            if ($parentMenu !== null && $parentMenu->link_id !== null) {
-                MenuModel::where('id_menu', $parentMenu->id_menu)->update([
-                    'link_id' => null,
-                ]);
+            // //* Si tiene padre, actualizar el menú padre para que sea dropdown
+            // if ($parentMenu !== null && $parentMenu->link_id !== null) {
+            //     MenuModel::where('id_menu', $parentMenu->id_menu)->update([
+            //         'link_id' => null,
+            //     ]);
+            // }
+
+             if ($menuCreated->children->count() > 0) {
+                // $menu = MenuModel::find($dto->id);
+                $menuCreated->load('children');
+                
+            } 
+             if ($menuCreated->parent_id) {
+                // $menu = MenuModel::find($dto->id);
+                $menuCreated->load('parent');
+
+            } 
+            if ($menuCreated->link_id) {
+                // $menu = MenuModel::find($dto->id);
+                // $menu->load('children');
+                $menuCreated->load('link:title,type,page_id,id_link');
             }
 
             return $menuCreated;
@@ -124,6 +145,11 @@ class MenuService
             if (empty($parentMenu)) {
                 throw AppException::badRequest("El menú padre no existe");
             }
+
+            $parentMenu->load('parent.parent');
+            if (isset($parentMenu->parent->parent)) {
+                throw AppException::badRequest("Un menú no puede tener más de dos niveles de profundidad.");
+            }
         }
 
         if ($dto->parentId !== null && $dto->parentId !== $menu->parent_id &&  $menu->children->count() > 0) {
@@ -154,12 +180,12 @@ class MenuService
             }
 
 
-            //* Si tiene padre, actualizar el menú padre para que sea dropdown
-            if ($parentMenu !== null && $parentMenu->link_id !== null) {
-                MenuModel::where('id_menu', $parentMenu->id_menu)->update([
-                    'link_id' => null,
-                ]);
-            }
+            // //* Si tiene padre, actualizar el menú padre para que sea dropdown
+            // if ($parentMenu !== null && $parentMenu->link_id !== null) {
+            //     MenuModel::where('id_menu', $parentMenu->id_menu)->update([
+            //         'link_id' => null,
+            //     ]);
+            // }
 
             return $menu;
         });

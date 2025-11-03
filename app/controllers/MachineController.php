@@ -39,7 +39,7 @@ class MachineController extends AppController
     public function update($id)
     {
         $formData = $this->formData(["fileImages", "manualFile", "imagesToUpdateNew"]);
-        
+
 
         error_log(json_encode($formData));
 
@@ -52,6 +52,14 @@ class MachineController extends AppController
         return AppResponse::success(
             $this->machineService->update($dto),
             "Máquina actualizada exitosamente"
+        );
+    }
+
+    public function delete($id)
+    {
+        return AppResponse::success(
+            $this->machineService->delete($id),
+            "Máquina eliminada exitosamente"
         );
     }
 

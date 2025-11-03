@@ -14,7 +14,7 @@ class MachineService
     {
         $machines = MachineModel::with(
             'category:id_category,title,type',
-                        'link:id_link,url,title,file_path,type'
+            'link:id_link,url,title,file_path,type'
         )->orderBy('updated_at', 'desc')->get();
         return $machines->map(fn($machine) => new MachineResponseDto($machine));
     }
@@ -86,7 +86,7 @@ class MachineService
                 $key = array_search($path, $imagePaths);
                 if ($key !== false) {
                     unset($imagePaths[$key]);
-                } 
+                }
 
                 // if ($imageToRemove->newFile) {
                 //     $newImagePath = $this->uploadFile($imageToRemove->newFile);
@@ -104,7 +104,45 @@ class MachineService
 
         $machine->update($dto->toArray($imagePaths, $manualPath));
 
+        $machine->load('sections:id_section');
+
         return new MachineResponseDto($machine);
+    }
+
+
+    public function delete(int $id)
+    {
+
+        try {
+            $machine = MachineModel::find($id);
+            if (!$machine) {
+                throw AppException::notFound("Machine not found");
+            }
+
+
+            $machine->delete();
+
+
+            if ($machine->images) {
+                $images = json_decode($machine->images, true);
+                foreach ($images as $imagePath) {
+                    $this->fileUploader->deleteFile($imagePath);
+                }
+            }
+
+            if ($machine->manualPath) {
+                $this->fileUploader->deleteFile($machine->manualPath);
+            }
+        } catch (Exception $e) {
+            if (get_class($e) === "AppException") {
+                throw $e;
+            }
+            throw new DBExceptionHandler($e, [
+                ["name" => "fk_section_machines_machine", "message" => "No se puede eliminar la máquina porque está asociada a una o más secciones"]
+            ]);
+        }
+
+
     }
 
 
@@ -124,4 +162,7 @@ class MachineService
         }
         return $uploadResult['path'];
     }
+
+
+
 }

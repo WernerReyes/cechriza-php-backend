@@ -30,5 +30,10 @@ class MachineModel extends Model
     {
         return $this->belongsTo(LinkModel::class, 'link_id', 'id_link');
     }
+
+    public function sections()
+    {
+        return $this->belongsToMany(SectionModel::class, 'section_machines', 'id_machine', 'id_section');
+    }
 }
 

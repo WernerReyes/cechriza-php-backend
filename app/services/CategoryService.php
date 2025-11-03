@@ -55,7 +55,7 @@ class CategoryService
                 throw $e;
             }
             throw new DBExceptionHandler($e, [
-                ["name" => "fk_section_items_category", "message" => "No se puede eliminar la categoría porque está asociada a uno o más ítems de sección"]
+                ["name" => "fk_machines_category", "message" => "No se puede eliminar la categoría porque está asociada a uno o más máquinas"]
             ]);
         }
 

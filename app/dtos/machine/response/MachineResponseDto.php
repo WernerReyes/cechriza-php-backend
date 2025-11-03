@@ -26,6 +26,8 @@ class MachineResponseDto
 
     public $text_button;
 
+    public $sections;
+
 
 
 
@@ -56,6 +58,7 @@ class MachineResponseDto
         $this->link_id = $machine->link_id;
         $this->link = $machine->link;
         $this->text_button = $machine->text_button;
+        $this->sections = $machine->sections;
         $this->created_at = $machine->created_at;
         $this->updated_at = $machine->updated_at;
     }
