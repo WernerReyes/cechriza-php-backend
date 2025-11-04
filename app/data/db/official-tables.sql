@@ -195,8 +195,6 @@
 
 
 
-
-
 use cechriza_web_v2;
 
 
@@ -244,6 +242,7 @@ CREATE TABLE pages (
     slug VARCHAR(100) NOT NULL UNIQUE,
     description TEXT,
     active TINYINT DEFAULT 1,
+    is_main TINYINT DEFAULT NULL,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
@@ -323,14 +322,19 @@ CREATE TABLE sections (
         'VALUE_PROPOSITION',
         'OPERATIONAL_BENEFITS',
         'MACHINE_DETAILS',
-        'MACHINES_CATALOG'
+        'MACHINES_CATALOG',
+        'FULL_MAINTENANCE_PLAN'
     ) NOT NULL,
     image VARCHAR(245),
     title VARCHAR(200),
     subtitle VARCHAR(200),
     description TEXT,
+    icon_url VARCHAR(200),
+    icon_type  ENUM('IMAGE', 'LIBRARY') DEFAULT NULL,
+    icon JSON DEFAULT NULL,
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
+    additional_info_list JSON,
     CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
@@ -345,12 +349,13 @@ CREATE TABLE section_items (
     description TEXT,
     image VARCHAR(245),
     background_image VARCHAR(100),
-    icon_url VARCHAR(100),
+    icon_url VARCHAR(200),
     icon_type  ENUM('IMAGE', 'LIBRARY') DEFAULT NULL,
     icon JSON DEFAULT NULL,
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
-      input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
+	input_type ENUM('TEXT', 'EMAIL', 'TEXTAREA') DEFAULT NULL,
+	additional_info_list JSON,
     order_num INT,
     section_id INT NOT NULL,
     CONSTRAINT fk_section_items_sections FOREIGN KEY (section_id) REFERENCES sections(id_section),
@@ -419,4 +424,3 @@ CREATE TABLE section_machines (
     CONSTRAINT fk_section_machines_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     CONSTRAINT fk_section_machines_machine FOREIGN KEY (id_machine) REFERENCES machines(id_machine)
 );
-
