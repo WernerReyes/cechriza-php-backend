@@ -36,6 +36,8 @@ class CreateSectionItemRequestDto
 
     public $inputType;
 
+    public $additionalInfoList;
+
 
 
 
@@ -57,6 +59,7 @@ class CreateSectionItemRequestDto
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->inputType = $data['inputType'] ?? null;
+        $this->additionalInfoList = $data['additionalInfoList'] ?? null;
     }
 
     public function validate()
@@ -102,7 +105,7 @@ class CreateSectionItemRequestDto
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
-       
+
 
             ->enum("iconType", IconType::class)
             ->optional("iconType")
@@ -113,10 +116,14 @@ class CreateSectionItemRequestDto
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl")
 
-           
+
 
             ->enum("inputType", InputType::class)
             ->optional("inputType")
+
+            ->array("additionalInfoList")
+            ->fieldsMatchInArray(['label'], $this->additionalInfoList)
+            ->optional("additionalInfoList");
 
         ;
 
@@ -223,12 +230,21 @@ class CreateSectionItemRequestDto
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
-            "icon_url" => $fileIconUrl,
             "link_id" => $this->linkId,
             "icon_type" => $this->iconType,
+            "icon_url" => $fileIconUrl,
             "icon" => json_encode($this->icon),
             "text_button" => $this->linkTexted,
             "input_type" => $this->inputType,
+            "additional_info_list" => $this->additionalInfoList ? json_encode(array_map(
+                function ($item) {
+                    return [
+                        'id' => UuidUtil::v4(),
+                        'label' => $item['label'],
+                    ];
+                },
+                $this->additionalInfoList
+            )) : null,
         ];
     }
 

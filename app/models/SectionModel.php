@@ -30,6 +30,8 @@ enum SectionType: string
 
     case MACHINES_CATALOG = 'MACHINES_CATALOG';
 
+    case FULL_MAINTENANCE_PLAN = 'FULL_MAINTENANCE_PLAN';
+
 
 }
 
@@ -51,6 +53,10 @@ class SectionModel extends Model
         'image',
         'link_id',
         'type',
+        "icon",
+        "icon_url",
+        "icon_type",
+        "additional_info_list",
         // 'order_num',
         // 'page_id'
         // 'created_at',

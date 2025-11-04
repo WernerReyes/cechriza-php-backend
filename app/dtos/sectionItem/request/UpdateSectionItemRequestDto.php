@@ -28,7 +28,7 @@ class UpdateSectionItemRequestDto
 
     public $currentBackgroundImageUrl;
 
-public $icon;
+    public $icon;
 
     public $iconType;
     public $linkId;
@@ -39,9 +39,11 @@ public $icon;
 
     public $fileIconUrl;
 
-    public $categoryId;
+    // public $categoryId;
 
     public $inputType;
+
+    public $additionalInfoList;
 
 
     public function __construct($data, $id)
@@ -60,12 +62,13 @@ public $icon;
         $this->backgroundImageUrl = $data['backgroundImageUrl'] ?? null;
         $this->currentImageUrl = $data['currentImageUrl'] ?? null;
         $this->currentBackgroundImageUrl = $data['currentBackgroundImageUrl'] ?? null;
+        // $this->categoryId = $data['categoryId'] ?? null;
+        $this->inputType = $data['inputType'] ?? null;
         $this->fileIcon = $data['fileIcon'] ?? null;
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
-        $this->categoryId = $data['categoryId'] ?? null;
-        $this->inputType = $data['inputType'] ?? null;
         $this->icon = $data['icon'] ?? null;
         $this->iconType = $data['iconType'] ?? null;
+        $this->additionalInfoList = $data['additionalInfoList'] ?? null;
     }
 
     public function validate()
@@ -120,22 +123,27 @@ public $icon;
             ->maxLength("linkTexted", 100)
             ->optional("linkTexted")
 
+            // ->integer("categoryId")
+            // ->min("categoryId", 1)
+            // ->optional("categoryId")
+
             ->files("fileIcon", ['svg'])
             ->optional("fileIcon")
 
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl")
-            
-            ->integer("categoryId")
-            ->min("categoryId", 1)
-            ->optional("categoryId")
+
 
             ->enum("inputType", InputType::class)
             ->optional("inputType")
 
             ->enum("iconType", IconType::class)
             ->optional("iconType")
-            ;
+
+            ->array("additionalInfoList")
+            ->fieldsMatchInArray(['label'], $this->additionalInfoList)
+            ->optional("additionalInfoList");
+        ;
 
         if ($validation->fails()) {
             return $validation->getErrors();
@@ -161,13 +169,19 @@ public $icon;
             "subtitle" => $this->subtitle,
             "image" => $imageUrl,
             "background_image" => $backgroundImageUrl,
-            "icon_url" => $fileIconUrl,
             "link_id" => $this->linkId,
             "text_button" => $this->linkTexted,
-            "category_id" => $this->categoryId,
+            // "category_id" => $this->categoryId,
             "input_type" => $this->inputType,
+            "icon_url" => $fileIconUrl,
             "icon_type" => $this->iconType,
             "icon" => json_encode($this->icon),
+            "additional_info_list" => json_encode(array_map(function ($info) {
+                return [
+                    'id' => UuidUtil::v4(),
+                    'label' => $info['label'],
+                ];
+            }, $this->additionalInfoList)),
         ];
     }
 

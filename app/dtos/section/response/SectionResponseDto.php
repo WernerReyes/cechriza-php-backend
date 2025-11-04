@@ -27,9 +27,14 @@ class SectionResponseDto
 
     public ?Collection $menus;
 
-    public  $machines;
+    public $machines;
 
-   
+    public ?string $icon_url;
+    public $icon;
+
+    public $icon_type;
+
+    public $additional_info_list;
 
     public function __construct($data)
     {
@@ -55,6 +60,12 @@ class SectionResponseDto
         $this->pivot_pages = isset($data->pivot) ? $data->pivot : null;
         $this->pages = isset($data->pages) ? $data->pages : null;
 
-      
+        $this->icon_url = isset($data->icon_url) ? $fileUploader->getUrl($data->icon_url) : null;
+        $this->icon = isset($data->icon) ? json_decode($data->icon, true) : null;
+        $this->icon_type = isset($data->icon_type) ? $data->icon_type : null;
+        $this->additional_info_list = isset($data->additional_info_list) ? json_decode($data->additional_info_list, true) : null;
+
+
+
     }
 }

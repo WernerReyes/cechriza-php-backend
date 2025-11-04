@@ -18,7 +18,7 @@ class UpdateSectionRequestDto
 
     public $imageUrl;
 
-      public $currentImageUrl;
+    public $currentImageUrl;
 
     public $pageId;
 
@@ -30,9 +30,19 @@ class UpdateSectionRequestDto
 
     public $machinesIds;
 
-   
- public $mode; //* CUSTOM | LAYOUT
-  
+
+    public $mode; //* CUSTOM | LAYOUT
+
+    public $icon;
+
+    public $iconType;
+
+    public $fileIcon;
+
+    public $fileIconUrl;
+
+
+    public $additionalInfoList;
 
     public function __construct($data, $id)
     {
@@ -51,6 +61,11 @@ class UpdateSectionRequestDto
         $this->pageId = $data["pageId"] ?? 0;
         $this->mode = $data["mode"] ?? '';
         $this->machinesIds = $data["machinesIds"] ?? null;
+        $this->fileIcon = $data['fileIcon'] ?? null;
+        $this->fileIconUrl = $data['fileIconUrl'] ?? null;
+        $this->icon = $data['icon'] ?? null;
+        $this->iconType = $data['iconType'] ?? null;
+        $this->additionalInfoList = $data['additionalInfoList'] ?? null;
     }
 
     public function validate()
@@ -76,7 +91,7 @@ class UpdateSectionRequestDto
             ->boolean("active")
             ->optional("active")
 
-             ->files("fileImage")
+            ->files("fileImage")
             ->optional("fileImage")
 
             ->pattern("imageUrl", PatternsConst::$URL)
@@ -86,22 +101,42 @@ class UpdateSectionRequestDto
             ->optional("menusIds")
 
             ->array("machinesIds")
-            ->optional("machinesIds");
+            ->optional("machinesIds")
+
+            ->files("fileIcon", ['svg'])
+            ->optional("fileIcon")
+
+            ->pattern("fileIconUrl", PatternsConst::$URL)
+            ->optional("fileIconUrl")
+
+
+            ->enum("inputType", InputType::class)
+            ->optional("inputType")
+
+            ->enum("iconType", IconType::class)
+            ->optional("iconType")
+
+
+             ->array("additionalInfoList")
+            ->fieldsMatchInArray(['label'], $this->additionalInfoList)
+            ->optional("additionalInfoList");
+
+
         ;
 
         if ($validation->fails()) {
             return $validation->getErrors();
         }
 
-         if ($this->mode === SectionMode::LAYOUT->value) {
-           $this->pageId = null;
+        if ($this->mode === SectionMode::LAYOUT->value) {
+            $this->pageId = null;
         }
 
 
         return $this;
     }
 
-    public function toUpdateDB($image = null): array
+    public function toUpdateDB($image = null, $fileIconUrl = null): array
     {
 
         // return array_filter([
@@ -120,10 +155,20 @@ class UpdateSectionRequestDto
             "title" => $this->title,
             "type" => $this->type,
             "subtitle" => $this->subtitle,
-            "image"=> $image,
+            "image" => $image,
             "description" => $this->description,
             "text_button" => $this->textButton,
-            "link_id" => $this->linkId
+            "link_id" => $this->linkId,
+            "icon_url" => $fileIconUrl,
+            "icon_type" => $this->iconType,
+            "icon" => json_encode($this->icon),
+            "additional_info_list" => json_encode(array_map(function ($info) {
+                return [
+                    'id' => UuidUtil::v4(),
+                    'label' => $info['label'],
+                ];
+            }, $this->additionalInfoList)),
+
         ];
     }
 

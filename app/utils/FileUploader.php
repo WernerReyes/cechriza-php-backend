@@ -24,7 +24,8 @@ class FileUploader
         ];
     }
 
-    private function uploadDir(string $folder) {
+    private function uploadDir(string $folder)
+    {
         return __DIR__ . '/../../public/uploads/' . $folder . '/';
     }
 
@@ -49,18 +50,18 @@ class FileUploader
 
             // Mover archivo
             // Mover archivo
-if (is_uploaded_file($file['tmp_name'])) {
-    if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-        throw new Exception('Error al mover archivo subido');
-    }
-} else {
-    // TODO: Check if there is an error with the uploaded file
-    // En Windows, usar copy + unlink en lugar de rename
-    if (!copy($file['tmp_name'], $targetPath)) {
-        throw new Exception('Error al copiar archivo desde temporal');
-    }
- 
-}
+            if (is_uploaded_file($file['tmp_name'])) {
+                if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al mover archivo subido');
+                }
+            } else {
+                // TODO: Check if there is an error with the uploaded file
+                // En Windows, usar copy + unlink en lugar de rename
+                if (!copy($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al copiar archivo desde temporal');
+                }
+
+            }
 
             // Si es SVG, sanitizar
             if (strtolower(pathinfo($fileName, PATHINFO_EXTENSION)) === 'svg') {
@@ -90,62 +91,104 @@ if (is_uploaded_file($file['tmp_name'])) {
     }
 
     public function uploadImageFromUrl($url)
-{
-    try {
-        // Descargar imagen temporalmente
-        $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
-        $imageData = @file_get_contents($url);
-        if ($imageData === false) {
-            throw new Exception('No se pudo descargar la imagen desde la URL: ' . $url);
+    {
+        try {
+            // Descargar imagen temporalmente
+            $tempFile = tempnam(sys_get_temp_dir(), 'upload_');
+            $imageData = @file_get_contents($url);
+            if ($imageData === false) {
+                throw new Exception('No se pudo descargar la imagen desde la URL: ' . $url);
+            }
+            file_put_contents($tempFile, $imageData);
+
+            // Detectar MIME real del archivo descargado
+            $mime = mime_content_type($tempFile);
+
+            // Asignar extensión según tipo MIME
+            $mimeToExt = [
+                'image/jpeg' => 'jpg',
+                'image/png' => 'png',
+                'image/gif' => 'gif',
+                'image/webp' => 'webp',
+                'image/svg+xml' => 'svg',
+            ];
+            $ext = $mimeToExt[$mime] ?? 'jpg';
+
+            // Generar nombre seguro
+            $safeName = uniqid('img_', true) . '.' . $ext;
+
+            // Crear estructura tipo $_FILES
+            $file = [
+                'name' => $safeName,
+                'type' => $mime,
+                'tmp_name' => $tempFile,
+                'error' => UPLOAD_ERR_OK,
+                'size' => filesize($tempFile),
+            ];
+
+
+            // Subir usando tu método existente
+            $uploadResult = $this->uploadImage($file, true);
+
+            // Eliminar archivo temporal
+            unlink($tempFile);
+
+            return $uploadResult;
+
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage(),
+            ];
         }
-        file_put_contents($tempFile, $imageData);
-
-        // Detectar MIME real del archivo descargado
-        $mime = mime_content_type($tempFile);
-
-        // Asignar extensión según tipo MIME
-        $mimeToExt = [
-            'image/jpeg' => 'jpg',
-            'image/png'  => 'png',
-            'image/gif'  => 'gif',
-            'image/webp' => 'webp',
-            'image/svg+xml' => 'svg',
-        ];
-        $ext = $mimeToExt[$mime] ?? 'jpg';
-
-        // Generar nombre seguro
-        $safeName = uniqid('img_', true) . '.' . $ext;
-
-        // Crear estructura tipo $_FILES
-        $file = [
-            'name' => $safeName,
-            'type' => $mime,
-            'tmp_name' => $tempFile,
-            'error' => UPLOAD_ERR_OK,
-            'size' => filesize($tempFile),
-        ];
-
-       
-        // Subir usando tu método existente
-        $uploadResult = $this->uploadImage($file, true);
-
-        // Eliminar archivo temporal
-        unlink($tempFile);
-
-        return $uploadResult;
-
-    } catch (Exception $e) {
-        return [
-            'success' => false,
-            'error' => $e->getMessage(),
-        ];
     }
-}
+
+
+    public function uploadVideo($file)
+    {
+        try {
+            // Validar archivo
+            $validation = $this->validateFile($file, ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv']);
+            if ($validation !== true) {
+                throw new Exception($validation);
+            }
+
+            // Crear directorio si no existe
+            $targetDir = $this->uploadDir('videos');
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            // Generar nombre único
+            $fileName = $this->generateFileName($file);
+            $targetPath = $targetDir . $fileName;
+
+            // Mover archivo
+            if (!move_uploaded_file($file['tmp_name'], to: $targetPath)) {
+                throw new Exception('Error al mover el video');
+            }
+
+            return [
+                'success' => true,
+                'filename' => $fileName,
+                'path' => "/uploads/videos/$fileName",
+                'full_path' => $targetPath,
+                'size' => filesize($targetPath),
+                'url' => $this->getPublicUrl($fileName, 'videos')
+            ];
+
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
 
 
     public function getPathFromUrl($url, $folder = 'images')
     {
-        
+
         $fileName = basename($url);
         return "/uploads/$folder/$fileName";
     }
@@ -211,10 +254,10 @@ if (is_uploaded_file($file['tmp_name'])) {
     }
 
 
-    
 
 
-    
+
+
 
     public function validateFile($file, $allowExtensions = [])
     {

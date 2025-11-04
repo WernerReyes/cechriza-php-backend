@@ -30,6 +30,18 @@ class CreateSectionRequestDto
 
     public $mode; //* CUSTOM | LAYOUT
 
+    public $icon;
+
+    public $iconType;
+
+    public $fileIcon;
+
+    public $fileIconUrl;
+
+    public $inputType;
+
+    public $additionalInfoList;
+
     public function __construct($data)
     {
         $this->title = $data["title"] ?? '';
@@ -45,6 +57,12 @@ class CreateSectionRequestDto
         $this->menusIds = $data["menusIds"] ?? null;
         $this->machinesIds = $data["machinesIds"] ?? null;
         $this->mode = $data["mode"] ?? '';
+        $this->icon = $data['icon'] ?? null;
+        $this->iconType = $data['iconType'] ?? null;
+        $this->fileIcon = $data['fileIcon'] ?? null;
+        $this->fileIconUrl = $data['fileIconUrl'] ?? null;
+        $this->inputType = $data['inputType'] ?? null;
+        $this->additionalInfoList = $data['additionalInfoList'] ?? null;
     }
 
     public function validate()
@@ -77,10 +95,26 @@ class CreateSectionRequestDto
 
             ->array("machinesIds")
             ->optional("machinesIds")
-            
+
             ->required("mode")
             ->enum("mode", SectionMode::class)
-            ;
+
+            ->enum("iconType", IconType::class)
+            ->optional("iconType")
+
+            ->files("fileIcon", ['svg'])
+            ->optional("fileIcon")
+
+            ->pattern("fileIconUrl", PatternsConst::$URL)
+            ->optional("fileIconUrl")
+
+            ->enum("inputType", InputType::class)
+            ->optional("inputType")
+
+             ->array("additionalInfoList")
+            ->fieldsMatchInArray(['label'], $this->additionalInfoList)
+            ->optional("additionalInfoList");
+        ;
 
 
 
@@ -94,6 +128,13 @@ class CreateSectionRequestDto
         }
 
         $this->setFieldForSectionType();
+
+        if ($this->iconType === IconType::IMAGE->value) {
+            $this->icon = null;
+        } else if ($this->iconType === IconType::LIBRARY->value) {
+            $this->fileIcon = null;
+            $this->fileIconUrl = null;
+        }
 
         return $this;
     }
@@ -167,16 +208,25 @@ class CreateSectionRequestDto
         }
     }
 
-    public function toInsertDB($imageUrl = null): array
+    public function toInsertDB($imageUrl = null, $fileIconUrl = null): array
     {
         return [
             "title" => $this->title,
             "type" => $this->type,
             "subtitle" => $this->subtitle,
-            "image"=> $imageUrl,
+            "image" => $imageUrl,
             "description" => $this->description,
             "text_button" => $this->textButton,
-            "link_id" => $this->linkId
+            "link_id" => $this->linkId,
+            "icon_url" => $fileIconUrl,
+            "icon_type" => $this->iconType,
+            "icon" => json_encode($this->icon),
+            "additional_info_list" => json_encode(array_map(function ($info) {
+                return [
+                    'id' => UuidUtil::v4(),
+                    'label' => $info['label'],
+                ];
+            }, $this->additionalInfoList)),
         ];
     }
 

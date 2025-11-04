@@ -6,7 +6,6 @@ require_once "app/exceptions/DBExceptionHandler.php";
 require_once "app/dtos/section/request/CreateSectionRequestDto.php";
 require_once "app/dtos/section/response/SectionResponseDto.php";
 use Illuminate\Database\Capsule\Manager as Capsule;
-use Illuminate\Support\Facades\DB;
 
 class SectionService
 {
@@ -51,14 +50,22 @@ class SectionService
             // $maxOrder = SectionModel::max('order_num') ?? 0;
 
             $imageUrl = null;
-
+            $fileIconUrl = null;
             if (
                 $this->allowSectionTypeToUpsertImages($dto->type)
             ) {
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
+            } else if (
+                in_array($dto->type, [
+                    SectionType::FULL_MAINTENANCE_PLAN->value,
+                ])
+            ) {
+                if ($dto->iconType == IconType::IMAGE->value) {
+                    $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+                }
             }
 
-            $section = SectionModel::create($dto->toInsertDB($imageUrl));
+            $section = SectionModel::create($dto->toInsertDB($imageUrl, $fileIconUrl));
 
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
                 foreach ($dto->menusIds as $index => $menuId) {
@@ -101,11 +108,19 @@ class SectionService
         if (empty($section)) {
             throw AppException::validationError("La sección seleccionada no existe");
         }
-
         $imageUrl = null;
+        $fileIconUrl = null;
 
         if ($this->allowSectionTypeToUpsertImages($dto->type)) {
             $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
+        } else if (
+            in_array($dto->type, [
+                SectionType::FULL_MAINTENANCE_PLAN->value,
+            ])
+        ) {
+            if ($dto->iconType == IconType::IMAGE->value) {
+                $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+            }
         }
 
         // error_log("Image URL to update: " . $imageUrl);
@@ -159,6 +174,7 @@ class SectionService
             SectionType::CTA_BANNER->value,
             SectionType::MISSION_VISION->value,
             SectionType::CONTACT_US->value,
+            SectionType::FULL_MAINTENANCE_PLAN->value,
             SectionType::FOOTER->value,
         ]);
     }

@@ -37,7 +37,8 @@ class SectionItemModel extends Model
         "icon",
         "icon_url",
         "icon_type",
-        "link_id"
+        "link_id",
+        "additional_info_list",
     ];
 
     public function link()
