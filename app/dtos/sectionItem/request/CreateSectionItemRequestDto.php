@@ -233,7 +233,7 @@ class CreateSectionItemRequestDto
             "link_id" => $this->linkId,
             "icon_type" => $this->iconType,
             "icon_url" => $fileIconUrl,
-            "icon" => json_encode($this->icon),
+            "icon" => $this->icon ? json_encode($this->icon) : null,
             "text_button" => $this->linkTexted,
             "input_type" => $this->inputType,
             "additional_info_list" => $this->additionalInfoList ? json_encode(array_map(

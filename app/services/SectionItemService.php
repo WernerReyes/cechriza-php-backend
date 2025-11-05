@@ -84,8 +84,10 @@ class SectionItemService
                 $fileIconUrl = $this->getImageToUpdateDB($sectionItem->icon, $dto->fileIconUrl, null, $dto->fileIcon);
             } elseif ($dto->iconType == IconType::LIBRARY->value) {
                 // If switching to library icon, delete existing image icon if any
-                if ($sectionItem->icon) {
-                    $this->fileUploader->deleteImage($sectionItem->icon);
+                if ($sectionItem->icon_url) {
+                    $this->fileUploader->deleteImage($sectionItem->icon_url);
+
+
                 }
 
                 $fileIconUrl = null;

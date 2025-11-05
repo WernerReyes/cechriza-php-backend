@@ -56,7 +56,6 @@ class CookieUtil
      */
     public static function getJwtFromCookie($name = 'access_token')
     {
-        error_log('JWT from cookie: ' . json_encode($_COOKIE));
         return $_COOKIE[$name] ?? null;
     }
 
@@ -133,6 +132,7 @@ class CookieUtil
 
         return $token;
     }
+
 
     /**
      * Configurar múltiples cookies de autenticación

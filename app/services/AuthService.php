@@ -102,7 +102,7 @@ class AuthService
             throw AppException::unauthorized("Las credenciales son incorrectas");
         }
 
-        $token = CookieUtil::getJwtFromCookie();
+        $token = CookieUtil::getJwtToken();
         $refreshToken = CookieUtil::getRefreshTokenFromCookie();
 
         return new LoginResponseDto($user->setHidden(['password']), $token, $refreshToken);

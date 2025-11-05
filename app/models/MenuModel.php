@@ -84,7 +84,7 @@ enum MenuUpdateField: string
 
 class MenuModel extends Model {
     public $table = 'menu';
-    public $timestamps = false;
+    public $timestamps = true;
     protected $fillable = [
         'title',
         // 'order_num',     

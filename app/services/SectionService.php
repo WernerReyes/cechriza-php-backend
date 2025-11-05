@@ -21,6 +21,7 @@ class SectionService
         $sections = SectionModel::with([
             'sectionItems',
             'link:id_link,type',
+            'extraLink:id_link,type',
             'sectionItems.link:id_link,type',
             // 'menus' => function ($query) {
             //     $query
@@ -51,13 +52,18 @@ class SectionService
 
             $imageUrl = null;
             $fileIconUrl = null;
+            $fileVideoUrl = null;
             if (
                 $this->allowSectionTypeToUpsertImages($dto->type)
             ) {
                 $imageUrl = $this->getImageToInsertDB($dto->imageUrl, $dto->fileImage);
-            } else if (
+
+            }
+
+            if (
                 in_array($dto->type, [
                     SectionType::FULL_MAINTENANCE_PLAN->value,
+                    SectionType::SUPPORT_WIDGET->value
                 ])
             ) {
                 if ($dto->iconType == IconType::IMAGE->value) {
@@ -65,7 +71,15 @@ class SectionService
                 }
             }
 
-            $section = SectionModel::create($dto->toInsertDB($imageUrl, $fileIconUrl));
+            if (
+                in_array($dto->type, [
+                    SectionType::PREVENTIVE_CORRECTIVE_MAINTENANCE->value,
+                ])
+            ) {
+                $fileVideoUrl = $this->getVideoToInsertDB($dto->fileVideo);
+            }
+
+            $section = SectionModel::create($dto->toInsertDB($imageUrl, $fileIconUrl, $fileVideoUrl));
 
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
                 foreach ($dto->menusIds as $index => $menuId) {
@@ -110,23 +124,42 @@ class SectionService
         }
         $imageUrl = null;
         $fileIconUrl = null;
+        $fileVideoUrl = null;
 
         if ($this->allowSectionTypeToUpsertImages($dto->type)) {
             $imageUrl = $this->getImageToUpdateDB($section->image, $dto->currentImageUrl, $dto->imageUrl, $dto->fileImage);
-        } else if (
+        }
+
+        if (
             in_array($dto->type, [
                 SectionType::FULL_MAINTENANCE_PLAN->value,
+                SectionType::SUPPORT_WIDGET->value
             ])
         ) {
             if ($dto->iconType == IconType::IMAGE->value) {
-                $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
+                $fileIconUrl = $this->getImageToUpdateDB($section->icon, $dto->fileIconUrl, null, $dto->fileIcon);
+            } elseif ($dto->iconType == IconType::LIBRARY->value) {
+                // If switching to library icon, delete existing image icon if any
+                if ($section->icon_url) {
+                    $this->fileUploader->deleteImage($section->icon_url);
+                }
+
+                $fileIconUrl = null;
             }
+        }
+
+        if (
+            in_array($dto->type, [
+                SectionType::PREVENTIVE_CORRECTIVE_MAINTENANCE->value,
+            ])
+        ) {
+            $fileVideoUrl = $this->getVideoToUpdateDB($section->video, $dto->currentVideoUrl, $dto->fileVideo);
         }
 
         // error_log("Image URL to update: " . $imageUrl);
 
 
-        $section->update($dto->toUpdateDB($imageUrl));
+        $section->update($dto->toUpdateDB($imageUrl, $fileIconUrl, $fileVideoUrl));
 
         if ($dto->active !== null && $dto->pageId !== null) {
             PageSectionModel::where('id_page', $dto->pageId)
@@ -176,6 +209,8 @@ class SectionService
             SectionType::CONTACT_US->value,
             SectionType::FULL_MAINTENANCE_PLAN->value,
             SectionType::FOOTER->value,
+            SectionType::PREVENTIVE_CORRECTIVE_MAINTENANCE->value,
+            SectionType::SUPPORT_WIDGET->value,
         ]);
     }
 
@@ -317,6 +352,40 @@ class SectionService
                 ["name" => "fk_menus_section", "message" => "No se puede eliminar la sección porque está asociada a uno o más menús"]
             ]);
         }
+    }
+
+    private function getVideoToUpdateDB($videoDB, $currentVideoUrl, $fileVideo)
+    {
+        error_log("getVideoToUpdateDB called with videoDB: " . $videoDB . ", currentVideoUrl: " . $currentVideoUrl . ", fileVideo: " . json_encode($fileVideo));
+        if (empty($fileVideo) && empty($currentVideoUrl)) {
+            return null;
+        } else if (empty($fileVideo) && !empty($currentVideoUrl)) {
+            return $this->fileUploader->getPathFromUrl($currentVideoUrl);
+        }
+
+        if ($fileVideo && $videoDB) {
+            $this->fileUploader->deleteVideo($videoDB);
+        }
+
+        return $this->getVideoToInsertDB($fileVideo);
+
+    }
+
+
+    private function getVideoToInsertDB($fileVideo)
+    {
+        $currentVideoUrl = null;
+        if (!empty($fileVideo)) {
+            $uploadResult = $this->fileUploader->uploadVideo($fileVideo);
+
+            if (isset($uploadResult["error"])) {
+                throw AppException::validationError("Video upload failed: " . $uploadResult['error']);
+            }
+
+            $currentVideoUrl = $uploadResult['path'];
+        }
+
+        return $currentVideoUrl;
     }
 
 

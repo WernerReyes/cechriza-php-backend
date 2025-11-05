@@ -21,6 +21,9 @@ class FileUploader
             'image/svg+xml',
             'text/html',
             'application/pdf',
+            'video/mp4',
+            'video/avi',
+            'video/mov',
         ];
     }
 
@@ -146,6 +149,7 @@ class FileUploader
 
     public function uploadVideo($file)
     {
+        $this->maxFileSize = 20 * 1024 * 1024; // 20MB
         try {
             // Validar archivo
             $validation = $this->validateFile($file, ['mp4', 'avi', 'mov', 'wmv', 'flv', 'mkv']);
@@ -297,11 +301,15 @@ class FileUploader
         if ($mimeType === 'text/html' || $mimeType === 'application/pdf') {
             return true;
         }
-
+        
+        if ($mimeType === 'video/mp4' || $mimeType === 'video/avi' || $mimeType === 'video/mov') {
+            return true;
+        }
         // Verificar que sea una imagen real
         if ($mimeType !== 'image/svg+xml' && !getimagesize($file['tmp_name'])) {
             return 'El archivo no es una imagen válida';
         }
+
 
         return true;
     }
@@ -427,6 +435,16 @@ class FileUploader
         // Construir URL pública
         $fileName = basename($imagePath);
         return $this->getPublicUrl($fileName, $folder);
+    }
+
+    public function deleteVideo($videoPath)
+    {
+        $fullPath = $this->uploadDir('videos') . ltrim(basename($videoPath), '/');
+
+        if (file_exists($fullPath)) {
+            return unlink(filename: $fullPath);
+        }
+        return false;
     }
 
     public function deleteImage($imagePath)

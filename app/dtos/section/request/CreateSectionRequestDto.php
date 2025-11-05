@@ -15,16 +15,19 @@ class CreateSectionRequestDto
     public $type;
     public $textButton;
 
+    public $extraTextButton;
+
     public $fileImage;
 
     public $imageUrl;
 
     public $linkId;
 
+    public $extraLinkId;
+
     public $active;
 
     public $menusIds;
-
 
     public $machinesIds;
 
@@ -42,6 +45,9 @@ class CreateSectionRequestDto
 
     public $additionalInfoList;
 
+    public $fileVideo;
+
+
     public function __construct($data)
     {
         $this->title = $data["title"] ?? '';
@@ -52,6 +58,7 @@ class CreateSectionRequestDto
         $this->description = $data["description"] ?? null;
         $this->textButton = $data["textButton"] ?? null;
         $this->linkId = $data["linkId"] ?? null;
+        $this->extraLinkId = $data["extraLinkId"] ?? null;
         $this->fileImage = $data["fileImage"] ?? null;
         $this->imageUrl = $data["imageUrl"] ?? null;
         $this->menusIds = $data["menusIds"] ?? null;
@@ -63,6 +70,7 @@ class CreateSectionRequestDto
         $this->fileIconUrl = $data['fileIconUrl'] ?? null;
         $this->inputType = $data['inputType'] ?? null;
         $this->additionalInfoList = $data['additionalInfoList'] ?? null;
+        $this->fileVideo = $data['fileVideo'] ?? null;
     }
 
     public function validate()
@@ -108,10 +116,13 @@ class CreateSectionRequestDto
             ->pattern("fileIconUrl", PatternsConst::$URL)
             ->optional("fileIconUrl")
 
+            // ->files("fileVideo", ['mp4', 'mov', 'avi'])
+            ->optional("fileVideo")
+
             ->enum("inputType", InputType::class)
             ->optional("inputType")
 
-             ->array("additionalInfoList")
+            ->array("additionalInfoList")
             ->fieldsMatchInArray(['label'], $this->additionalInfoList)
             ->optional("additionalInfoList");
         ;
@@ -208,7 +219,7 @@ class CreateSectionRequestDto
         }
     }
 
-    public function toInsertDB($imageUrl = null, $fileIconUrl = null): array
+    public function toInsertDB($imageUrl = null, $fileIconUrl = null, $fileVideoUrl = null): array
     {
         return [
             "title" => $this->title,
@@ -217,16 +228,19 @@ class CreateSectionRequestDto
             "image" => $imageUrl,
             "description" => $this->description,
             "text_button" => $this->textButton,
+            "extra_text_button" => $this->extraTextButton,
             "link_id" => $this->linkId,
+            "extra_link_id" => $this->extraLinkId,
             "icon_url" => $fileIconUrl,
             "icon_type" => $this->iconType,
-            "icon" => json_encode($this->icon),
-            "additional_info_list" => json_encode(array_map(function ($info) {
+            "icon" => $this->icon ? json_encode($this->icon) : null,
+            "video" => $fileVideoUrl,
+            "additional_info_list" => $this->additionalInfoList ? json_encode(array_map(function ($info) {
                 return [
                     'id' => UuidUtil::v4(),
                     'label' => $info['label'],
                 ];
-            }, $this->additionalInfoList)),
+            }, $this->additionalInfoList)) : null,
         ];
     }
 

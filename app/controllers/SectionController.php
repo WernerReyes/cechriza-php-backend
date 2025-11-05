@@ -22,7 +22,7 @@ class SectionController extends AppController
     public function create()
     {
 
-        $formData = $this->formData(["fileImage", "fileIcon"]);
+        $formData = $this->formData(["fileImage", "fileIcon", 'fileVideo']);
         // $body = $this->body();
         error_log(json_encode($formData) ." formData");
         $dto = new CreateSectionRequestDto($formData);
@@ -36,7 +36,7 @@ class SectionController extends AppController
 
     public function update($id)
     {
-         $formData = $this->formData(["fileImage", "fileIcon"]);
+         $formData = $this->formData(["fileImage", "fileIcon", 'fileVideo']);
 
          error_log(json_encode($formData) ." formData");
         $dto = new UpdateSectionRequestDto($formData, $id);

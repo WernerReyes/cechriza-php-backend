@@ -11,7 +11,7 @@ class UpdateMenuRequestDto
 
     public $parentId;
 
-    public $active;
+
 
 
     public function __construct($data, $id)
@@ -41,10 +41,7 @@ class UpdateMenuRequestDto
 
             ->integer("parentId")
             ->min("parentId", 1)
-            ->optional("parentId")
-
-            ->boolean("active")
-            ->optional("active");
+            ->optional("parentId");
 
         if ($validation->fails()) {
             return $validation->getErrors();
@@ -61,7 +58,6 @@ class UpdateMenuRequestDto
             "title" => $this->title === null ? null : $this->title,
             "link_id" => $this->linkId === null ? null : intval($this->linkId),
             "parent_id" => $this->parentId === null ? null : intval($this->parentId),
-            "active" => $this->active === null ? null : (boolval($this->active) ? 1 : 0)
         ];
         
     }

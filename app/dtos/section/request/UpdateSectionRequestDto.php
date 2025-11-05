@@ -14,6 +14,8 @@ class UpdateSectionRequestDto
     public $type;
     public $textButton;
 
+    public $extraTextButton;
+
     public $fileImage;
 
     public $imageUrl;
@@ -23,6 +25,8 @@ class UpdateSectionRequestDto
     public $pageId;
 
     public $linkId;
+
+    public $extraLinkId;
 
     public $active;
 
@@ -44,6 +48,10 @@ class UpdateSectionRequestDto
 
     public $additionalInfoList;
 
+    public $fileVideo;
+
+    public $currentVideoUrl;
+
     public function __construct($data, $id)
     {
         $this->id = $id;
@@ -53,7 +61,9 @@ class UpdateSectionRequestDto
         $this->subtitle = $data["subtitle"] ?? null;
         $this->description = $data["description"] ?? null;
         $this->textButton = $data["textButton"] ?? null;
+        $this->extraTextButton = $data["extraTextButton"] ?? null;
         $this->linkId = $data["linkId"] ?? null;
+        $this->extraLinkId = $data["extraLinkId"] ?? null;
         $this->fileImage = $data["fileImage"] ?? null;
         $this->imageUrl = $data["imageUrl"] ?? null;
         $this->currentImageUrl = $data["currentImageUrl"] ?? null;
@@ -66,6 +76,8 @@ class UpdateSectionRequestDto
         $this->icon = $data['icon'] ?? null;
         $this->iconType = $data['iconType'] ?? null;
         $this->additionalInfoList = $data['additionalInfoList'] ?? null;
+        $this->fileVideo = $data['fileVideo'] ?? null;
+        $this->currentVideoUrl = $data['currentVideoUrl'] ?? null;
     }
 
     public function validate()
@@ -116,6 +128,11 @@ class UpdateSectionRequestDto
             ->enum("iconType", IconType::class)
             ->optional("iconType")
 
+            // ->files("fileVideo", ['mp4', 'mov', 'avi'])
+            ->optional("fileVideo")
+
+            ->pattern("currentVideoUrl", PatternsConst::$URL)
+            ->optional("currentVideoUrl")
 
              ->array("additionalInfoList")
             ->fieldsMatchInArray(['label'], $this->additionalInfoList)
@@ -136,7 +153,7 @@ class UpdateSectionRequestDto
         return $this;
     }
 
-    public function toUpdateDB($image = null, $fileIconUrl = null): array
+    public function toUpdateDB($image = null, $fileIconUrl = null, $fileVideoUrl = null): array
     {
 
         // return array_filter([
@@ -158,16 +175,19 @@ class UpdateSectionRequestDto
             "image" => $image,
             "description" => $this->description,
             "text_button" => $this->textButton,
+            "extra_text_button" => $this->extraTextButton,
             "link_id" => $this->linkId,
+            "extra_link_id" => $this->extraLinkId,
             "icon_url" => $fileIconUrl,
+            "video" => $fileVideoUrl,
             "icon_type" => $this->iconType,
-            "icon" => json_encode($this->icon),
-            "additional_info_list" => json_encode(array_map(function ($info) {
+            "icon" => $this->icon ? json_encode($this->icon) : null,
+            "additional_info_list" =>  $this->additionalInfoList ? json_encode(array_map(function ($info) {
                 return [
                     'id' => UuidUtil::v4(),
                     'label' => $info['label'],
                 ];
-            }, $this->additionalInfoList)),
+            }, $this->additionalInfoList)) : null,
 
         ];
     }

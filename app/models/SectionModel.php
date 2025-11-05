@@ -32,6 +32,10 @@ enum SectionType: string
 
     case FULL_MAINTENANCE_PLAN = 'FULL_MAINTENANCE_PLAN';
 
+    case PREVENTIVE_CORRECTIVE_MAINTENANCE = 'PREVENTIVE_CORRECTIVE_MAINTENANCE';
+
+    case SUPPORT_WIDGET = 'SUPPORT_WIDGET';
+
 
 }
 
@@ -50,13 +54,16 @@ class SectionModel extends Model
         'subtitle',
         'active',
         'text_button',
+        'extra_text_button',
         'image',
         'link_id',
+        'extra_link_id',
         'type',
         "icon",
         "icon_url",
         "icon_type",
         "additional_info_list",
+        'video'
         // 'order_num',
         // 'page_id'
         // 'created_at',
@@ -74,6 +81,11 @@ class SectionModel extends Model
     public function link()
     {
         return $this->hasOne(LinkModel::class, 'id_link', 'link_id');
+    }
+
+    public function extraLink()
+    {
+        return $this->hasOne(LinkModel::class, 'id_link', 'extra_link_id');
     }
 
 

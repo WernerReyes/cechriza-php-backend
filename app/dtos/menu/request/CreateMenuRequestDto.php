@@ -10,8 +10,7 @@ class CreateMenuRequestDto
 
     public $parentId;
 
-    public $active;
-
+   
 
 
 
@@ -21,7 +20,6 @@ class CreateMenuRequestDto
         $this->title = $data['title'] ?? '';
         $this->linkId = $data['linkId'] ?? null;
         $this->parentId = $data['parentId'] ?? null;
-        $this->active = $data['active'] ?? true;
     }
 
     public function validate()
@@ -38,10 +36,7 @@ class CreateMenuRequestDto
 
             ->integer("parentId")
             ->min("parentId", 1)
-            ->optional("parentId")
-
-            ->boolean("active")
-            ->optional("active");
+            ->optional("parentId");
 
         if ($validation->fails()) {
             return $validation->getErrors();
@@ -58,7 +53,6 @@ class CreateMenuRequestDto
             "title" => $this->title,
             "link_id" => $this->linkId === null ? null : intval($this->linkId),
             "parent_id" => $this->parentId == null ? null : intval($this->parentId),
-            "active" => boolval($this->active) ? 1 : 0,
         ];
     }
 

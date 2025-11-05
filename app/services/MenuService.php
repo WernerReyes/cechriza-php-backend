@@ -156,7 +156,7 @@ class MenuService
             throw AppException::badRequest("Un menú con submenús no puede ser hijo de otro menú.");
         }
 
-        $menu = Capsule::connection()->transaction(function () use ($dto, $menu, $parentMenu) {
+        $menu = Capsule::connection()->transaction(function () use ($dto, $menu) {
 
 
             $menu->update($dto->toUpdateDB());

@@ -15,6 +15,8 @@ class AuthMiddleware
     {
         $token = CookieUtil::getJwtToken();
 
+    
+
         if (!$token) {
             throw AppException::unauthorized("Authentication required");
         }
@@ -53,32 +55,32 @@ class AuthMiddleware
         return $user;
     }
 
-    private static function autoRefresh()
-    {
-        $refreshToken = CookieUtil::getRefreshTokenFromCookie();
+    // private static function autoRefresh()
+    // {
+    //     $refreshToken = CookieUtil::getRefreshTokenFromCookie();
 
-        if (!$refreshToken) {
-            throw AppException::unauthorized("Session expired, please login again");
-        }
+    //     if (!$refreshToken) {
+    //         throw AppException::unauthorized("Session expired, please login again");
+    //     }
 
-        try {
-            require_once 'app/services/AuthService.php';
-            require_once 'app/models/UserModel.php';
+    //     try {
+    //         require_once 'app/services/AuthService.php';
+    //         require_once 'app/models/UserModel.php';
 
-            $authService = new AuthService();
-            $tokens = $authService->refreshToken();
+    //         $authService = new AuthService();
+    //         $tokens = $authService->refreshToken();
 
-            // Obtener datos del usuario del nuevo token
-            $userPayload = JwtUtil::getUserFromToken($tokens->accessToken);
-            $GLOBALS['current_user'] = $userPayload;
+    //         // Obtener datos del usuario del nuevo token
+    //         $userPayload = JwtUtil::getUserFromToken($tokens->accessToken);
+    //         $GLOBALS['current_user'] = $userPayload;
 
-            return $userPayload;
+    //         return $userPayload;
 
-        } catch (Exception $e) {
-            CookieUtil::clearAuthCookies();
-            throw AppException::unauthorized("Session expired, please login again");
-        }
-    }
+    //     } catch (Exception $e) {
+    //         CookieUtil::clearAuthCookies();
+    //         throw AppException::unauthorized("Session expired, please login again");
+    //     }
+    // }
 
     public static function getCurrentUser()
     {

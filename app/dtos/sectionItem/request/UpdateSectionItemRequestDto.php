@@ -175,13 +175,13 @@ class UpdateSectionItemRequestDto
             "input_type" => $this->inputType,
             "icon_url" => $fileIconUrl,
             "icon_type" => $this->iconType,
-            "icon" => json_encode($this->icon),
-            "additional_info_list" => json_encode(array_map(function ($info) {
+            "icon" => $this->icon ? json_encode($this->icon) : null,
+            "additional_info_list" => $this->additionalInfoList ? json_encode(array_map(function ($info) {
                 return [
                     'id' => UuidUtil::v4(),
                     'label' => $info['label'],
                 ];
-            }, $this->additionalInfoList)),
+            }, $this->additionalInfoList)) : null,
         ];
     }
 

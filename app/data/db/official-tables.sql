@@ -274,13 +274,13 @@ CREATE TABLE links (
 CREATE TABLE menu (
     id_menu INT AUTO_INCREMENT PRIMARY KEY,
     title VARCHAR(100) NOT NULL,
-    active TINYINT DEFAULT 1,
     parent_id INT DEFAULT NULL,
     link_id INT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     CONSTRAINT fk_menu_parent FOREIGN KEY (parent_id) REFERENCES menu(id_menu),
     CONSTRAINT fk_menu_links FOREIGN KEY (link_id) REFERENCES links(id_link)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 
 -- ==========================================
@@ -294,8 +294,6 @@ CREATE TABLE categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT uk_categories_type_title unique (type, title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
-
 
 
 -- ==========================================
@@ -323,9 +321,12 @@ CREATE TABLE sections (
         'OPERATIONAL_BENEFITS',
         'MACHINE_DETAILS',
         'MACHINES_CATALOG',
-        'FULL_MAINTENANCE_PLAN'
+        'FULL_MAINTENANCE_PLAN',
+        'PREVENTIVE_CORRECTIVE_MAINTENANCE',
+        'SUPPORT_WIDGET'
     ) NOT NULL,
     image VARCHAR(245),
+    video VARCHAR(245),
     title VARCHAR(200),
     subtitle VARCHAR(200),
     description TEXT,
@@ -334,10 +335,11 @@ CREATE TABLE sections (
     icon JSON DEFAULT NULL,
     text_button VARCHAR(100),
     link_id INT DEFAULT NULL,
+    extra_link_id INT DEFAULT NULL,
     additional_info_list JSON,
-    CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link)
+    CONSTRAINT fk_sections_link FOREIGN KEY (link_id) REFERENCES links(id_link),
+    CONSTRAINT kk_sections_extra_link FOREIGN KEY (extra_link_id) REFERENCES links(id_link)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
-
 
 -- ==========================================
 -- Tabla de Section Items
