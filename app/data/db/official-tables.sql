@@ -194,7 +194,6 @@
 -- ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4;
 
 
-
 use cechriza_web_v2;
 
 
@@ -294,6 +293,8 @@ CREATE TABLE categories (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
 	CONSTRAINT uk_categories_type_title unique (type, title)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+
 
 
 -- ==========================================
@@ -426,3 +427,4 @@ CREATE TABLE section_machines (
     CONSTRAINT fk_section_machines_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     CONSTRAINT fk_section_machines_machine FOREIGN KEY (id_machine) REFERENCES machines(id_machine)
 );
+
