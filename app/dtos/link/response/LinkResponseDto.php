@@ -29,7 +29,7 @@ class LinkResponseDto
         $this->created_at = $link->created_at;
         $this->updated_at = $link->updated_at;
         $this->new_tab = $link->new_tab;
-        $this->page = isset($link->page) ? $link->page : null;
+        $this->page = ($link->relationLoaded('page') && $link->page) ? new PageResponseDto($link->page) : null;
         $this->file_url = isset($link->file_path) ? $fileUploader->getUrl($link->file_path, 'files') : null;
     }
 }

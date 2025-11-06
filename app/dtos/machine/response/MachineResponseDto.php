@@ -57,11 +57,11 @@ class MachineResponseDto
             ];
         }, json_decode($machine->technical_specifications, true)) : null;
         $this->category_id = $machine->category_id;
-        $this->category = $machine->category;
+        $this->category = ($machine->relationLoaded('category') && $machine->category) ? $machine->category : null;
         $this->link_id = $machine->link_id;
-        $this->link = $machine->link;
+        $this->link = ($machine->relationLoaded('link') && $machine->link) ? $machine->link : null;
         $this->text_button = $machine->text_button;
-        $this->sections = $machine->sections;
+        $this->sections = ($machine->relationLoaded('sections') && $machine->sections) ? $machine->sections : null;
         $this->created_at = $machine->created_at;
         $this->updated_at = $machine->updated_at;
     }

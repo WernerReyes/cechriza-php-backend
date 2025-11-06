@@ -43,7 +43,7 @@ class SectionItemResponseDto
         $this->section_id = isset($data->section_id) ? $data->section_id : null;
         $this->category_id = isset($data->category_id) ? $data->category_id : null;
         $this->input_type = $data->input_type ?? null;
-        $this->link = isset($data->link) ? $data->link : null;
+        $this->link = ($data->relationLoaded('link') && $data->link) ? new LinkResponseDto($data->link) : null;
         $this->additional_info_list = isset($data->additional_info_list) ? json_decode($data->additional_info_list, true) : null;
         
     }

@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Eloquent\Collection;
 require_once "app/dtos/sectionItem/response/SectionItemResponseDto.php";
+require_once "app/dtos/menu/response/MenuResponseDto.php";
 class SectionResponseDto
 {
 
@@ -16,7 +17,7 @@ class SectionResponseDto
     public ?string $extra_text_button;
     public ?int $link_id;
 
-    public ?string $extra_link_id;
+    public ?int $extra_link_id;
     // public bool $active;
     public ?string $image;
     // public int $page_id;
@@ -31,7 +32,7 @@ class SectionResponseDto
 
     public $pages;
 
-    public ?Collection $menus;
+    public $menus;
 
     public $machines;
 
@@ -64,16 +65,16 @@ class SectionResponseDto
 
         $this->video = isset($data->video) ? $fileUploader->getUrl($data->video, 'videos') : null;
         // $this->page_id = isset($data->page_id) ? $data->page_id : null;
-        $this->section_items = isset($data->sectionItems) ? $data->sectionItems->map(fn($item) => new SectionItemResponseDto($item)) : null;
+        $this->section_items = ($data->relationLoaded('sectionItems') && $data->sectionItems) ? $data->sectionItems->map(fn($item) => new SectionItemResponseDto($item)) : null;
 
-        $this->machines = isset($data->machines) ? $data->machines->map(fn($item) => new MachineResponseDto($item)) : null;
+        $this->machines = ($data->relationLoaded('machines') && $data->machines) ? $data->machines->map(fn($item) => new MachineResponseDto($item)) : null;
 
-        $this->link = isset($data->link) ? $data->link : null;
-        $this->extra_link = isset($data->extra_link) ? $data->extra_link : null;
-        $this->menus = isset($data->menus) ? $data->menus : null;
+        $this->link = ($data->relationLoaded('link') && $data->link) ? new LinkResponseDto($data->link) : null;
+        $this->extra_link = ($data->relationLoaded('extraLink') && $data->extraLink) ? new LinkResponseDto($data->extraLink) : null;
+        $this->menus = ($data->relationLoaded('menus') && $data->menus) ? $data->menus->map(fn($menu) => new MenuResponseDto($menu)) : null;
 
-        $this->pivot_pages = isset($data->pivot) ? $data->pivot : null;
-        $this->pages = isset($data->pages) ? $data->pages : null;
+        $this->pivot_pages = ($data->relationLoaded('pivot') && $data->pivot) ? $data->pivot : null;
+        $this->pages = ($data->relationLoaded('pages') && $data->pages) ? $data->pages : null;
 
         $this->icon_url = isset($data->icon_url) ? $fileUploader->getUrl($data->icon_url) : null;
         $this->icon = isset($data->icon) ? json_decode($data->icon, true) : null;

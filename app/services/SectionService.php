@@ -27,6 +27,8 @@ class SectionService
             //     $query
             //           ->select('menu.id_menu', 'menu.title', 'menu.parent_id');
             // },
+            'pages:id_page,title,slug',
+            'pivot',
             'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
             'machines.category:id_category,title,type',
             // 'menus.parent:id_menu,title',

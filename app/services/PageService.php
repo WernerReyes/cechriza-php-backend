@@ -1,4 +1,6 @@
 <?php
+
+
 require_once "app/models/PageModel.php";
 require_once "app/dtos/page/response/PageResponseDto.php";
 require_once "app/dtos/page/request/GetAllPagesFilterRequestDto.php";
@@ -7,7 +9,7 @@ class PageService
 {
 
     //* Public Methods
-    public function getBySlug(string $slug)
+    public function getBySlug2(string $slug)
     {
         $page = PageModel::with($this->withRelations())->where('slug', $slug)->first();
         if (empty($page)) {
@@ -28,14 +30,42 @@ class PageService
         // return $page;
     }
 
+    public function getBySlug(string $slug)
+    {
+        $page = PageModel::withAllRelations()->where('slug', $slug)->first();
+
+        if ($page) {
+            return new PageResponseDto($page);
+        }
+
+        $principal =
+            PageModel::withAllRelations()->where('is_main', true)->first();
+
+        if ($principal) {
+            return new PageResponseDto($principal);
+        }
+
+        $firstPage = PageModel::withAllRelations()->first();
+        if (empty($firstPage)) {
+            throw AppException::validationError("La página seleccionada no existe");
+        }
+
+        return new PageResponseDto(data: $firstPage);
+    }
+
+
     private function withRelations()
     {
         return [
             'sections.sectionItems',
-            'sections.menus',
-            'sections.menus.parent',
+            'sections.menus:id_menu,title,parent_id,link_id',
+            'sections.menus.parent.parent',
             'sections.menus.link:id_link,page_id,new_tab',
             'sections.menus.link.page:id_page,title,slug',
+            'sections.menus.parent.link:id_link,page_id,new_tab',
+            'sections.menus.parent.link.page:id_page,title,slug',
+            'sections.menus.parent.parent.link:id_link,page_id,new_tab',
+            'sections.menus.parent.parent.link.page.section:id_section,title,slug',
 
         ];
     }

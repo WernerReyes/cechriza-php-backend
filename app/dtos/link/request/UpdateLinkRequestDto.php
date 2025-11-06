@@ -43,7 +43,6 @@ class UpdateLinkRequestDto
             ->optional("title")
 
             ->enum("type", LinkType::class)
-            ->optional("type")
 
             ->boolean("openInNewTab")
             ->optional("openInNewTab");
@@ -59,12 +58,13 @@ class UpdateLinkRequestDto
             $validation
                 ->minLength("url", 10)
                 ->pattern("url", PatternsConst::$URL)
-                ->required("url");
+                ->optional("url");
             $this->pageId = null;
             $this->file = null;
         } else if (!empty($this->type) && $this->type === LinkType::FILE->value) {
             $validation
-                ->files("file", ['pdf']);
+                ->files("file", ['pdf'])
+                ->optional("file");
             $this->pageId = null;
             $this->url = null;
         }

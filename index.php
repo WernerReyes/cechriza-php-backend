@@ -3,6 +3,9 @@
 require_once 'vendor/autoload.php';
 require_once 'app/controllers/OS_TICKET.php';
 
+use Illuminate\Database\Eloquent\Model;
+
+Model::preventLazyLoading();
 
 
 //* Load environment variables

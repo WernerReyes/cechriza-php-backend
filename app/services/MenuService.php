@@ -202,21 +202,32 @@ class MenuService
     public function delete(int $id): void
     {
 
-        $menu = MenuModel::with(['children'])->find($id);
-        if (empty($menu)) {
-            throw AppException::notFound("No existe un menú con el ID proporcionado");
+        try {
+            //code...
+            $menu = MenuModel::with(['children'])->find($id);
+            if (empty($menu)) {
+                throw AppException::notFound("No existe un menú con el ID proporcionado");
+            }
+    
+    
+            if (!empty($menu->children) && count($menu->children) > 0) {
+                $menu->children->each(function ($child) {
+    
+                });
+                MenuModel::where('parent_id', $menu->id_menu)->delete();
+            }
+    
+    
+            $menu->delete();
+        } catch (Exception $e) {
+            if ($e instanceof AppException) {
+                throw $e;
+            }
+
+            throw new DBExceptionHandler($e, [
+                ["name" => "`fk_section_menus_menu`", "message" => "No se puede eliminar el menú porque está asignado a una o más secciones."]
+            ]);
         }
-
-
-        if (!empty($menu->children) && count($menu->children) > 0) {
-            $menu->children->each(function ($child) {
-
-            });
-            MenuModel::where('parent_id', $menu->id_menu)->delete();
-        }
-
-
-        $menu->delete();
 
     }
 
