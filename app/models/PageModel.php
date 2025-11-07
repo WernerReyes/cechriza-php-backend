@@ -18,6 +18,8 @@ class PageModel extends Model
             'sections.machines',
             'sections.link:id_link,type,url,page_id,new_tab,file_path,title',
             'sections.link.page:id_page,slug',
+            'sections.extraLink:id_link,type,url,page_id,new_tab,file_path,title',
+            'sections.extraLink.page:id_page,slug',
             'sections.machines.category:id_category,title,type',
             'sections.machines.link:id_link,type,url,page_id,new_tab,file_path,title',
             'sections.machines.link.page:id_page,slug',

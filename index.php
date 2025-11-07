@@ -18,7 +18,7 @@ ErrorHandler::register();
 
 require_once 'app/AppRoutes.php';
 
-$allowOrigins = ['http://localhost:4200', 'https://cechriza-dasbhoard.netlify.app'];
+$allowOrigins = ['http://localhost:4200', 'http://localhost:4321', 'https://cechriza-dasbhoard.netlify.app'];
 $origin = $_SERVER['HTTP_ORIGIN'] ?? '';
 
 
@@ -34,6 +34,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(200);
     exit;
 }
+
+
 
 header('Content-Type: application/json');
 

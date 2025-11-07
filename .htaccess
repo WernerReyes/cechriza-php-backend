@@ -5,8 +5,13 @@ RewriteRule ^ index.php [QSA,L]
 
 
 
-# # ✅ NO tocar las peticiones a archivos que existen
-# RewriteCond %{REQUEST_FILENAME} -f
-
-# # ✅ Todo lo demás al index.php
-# RewriteRule ^ index.php [QSA,L]
+<IfModule mod_headers.c>
+    <FilesMatch "\.(svg|png|jpe?g|gif|webp)$">
+        # Permitir solo estos orígenes
+        SetEnvIf Origin "http(s)?://(localhost:4200|localhost:4321|cechriza-dasbhoard\.netlify\.app)$" ORIGIN_ALLOW=$0
+        Header set Access-Control-Allow-Origin %{ORIGIN_ALLOW}e env=ORIGIN_ALLOW
+        Header set Access-Control-Allow-Credentials "true"
+        Header set Access-Control-Allow-Methods "GET, OPTIONS"
+        Header set Access-Control-Allow-Headers "Content-Type, Authorization, X-Requested-With"
+    </FilesMatch>
+</IfModule>
