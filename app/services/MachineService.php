@@ -42,7 +42,8 @@ class MachineService
 
 
         // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
-        foreach ($imagePaths as $path) {
+        $images = json_decode($machine->images, true);
+        foreach ($images as $path) {
             $fullPath = $this->fileUploader->getFullPathFromUrl($path['url']);
             $this->enqueueOptimization($fullPath, $machine->id_machine);
         }
