@@ -118,8 +118,8 @@ class AuthService
         }
 
         $profileUrl = $dto->currentProfileUrl;
-
-        if ($profileUrl === null && $dto->profileFile === null) {
+       
+        if (empty($profileUrl) && empty($dto->profileFile)) {
             // Eliminar la imagen de perfil si currentProfileUrl es null
             if ($user->profile) {
                 $this->fileUploader->deleteImage($user->profile);

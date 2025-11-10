@@ -398,7 +398,7 @@ class SectionService
             $uploadResult = $this->fileUploader->uploadVideo($fileVideo);
 
             if (isset($uploadResult["error"])) {
-                throw AppException::validationError("Video upload failed: " . $uploadResult['error']);
+                throw AppException::validationError("La subida del video falló, intentalo de nuevo" . $uploadResult['error']);
             }
 
             $currentVideoUrl = $uploadResult['path'];
@@ -414,8 +414,8 @@ class SectionService
         if (!empty($fileImage)) {
             $uploadResult = $this->fileUploader->uploadImage($fileImage);
 
-            if (is_string($uploadResult)) {
-                throw AppException::validationError("Image upload failed: " . $uploadResult);
+            if (isset($uploadResult["error"])) {
+                throw AppException::validationError("La subida de la imagen falló, intentalo de nuevo" . $uploadResult['error']);
             }
 
             $currentImageUrl = $uploadResult['path'];
@@ -423,8 +423,8 @@ class SectionService
 
         if (!empty($imageUrl)) {
             $uploadResult = $this->fileUploader->uploadImageFromUrl($imageUrl);
-            if (is_string($uploadResult)) {
-                throw AppException::validationError("Image upload from URL failed: " . $uploadResult);
+            if (isset($uploadResult["error"])) {
+                throw AppException::internalServer("No se pudo subir la imagen desde la URL: " , $uploadResult["error"]);
             }
 
             $currentImageUrl = $uploadResult['path'];
