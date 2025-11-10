@@ -118,6 +118,15 @@ class AuthService
         }
 
         $profileUrl = $dto->currentProfileUrl;
+
+        if ($profileUrl === null && $dto->profileFile === null) {
+            // Eliminar la imagen de perfil si currentProfileUrl es null
+            if ($user->profile) {
+                $this->fileUploader->deleteImage($user->profile);
+            }
+            $profileUrl = null;
+        }
+
         if ($dto->profileFile) {
             if ($user->profile) {
                 // Eliminar la imagen anterior si existe
@@ -126,6 +135,9 @@ class AuthService
             }
 
             $uploadResult = $this->fileUploader->uploadImage($dto->profileFile);
+            if (isset($uploadResult["error"])) {
+                throw AppException::internalServer("Error al subir la imagen de perfil", $uploadResult["error"]);
+            }
             $profileUrl = $uploadResult["path"];
         }
 
