@@ -9,25 +9,9 @@ class PageService
 {
 
     //* Public Methods
-    public function getBySlug2(string $slug)
+    public function getAllPageForSiteMap()
     {
-        $page = PageModel::with($this->withRelations())->where('slug', $slug)->first();
-        if (empty($page)) {
-            $principal = PageModel::with($this->withRelations())->where('is_main', true)->first();
-            if (empty($principal)) {
-                $firstPage = PageModel::with($this->withRelations())->first();
-                if (empty($firstPage)) {
-                    throw AppException::validationError("La página seleccionada no existe");
-                }
-
-                return new PageResponseDto($firstPage);
-            }
-
-            return new PageResponseDto($principal);
-
-        }
-        return new PageResponseDto($page);
-        // return $page;
+        return PageModel::select('slug', 'updated_at')->get();
     }
 
     public function getBySlug(string $slug)

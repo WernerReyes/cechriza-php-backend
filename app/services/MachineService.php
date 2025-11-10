@@ -40,6 +40,13 @@ class MachineService
 
         $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
+
+        // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
+        foreach ($imagePaths as $path) {
+            $fullPath = $this->fileUploader->getFullPathFromUrl($path['url']);
+            $this->enqueueOptimization($fullPath, $machine->id_machine);
+        }
+
         return new MachineResponseDto($machine);
     }
 
@@ -61,21 +68,32 @@ class MachineService
 
         $imagePaths = json_decode($machine->images ?? [], true);
 
+        $imagePathsToOptimize = [];
+
+
         if ($dto->fileImages) {
             foreach ($dto->fileImages as $image) {
-                $imagePaths[] = [
+                $newImagePath = [
                     'isMain' => false,
                     'url' => $this->uploadFile($image)
                 ];
+                $imagePaths[] = $newImagePath;
+                $imagePathsToOptimize[] = $this->fileUploader->getFullPathFromUrl(
+                    $newImagePath['url']
+                );
             }
         }
 
+
+
         if ($dto->imagesToUpdate) {
+
+
             foreach ($dto->imagesToUpdate as $imageUpdate) {
                 $oldImage = $imageUpdate['oldImage'];
                 $newFile = $imageUpdate['newFile'];
                 $newImagePath = $this->uploadFile($newFile);
-                $path = $this->fileUploader->getPathFromUrl($oldImage);
+                $path = $this->normalizePath($this->fileUploader->getPathFromUrl($oldImage));
                 $key = array_search($path, array_column($imagePaths, 'url'));
                 if ($key !== false) {
                     $imagePaths[$key] = [
@@ -84,14 +102,17 @@ class MachineService
                     ];
                 }
 
+                $imagePathsToOptimize[] = $this->fileUploader->getFullPathFromUrl($newImagePath);
+
                 $this->fileUploader->deleteImage($path);
             }
         }
 
         if ($dto->imagesToRemove) {
             foreach ($dto->imagesToRemove as $imageToRemove) {
-                $path = $this->fileUploader->getPathFromUrl($imageToRemove);
+                $path = $this->normalizePath($this->fileUploader->getPathFromUrl($imageToRemove));
                 $key = array_search($path, array_column($imagePaths, 'url'));
+                error_log("Removing image at path: " . $path . " found at key: " . $key);
                 if ($key !== false) {
                     unset($imagePaths[$key]);
                 }
@@ -110,10 +131,16 @@ class MachineService
             }
             // Reindex array
             $imagePaths = array_values(array: $imagePaths);
+
+            error_log("Image paths after removal: " . json_encode($imagePaths));
         }
 
-        $manualPath = $machine->manualPath;
+        $manualPath = $machine->manual;
         if ($dto->manualFile) {
+            if ($manualPath) {
+                $this->fileUploader->deleteFile($manualPath);
+            }
+
             $manualPath = $this->uploadFile($dto->manualFile, true);
         }
 
@@ -121,7 +148,83 @@ class MachineService
 
         $machine->load('sections:id_section');
 
+        // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
+        if ($imagePathsToOptimize) {
+            foreach ($imagePathsToOptimize as $path) {
+                $this->enqueueOptimization($path, $machine->id_machine);
+            }
+        }
+
         return new MachineResponseDto($machine);
+    }
+
+
+    /**
+     * Encola un job JSON para que el worker optimice la imagen.
+     */
+    private function enqueueOptimization(string $path, $machineId): void
+    {
+        $queueDir = __DIR__ . '/../queue/jobs/';
+        if (!is_dir($queueDir)) {
+            mkdir($queueDir, 0755, true);
+        }
+
+        $jobId = uniqid('job_', true);
+        $job = [
+            'type' => 'optimize_image',
+            'machine_id' => $machineId,
+            'path' => $path,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        file_put_contents($queueDir . "$jobId.json", json_encode($job, JSON_PRETTY_PRINT));
+
+        // Inicia el worker en background si no está corriendo
+        $this->startWorkerIfNotRunning();
+    }
+
+    /**
+     * Inicia el worker solo si no está activo.
+     */
+    private function startWorkerIfNotRunning(): void
+{
+    $workerPath = __DIR__ . '/../queue/worker.php';
+    $escapedWorkerPath = escapeshellarg($workerPath);
+
+    if (stristr(PHP_OS, 'WIN')) {
+        // Buscar si el worker ya está corriendo
+        $output = [];
+        exec('tasklist /FI "IMAGENAME eq php.exe"', $output);
+
+        $isRunning = false;
+        foreach ($output as $line) {
+            if (str_contains($line, 'php.exe')) {
+                // Verificamos si el comando worker.php está en uso
+                $cmdCheck = shell_exec('wmic process where "CommandLine like \'%worker.php%\'" get CommandLine 2>nul');
+                if (str_contains($cmdCheck ?? '', 'worker.php')) {
+                    $isRunning = true;
+                    break;
+                }
+            }
+        }
+
+        if (!$isRunning) {
+            // Iniciar en segundo plano
+            pclose(popen("start /B php $escapedWorkerPath", "r"));
+        }
+    } else {
+        // Linux / Mac
+        $isRunning = shell_exec("pgrep -f 'php .*worker.php'");
+        if (!$isRunning) {
+            exec("nohup php $escapedWorkerPath > /dev/null 2>&1 &");
+        }
+    }
+}
+
+
+    private function normalizePath($p)
+    {
+        return str_replace('\\', '/', $p);
     }
 
     public function setImageAsMain(int $id, $imageUrl)
@@ -196,7 +299,7 @@ class MachineService
         if ($isManual) {
             $uploadResult = $this->fileUploader->uploadFile($file);
         } else {
-            $uploadResult = $this->fileUploader->uploadImage($file);
+            $uploadResult = $this->fileUploader->uploadImage($file, true);
         }
         if (
             isset($uploadResult["error"]) &&

@@ -1,2 +1,4 @@
 .env
 public/uploads
+app/queue/jobs
+/app/queue/worker.log

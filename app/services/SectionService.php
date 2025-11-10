@@ -20,8 +20,8 @@ class SectionService
     {
         $sections = SectionModel::with([
             'sectionItems',
-            'link:id_link,type',
-            'extraLink:id_link,type',
+            'link:id_link,type,title',
+            'extraLink:id_link,type,title',
             'sectionItems.link:id_link,type',
             // 'menus' => function ($query) {
             //     $query
@@ -111,6 +111,14 @@ class SectionService
                 $section->load('pivot:id_page,id_section,order_num,active,type');
             }
 
+            if ($dto->linkId) {
+                $section->load('link:id_link,type,title');
+            }
+
+            if ($dto->extraLinkId) {
+                $section->load('extraLink:id_link,type,title');
+            }
+
 
             return new SectionResponseDto($section);
         } catch (Exception $e) {
@@ -198,6 +206,14 @@ class SectionService
         //     $section->load('pivotPages:id_page,id_section,order_num,active,type');
         // }
 
+        if ($dto->linkId) {
+            $section->load('link:id_link,type,title');
+        }
+
+        if ($dto->extraLinkId) {
+            $section->load('extraLink:id_link,type,title');
+        }
+
         return new SectionResponseDto($section);
     }
 
@@ -264,6 +280,7 @@ class SectionService
 
         // Recargar pivote actualizado
         $section->load('pivot');
+        $section->load('pages:id_page');
 
         return new SectionResponseDto($section);
     }

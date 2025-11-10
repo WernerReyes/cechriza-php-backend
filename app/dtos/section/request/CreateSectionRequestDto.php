@@ -57,6 +57,7 @@ class CreateSectionRequestDto
         $this->subtitle = $data["subtitle"] ?? null;
         $this->description = $data["description"] ?? null;
         $this->textButton = $data["textButton"] ?? null;
+        $this->extraTextButton = $data["extraTextButton"] ?? null;
         $this->linkId = $data["linkId"] ?? null;
         $this->extraLinkId = $data["extraLinkId"] ?? null;
         $this->fileImage = $data["fileImage"] ?? null;

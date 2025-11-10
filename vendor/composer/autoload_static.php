@@ -27,9 +27,17 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             'voku\\' => 5,
         ),
+        'e' => 
+        array (
+            'enshrined\\svgSanitize\\' => 22,
+        ),
         'Z' => 
         array (
             'ZipStream\\' => 10,
+        ),
+        'W' => 
+        array (
+            'WebPConvert\\' => 12,
         ),
         'S' => 
         array (
@@ -59,10 +67,13 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         ),
         'L' => 
         array (
+            'LocateBinaries\\' => 15,
             'Laravel\\SerializableClosure\\' => 28,
         ),
         'I' => 
         array (
+            'ImageMimeTypeSniffer\\' => 21,
+            'ImageMimeTypeGuesser\\' => 21,
             'Illuminate\\Support\\' => 19,
             'Illuminate\\Database\\' => 20,
             'Illuminate\\Contracts\\' => 21,
@@ -75,6 +86,11 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
+            'FileUtil\\' => 9,
+        ),
+        'E' => 
+        array (
+            'ExecWithFallback\\' => 17,
         ),
         'D' => 
         array (
@@ -100,9 +116,17 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             0 => __DIR__ . '/..' . '/voku/portable-ascii/src/voku',
         ),
+        'enshrined\\svgSanitize\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/enshrined/svg-sanitize/src',
+        ),
         'ZipStream\\' => 
         array (
             0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
+        ),
+        'WebPConvert\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/webp-convert/src',
         ),
         'Symfony\\Polyfill\\Php85\\' => 
         array (
@@ -173,9 +197,21 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
+        'LocateBinaries\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/locate-binaries/src',
+        ),
         'Laravel\\SerializableClosure\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/serializable-closure/src',
+        ),
+        'ImageMimeTypeSniffer\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-sniffer/src',
+        ),
+        'ImageMimeTypeGuesser\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-guesser/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -203,6 +239,14 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
+        ),
+        'FileUtil\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/file-util/src',
+        ),
+        'ExecWithFallback\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rosell-dk/exec-with-fallback/src',
         ),
         'Dotenv\\' => 
         array (

@@ -1,5 +1,7 @@
 <?php
 require_once 'app/utils/UuidUtil.php';
+use WebPConvert\WebPConvert;
+use enshrined\svgSanitize\Sanitizer;
 class FileUploader
 {
     private $uploadDir;
@@ -32,7 +34,7 @@ class FileUploader
         return __DIR__ . '/../../public/uploads/' . $folder . '/';
     }
 
-    public function uploadImage($file, $fromUrl = false)
+    public function uploadImage2($file)
     {
         try {
             // // Validar archivo
@@ -51,7 +53,6 @@ class FileUploader
             $fileName = $this->generateFileName($file);
             $targetPath = $targetDir . $fileName;
 
-            // Mover archivo
             // Mover archivo
             if (is_uploaded_file($file['tmp_name'])) {
                 if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
@@ -93,6 +94,176 @@ class FileUploader
         }
     }
 
+
+
+
+
+
+
+    public function uploadImage3($file)
+    {
+        try {
+            // Crear directorio si no existe
+            $targetDir = $this->uploadDir('images');
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
+            }
+
+            // Nombre original y ruta temporal
+            $fileName = $this->generateFileName($file);
+            $targetPath = $targetDir . $fileName;
+
+            // Mover archivo subido al destino
+            if (is_uploaded_file($file['tmp_name'])) {
+                if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al mover archivo subido');
+                }
+            } else {
+                if (!copy($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al copiar archivo desde temporal');
+                }
+            }
+
+            // Obtener extensión
+            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+            // Si es SVG, no convertir, solo sanitizar
+            if ($ext === 'svg') {
+                $this->sanitizeSvg($targetPath);
+                $this->optimizeSvg($targetPath);
+                return [
+                    'success' => true,
+                    'filename' => $fileName,
+                    'path' => "/uploads/images/$fileName",
+                    'full_path' => $targetPath,
+                    'size' => filesize($targetPath),
+                    'url' => $this->getPublicUrl($fileName)
+                ];
+            }
+
+            // Convertir a WebP
+            $webpName = preg_replace('/\.[a-zA-Z]+$/', '.webp', $fileName);
+            $webpPath = $targetDir . $webpName;
+
+            WebPConvert::convert($targetPath, $webpPath, [
+                'quality' => 85,
+                'method' => 6,
+                'max-quality' => 90,
+                'fail' => 'throw',
+                'convert' => 'cwebp', // usa el binario si está instalado
+            ]);
+
+            // Eliminar el archivo original
+            unlink($targetPath);
+
+            return [
+                'success' => true,
+                'filename' => $webpName,
+                'path' => "/uploads/images/$webpName",
+                'full_path' => $webpPath,
+                'size' => filesize($webpPath),
+                'url' => $this->getPublicUrl($webpName)
+            ];
+
+        } catch (Exception $e) {
+            return [
+                'success' => false,
+                'error' => $e->getMessage()
+            ];
+        }
+    }
+
+
+
+    public function uploadImage(array $file, $multiple = false): array
+{
+    try {
+        $targetDir = $this->uploadDir('images');
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        // Generar nombre único y ruta final
+        $fileName = $this->generateFileName($file);
+        $targetPath = $targetDir . $fileName;
+
+        // Mover archivo temporal
+        if (is_uploaded_file($file['tmp_name'])) {
+            if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                throw new Exception('Error al mover el archivo subido.');
+            }
+        } else {
+            if (!copy($file['tmp_name'], $targetPath)) {
+                throw new Exception('Error al copiar el archivo temporal.');
+            }
+        }
+
+        // Obtener extensión
+        $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+
+        // Si es SVG, solo sanitizar y optimizar SVG
+        if ($ext === 'svg') {
+            $this->sanitizeSvg($targetPath);
+            $this->optimizeSvg($targetPath);
+            return [
+                'success' => true,
+                'filename' => $fileName,
+                'path' => "/uploads/images/$fileName",
+                'full_path' => $targetPath,
+                'url' => $this->getPublicUrl($fileName)
+            ];
+        }
+
+        /**
+         * ✅ Si el upload es de una máquina
+         * — Se encola para optimizar después (no convierte aún)
+         */
+        if ($multiple !== false) {
+            return [
+                'success' => true,
+                'filename' => $fileName,
+                'path' => "/uploads/images/$fileName",
+                'full_path' => $targetPath,
+                'url' => $this->getPublicUrl($fileName),
+                'pending_optimization' => true
+            ];
+        }
+
+        /**
+         * ⚙️ Si NO es de máquina, convertir directamente a WebP
+         */
+        $webpName = preg_replace('/\.[a-zA-Z]+$/', '.webp', $fileName);
+        $webpPath = $targetDir . $webpName;
+
+        WebPConvert::convert($targetPath, $webpPath, [
+            'quality' => 85,
+            'method' => 6,
+            'max-quality' => 90,
+            'fail' => 'throw',
+            'convert' => 'cwebp',
+        ]);
+
+        // Eliminar original
+        unlink($targetPath);
+
+        return [
+            'success' => true,
+            'filename' => $webpName,
+            'path' => "/uploads/images/$webpName",
+            'full_path' => $webpPath,
+            'url' => $this->getPublicUrl($webpName),
+            'pending_optimization' => false
+        ];
+
+    } catch (Exception $e) {
+        return [
+            'success' => false,
+            'error' => $e->getMessage()
+        ];
+    }
+}
+
+
     public function uploadImageFromUrl($url)
     {
         try {
@@ -131,7 +302,7 @@ class FileUploader
 
 
             // Subir usando tu método existente
-            $uploadResult = $this->uploadImage($file, true);
+            $uploadResult = $this->uploadImage($file);
 
             // Eliminar archivo temporal
             unlink($tempFile);
@@ -190,11 +361,18 @@ class FileUploader
     }
 
 
+
     public function getPathFromUrl($url, $folder = 'images')
     {
 
         $fileName = basename($url);
         return "/uploads/$folder/$fileName";
+    }
+
+    public function getFullPathFromUrl($url, $folder = 'images')
+    {
+        $fileName = basename($url);
+        return $this->uploadDir($folder) . $fileName;
     }
 
 
@@ -245,20 +423,47 @@ class FileUploader
      */
     private function sanitizeSvg(string $filePath): void
     {
-        $content = file_get_contents($filePath);
+        $sanitizer = new Sanitizer();
+        $sanitizer->minify(true); // Opcional: elimina espacios innecesarios
 
-        // Eliminar etiquetas <script> y <foreignObject>
-        $content = preg_replace('/<script.*?<\/script>/is', '', $content);
-        $content = preg_replace('/<foreignObject.*?<\/foreignObject>/is', '', $content);
+        $dirtySVG = file_get_contents($filePath);
+        $cleanSVG = $sanitizer->sanitize($dirtySVG);
 
-        // Eliminar cualquier evento como onload, onclick, etc.
-        $content = preg_replace('/on\w+="[^"]*"/i', '', $content);
-
-        file_put_contents($filePath, $content);
+        if ($cleanSVG) {
+            file_put_contents($filePath, $cleanSVG);
+        } else {
+            // Si el archivo está demasiado dañado o es peligroso
+            unlink($filePath);
+            throw new RuntimeException('SVG inválido o potencialmente peligroso');
+        }
     }
 
 
+    private function optimizeSvg(string $filePath): void
+    {
+        // Escapar la ruta para evitar inyección
+        $escapedPath = escapeshellarg($filePath);
 
+        // Verificar si svgo está disponible
+        $svgoPath = trim(shell_exec('which svgo'));
+
+        if (!trim(shell_exec('which svgo'))) {
+            error_log('⚠️ Advertencia: SVGO no está instalado en el servidor.');
+            return;
+        }
+
+
+        // Construir comando seguro
+        $cmd = "$svgoPath --input={$escapedPath} --output={$escapedPath} --config='{\"multipass\": true}'";
+
+        // Ejecutar comando y capturar salida
+        exec($cmd . ' 2>&1', $output, $resultCode);
+
+        // Si falla la ejecución, registrar pero no lanzar excepción
+        if ($resultCode !== 0) {
+            error_log("Error al optimizar SVG con SVGO: " . implode("\n", $output));
+        }
+    }
 
 
 
@@ -301,7 +506,7 @@ class FileUploader
         if ($mimeType === 'text/html' || $mimeType === 'application/pdf') {
             return true;
         }
-        
+
         if ($mimeType === 'video/mp4' || $mimeType === 'video/avi' || $mimeType === 'video/mov') {
             return true;
         }

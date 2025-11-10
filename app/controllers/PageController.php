@@ -13,6 +13,12 @@ class PageController extends AppController
     }
 
 
+    public function getAllPageForSiteMap()
+    {
+        $pages = $this->pageService->getAllPageForSiteMap();
+        return AppResponse::success($pages);
+    }
+
     public function getBySlug($slug)
     {
         $page = $this->pageService->getBySlug($slug);

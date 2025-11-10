@@ -9,6 +9,7 @@ class PageRoutes
     public static function routes(
         Router $router
     ) {
+        $router->get(self::$publicPrefix, "PageController@getAllPageForSiteMap");
         $router->get(self::$publicPrefix . "/{slug}", "PageController@getBySlug");
 
 
