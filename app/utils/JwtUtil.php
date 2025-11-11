@@ -29,8 +29,6 @@ class JwtUtil
         $issuedAt = time();
         $expire = $issuedAt + self::$expiry;
 
-        error_log('Expired: ' . $expire);
-
         $tokenPayload = [
             'iat' => $issuedAt,           // Issued at
             'exp' => $expire,             // Expiration time
