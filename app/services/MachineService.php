@@ -48,6 +48,8 @@ class MachineService
             $this->enqueueOptimization($fullPath, $machine->id_machine);
         }
 
+        $machine->load('category:id_category,type');
+
         return new MachineResponseDto($machine);
     }
 
@@ -118,22 +120,15 @@ class MachineService
                     unset($imagePaths[$key]);
                 }
 
-                // if ($imageToRemove->newFile) {
-                //     $newImagePath = $this->uploadFile($imageToRemove->newFile);
-                //     $imagePaths[$key] = $newImagePath;
-                // }
+               
 
                 $deleted = $this->fileUploader->deleteImage($path);
-                if ($deleted) {
-                    error_log("Successfully deleted image file at path: " . $path);
-                } else {
-                    error_log("Failed to delete image file at path: " . $path);
-                }
+              
             }
             // Reindex array
             $imagePaths = array_values(array: $imagePaths);
 
-            error_log("Image paths after removal: " . json_encode($imagePaths));
+           
         }
 
         $manualPath = $machine->manual;
@@ -147,14 +142,16 @@ class MachineService
 
         $machine->update($dto->toArray($imagePaths, $manualPath));
 
-        $machine->load('sections:id_section');
-
+        
         // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
         if ($imagePathsToOptimize) {
             foreach ($imagePathsToOptimize as $path) {
                 $this->enqueueOptimization($path, $machine->id_machine);
             }
         }
+        
+        $machine->load('sections:id_section');
+        $machine->load('category:id_category,type');
 
         return new MachineResponseDto($machine);
     }
