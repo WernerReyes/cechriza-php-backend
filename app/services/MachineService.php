@@ -41,12 +41,7 @@ class MachineService
         $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
 
-        // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
-        $images = json_decode($machine->images, true);
-        foreach ($images as $path) {
-            $fullPath = $this->fileUploader->getFullPathFromUrl($path['url']);
-            $this->enqueueOptimization($fullPath, $machine->id_machine);
-        }
+       
 
         $machine->load('category:id_category,type');
 
@@ -115,7 +110,6 @@ class MachineService
             foreach ($dto->imagesToRemove as $imageToRemove) {
                 $path = $this->normalizePath($this->fileUploader->getPathFromUrl($imageToRemove));
                 $key = array_search($path, array_column($imagePaths, 'url'));
-                error_log("Removing image at path: " . $path . " found at key: " . $key);
                 if ($key !== false) {
                     unset($imagePaths[$key]);
                 }
@@ -143,13 +137,7 @@ class MachineService
         $machine->update($dto->toArray($imagePaths, $manualPath));
 
         
-        // 5️⃣ Ahora que ya existe, encolamos las optimizaciones
-        if ($imagePathsToOptimize) {
-            foreach ($imagePathsToOptimize as $path) {
-                $this->enqueueOptimization($path, $machine->id_machine);
-            }
-        }
-        
+       
         $machine->load('sections:id_section');
         $machine->load('category:id_category,type');
 

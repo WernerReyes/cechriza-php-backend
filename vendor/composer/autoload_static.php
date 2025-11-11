@@ -35,10 +35,6 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             'ZipStream\\' => 10,
         ),
-        'W' => 
-        array (
-            'WebPConvert\\' => 12,
-        ),
         'S' => 
         array (
             'Symfony\\Polyfill\\Php85\\' => 23,
@@ -54,6 +50,7 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'P' => 
         array (
             'Psr\\SimpleCache\\' => 16,
+            'Psr\\Log\\' => 8,
             'Psr\\Http\\Message\\' => 17,
             'Psr\\Http\\Client\\' => 16,
             'Psr\\Container\\' => 14,
@@ -67,13 +64,14 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         ),
         'L' => 
         array (
-            'LocateBinaries\\' => 15,
             'Laravel\\SerializableClosure\\' => 28,
+        ),
+        'J' => 
+        array (
+            'Jcupitt\\Vips\\' => 13,
         ),
         'I' => 
         array (
-            'ImageMimeTypeSniffer\\' => 21,
-            'ImageMimeTypeGuesser\\' => 21,
             'Illuminate\\Support\\' => 19,
             'Illuminate\\Database\\' => 20,
             'Illuminate\\Contracts\\' => 21,
@@ -86,11 +84,6 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'F' => 
         array (
             'Firebase\\JWT\\' => 13,
-            'FileUtil\\' => 9,
-        ),
-        'E' => 
-        array (
-            'ExecWithFallback\\' => 17,
         ),
         'D' => 
         array (
@@ -123,10 +116,6 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'ZipStream\\' => 
         array (
             0 => __DIR__ . '/..' . '/maennchen/zipstream-php/src',
-        ),
-        'WebPConvert\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rosell-dk/webp-convert/src',
         ),
         'Symfony\\Polyfill\\Php85\\' => 
         array (
@@ -168,6 +157,10 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             0 => __DIR__ . '/..' . '/psr/simple-cache/src',
         ),
+        'Psr\\Log\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/psr/log/src',
+        ),
         'Psr\\Http\\Message\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/http-factory/src',
@@ -197,21 +190,13 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         array (
             0 => __DIR__ . '/..' . '/markbaker/matrix/classes/src',
         ),
-        'LocateBinaries\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rosell-dk/locate-binaries/src',
-        ),
         'Laravel\\SerializableClosure\\' => 
         array (
             0 => __DIR__ . '/..' . '/laravel/serializable-closure/src',
         ),
-        'ImageMimeTypeSniffer\\' => 
+        'Jcupitt\\Vips\\' => 
         array (
-            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-sniffer/src',
-        ),
-        'ImageMimeTypeGuesser\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rosell-dk/image-mime-type-guesser/src',
+            0 => __DIR__ . '/..' . '/jcupitt/vips/src',
         ),
         'Illuminate\\Support\\' => 
         array (
@@ -239,14 +224,6 @@ class ComposerStaticInit797f312608def08a911980850fc05045
         'Firebase\\JWT\\' => 
         array (
             0 => __DIR__ . '/..' . '/firebase/php-jwt/src',
-        ),
-        'FileUtil\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rosell-dk/file-util/src',
-        ),
-        'ExecWithFallback\\' => 
-        array (
-            0 => __DIR__ . '/..' . '/rosell-dk/exec-with-fallback/src',
         ),
         'Dotenv\\' => 
         array (

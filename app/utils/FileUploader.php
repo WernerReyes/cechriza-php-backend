@@ -1,7 +1,8 @@
 <?php
 require_once 'app/utils/UuidUtil.php';
-use WebPConvert\WebPConvert;
 use enshrined\svgSanitize\Sanitizer;
+use Jcupitt\Vips;
+use Jcupitt\Vips\Image;
 class FileUploader
 {
     private $uploadDir;
@@ -145,13 +146,13 @@ class FileUploader
             $webpName = preg_replace('/\.[a-zA-Z]+$/', '.webp', $fileName);
             $webpPath = $targetDir . $webpName;
 
-            WebPConvert::convert($targetPath, $webpPath, [
-                'quality' => 85,
-                'method' => 6,
-                'max-quality' => 90,
-                'fail' => 'throw',
-                'convert' => 'cwebp', // usa el binario si está instalado
-            ]);
+            // WebPConvert::convert($targetPath, $webpPath, [
+            //     'quality' => 85,
+            //     'method' => 6,
+            //     'max-quality' => 90,
+            //     'fail' => 'throw',
+            //     'convert' => 'cwebp', // usa el binario si está instalado
+            // ]);
 
             // Eliminar el archivo original
             unlink($targetPath);
@@ -175,93 +176,121 @@ class FileUploader
 
 
 
+
+
     public function uploadImage(array $file, $multiple = false): array
-{
-    try {
-        $targetDir = $this->uploadDir('images');
-        if (!is_dir($targetDir)) {
-            mkdir($targetDir, 0755, true);
-        }
-
-        // Generar nombre único y ruta final
-        $fileName = $this->generateFileName($file);
-        $targetPath = $targetDir . $fileName;
-
-        // Mover archivo temporal
-        if (is_uploaded_file($file['tmp_name'])) {
-            if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
-                throw new Exception('Error al mover el archivo subido.');
+    {
+        try {
+            $targetDir = $this->uploadDir('images');
+            if (!is_dir($targetDir)) {
+                mkdir($targetDir, 0755, true);
             }
-        } else {
-            if (!copy($file['tmp_name'], $targetPath)) {
-                throw new Exception('Error al copiar el archivo temporal.');
+
+            $fileName = $this->generateFileName($file);
+            $targetPath = $targetDir . $fileName;
+
+            // Mover o copiar archivo
+            if (is_uploaded_file($file['tmp_name'])) {
+                if (!move_uploaded_file($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al mover el archivo subido.');
+                }
+            } else {
+                if (!copy($file['tmp_name'], $targetPath)) {
+                    throw new Exception('Error al copiar el archivo temporal.');
+                }
             }
-        }
 
-        // Obtener extensión
-        $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
+            $ext = strtolower(pathinfo($fileName, PATHINFO_EXTENSION));
 
-        // Si es SVG, solo sanitizar y optimizar SVG
-        if ($ext === 'svg') {
-            $this->sanitizeSvg($targetPath);
-            $this->optimizeSvg($targetPath);
+            // Si es SVG, solo limpiar y optimizar
+            if ($ext === 'svg') {
+                $this->sanitizeSvg($targetPath);
+                $this->optimizeSvg($targetPath);
+                return [
+                    'success' => true,
+                    'filename' => $fileName,
+                    'path' => "/uploads/images/$fileName",
+                    'full_path' => $targetPath,
+                    'url' => $this->getPublicUrl($fileName)
+                ];
+            }
+
+            // // Si es múltiple, devolver sin optimizar
+            // if ($multiple !== false) {
+            //     return [
+            //         'success' => true,
+            //         'filename' => $fileName,
+            //         'path' => "/uploads/images/$fileName",
+            //         'full_path' => $targetPath,
+            //         'url' => $this->getPublicUrl($fileName),
+            //         'pending_optimization' => true
+            //     ];
+            // }
+
+            // ⚙️ Conversión a WebP
+            $webpName = preg_replace('/\.[a-zA-Z]+$/', '.webp', $fileName);
+            $webpPath = $targetDir . $webpName;
+            $quality = 85;
+
+            $converted = false;
+
+            try {
+                // 🟢 Opción 1: usar la librería PHP-Vips
+                if (class_exists(Image::class)) {
+                    $image = Image::newFromFile($targetPath, ['access' => 'sequential']);
+
+
+                    $image->writeToFile($webpPath . "[Q=$quality]");
+                    $converted = file_exists($webpPath);
+                }
+            } catch (Throwable $th) {
+                // Continuar al fallback
+            }
+
+            // 🟠 Opción 2: fallback a binario VIPS
+            if (!$converted) {
+                $vips = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN'
+                    ? 'C:\\vips\\bin\\vips.exe'
+                    : '/usr/bin/vips';
+
+
+
+                if (file_exists($vips)) {
+                    $cmd = "\"$vips\" thumbnail \"$targetPath\" \"$webpPath\"[Q=$quality] 1080 --size down";
+
+                    // Ejecutar y capturar salida y código
+                    exec($cmd . ' 2>&1', $outputLines, $code);
+                    $converted = ($code === 0 && file_exists($webpPath));
+
+                    if ($code !== 0 || !file_exists($webpPath)) {
+                        throw new Exception("❌ No se pudo convertir la imagen a WebP.\nComando: $cmd\nSalida:\n" . implode("\n", $outputLines));
+                    }
+                }
+            }
+
+            if (!$converted) {
+                throw new Exception('❌ No se pudo convertir la imagen a WebP. Verifica que VIPS o cwebp estén instalados.');
+            }
+
+            // Eliminar el original si ya se convirtió
+            @unlink($targetPath);
+
             return [
                 'success' => true,
-                'filename' => $fileName,
-                'path' => "/uploads/images/$fileName",
-                'full_path' => $targetPath,
-                'url' => $this->getPublicUrl($fileName)
+                'filename' => $webpName,
+                'path' => "/uploads/images/$webpName",
+                'full_path' => $webpPath,
+                'url' => $this->getPublicUrl($webpName),
+                'pending_optimization' => false
             ];
-        }
 
-        /**
-         * ✅ Si el upload es de una máquina
-         * — Se encola para optimizar después (no convierte aún)
-         */
-        if ($multiple !== false) {
+        } catch (Exception $e) {
             return [
-                'success' => true,
-                'filename' => $fileName,
-                'path' => "/uploads/images/$fileName",
-                'full_path' => $targetPath,
-                'url' => $this->getPublicUrl($fileName),
-                'pending_optimization' => true
+                'success' => false,
+                'error' => $e->getMessage()
             ];
         }
-
-        /**
-         * ⚙️ Si NO es de máquina, convertir directamente a WebP
-         */
-        $webpName = preg_replace('/\.[a-zA-Z]+$/', '.webp', $fileName);
-        $webpPath = $targetDir . $webpName;
-
-        WebPConvert::convert($targetPath, $webpPath, [
-            'quality' => 85,
-            'method' => 6,
-            'max-quality' => 90,
-            'fail' => 'throw',
-            'convert' => 'cwebp',
-        ]);
-
-        // Eliminar original
-        unlink($targetPath);
-
-        return [
-            'success' => true,
-            'filename' => $webpName,
-            'path' => "/uploads/images/$webpName",
-            'full_path' => $webpPath,
-            'url' => $this->getPublicUrl($webpName),
-            'pending_optimization' => false
-        ];
-
-    } catch (Exception $e) {
-        return [
-            'success' => false,
-            'error' => $e->getMessage()
-        ];
     }
-}
 
 
     public function uploadImageFromUrl($url)
@@ -274,6 +303,14 @@ class FileUploader
                 throw new Exception('No se pudo descargar la imagen desde la URL: ' . $url);
             }
             file_put_contents($tempFile, $imageData);
+
+
+            // Verify the size
+            $maxFileSize = 5 * 1024 * 1024; // 5MB
+            if (filesize($tempFile) > $maxFileSize) {
+                unlink($tempFile);
+                throw new Exception('El archivo descargado excede el tamaño máximo permitido de 5MB.');
+            }
 
             // Detectar MIME real del archivo descargado
             $mime = mime_content_type($tempFile);

@@ -375,7 +375,6 @@ class SectionService
 
     private function getVideoToUpdateDB($videoDB, $currentVideoUrl, $fileVideo)
     {
-        error_log("getVideoToUpdateDB called with videoDB: " . $videoDB . ", currentVideoUrl: " . $currentVideoUrl . ", fileVideo: " . json_encode($fileVideo));
         if (empty($fileVideo) && empty($currentVideoUrl)) {
             return null;
         } else if (empty($fileVideo) && !empty($currentVideoUrl)) {
@@ -424,7 +423,7 @@ class SectionService
         if (!empty($imageUrl)) {
             $uploadResult = $this->fileUploader->uploadImageFromUrl($imageUrl);
             if (isset($uploadResult["error"])) {
-                throw AppException::internalServer("No se pudo subir la imagen desde la URL: " , $uploadResult["error"]);
+                throw AppException::internalServer($uploadResult["error"] , $uploadResult["error"]);
             }
 
             $currentImageUrl = $uploadResult['path'];
