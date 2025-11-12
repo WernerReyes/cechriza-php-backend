@@ -208,7 +208,7 @@ class CreateSectionRequestDto
             case SectionType::OUR_COMPANY->value:
                 $this->textButton = null;
                 $this->linkId = null;
-                $this->subtitle = null;
+                // $this->subtitle = null;
                 $this->menusIds = null;
                 $this->machinesIds = null;
                 break;
