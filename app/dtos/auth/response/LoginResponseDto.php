@@ -6,13 +6,13 @@ class LoginResponseDto
     public UserResponseDto $user;
     public string $accessToken;
 
-    public string $refreshToken;
+    public ?string $refreshToken;
 
 
     public function __construct(
         $user,
         string $accessToken,
-        string $refreshToken
+        ?string $refreshToken
     ) {
 
         $this->user = new UserResponseDto($user);
