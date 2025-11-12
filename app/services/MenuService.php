@@ -211,9 +211,6 @@ class MenuService
     
     
             if (!empty($menu->children) && count($menu->children) > 0) {
-                $menu->children->each(function ($child) {
-    
-                });
                 MenuModel::where('parent_id', $menu->id_menu)->delete();
             }
     
