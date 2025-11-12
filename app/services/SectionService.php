@@ -23,25 +23,17 @@ class SectionService
             'link:id_link,type,title',
             'extraLink:id_link,type,title',
             'sectionItems.link:id_link,type',
-            // 'menus' => function ($query) {
-            //     $query
-            //           ->select('menu.id_menu', 'menu.title', 'menu.parent_id');
-            // },
+
             'pages:id_page,title,slug',
             'pivot',
             'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
             'machines.category:id_category,title,type',
-            // 'menus.parent:id_menu,title',
+
             'menus.parent.parent:id_menu,title',
-            // 'menus.children:id_menu,title,parent_id',
-            // 'menus.children.children:id_menu,title,parent_id',
-            // 'pivot' // asegúrate de tener esta relación
+
         ])->get();
 
-        // 🔽 Ordenar por el menor order_num del pivot
-        // $sorted = $sections->sortBy(function ($section) {
-        //     return $section->pivot->min('order_num') ?? 9999;
-        // })->values();
+
 
         return $sections->map(fn($section) => new SectionResponseDto($section));
     }
@@ -90,7 +82,7 @@ class SectionService
                     ]);
                 }
 
-                $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title');
+                $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title,parent_id', 'menus.parent.parent:id_menu,title');
             }
 
             if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value, SectionType::CASH_PROCESSING_EQUIPMENT->value]) && !empty($dto->machinesIds)) {
@@ -332,14 +324,8 @@ class SectionService
                         throw AppException::notFound("La sección no está asociada con la página indicada.");
                     }
 
-                    // Usar detach() en lugar de delete() directo en el modelo pivote
                     $section->pages()->detach($pageId);
 
-                    error_log("Linked: " . json_encode($isLinked));
-                    // Si deseas, puedes verificar si ya no queda asociada a ninguna página y eliminarla
-                    // if ($section->pages()->count() === 0) {
-                    //     $section->delete();
-                    // }
 
                     return;
                 }
@@ -423,7 +409,7 @@ class SectionService
         if (!empty($imageUrl)) {
             $uploadResult = $this->fileUploader->uploadImageFromUrl($imageUrl);
             if (isset($uploadResult["error"])) {
-                throw AppException::internalServer($uploadResult["error"] , $uploadResult["error"]);
+                throw AppException::internalServer($uploadResult["error"], $uploadResult["error"]);
             }
 
             $currentImageUrl = $uploadResult['path'];

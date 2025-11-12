@@ -45,7 +45,7 @@ class AuthController extends AppController
     public function logout()
     {
         $this->authService->logout();
-        return AppResponse::success();
+        return AppResponse::success(null, "Cierre de sesión exitoso");
     }
 
     public function me()
