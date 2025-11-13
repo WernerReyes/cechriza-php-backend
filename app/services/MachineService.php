@@ -38,12 +38,18 @@ class MachineService
             }
         }
 
+
+
         $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
 
 
 
         $machine->load('category:id_category,type,title');
+
+        if ($machine->link_id) {
+            $machine->load('link:id_link,type,title,url,file_path,page_id');
+        }
 
         return new MachineResponseDto($machine);
     }
@@ -72,7 +78,7 @@ class MachineService
                     'url' => $this->uploadFile($image)
                 ];
                 $imagePaths[] = $newImagePath;
-                
+
             }
         }
 
@@ -129,6 +135,10 @@ class MachineService
 
         $machine->load('sections:id_section');
         $machine->load('category:id_category,type,title');
+
+        if ($machine->link_id) {
+            $machine->load('link:id_link,type,title,url,file_path,page_id');
+        }
 
         return new MachineResponseDto($machine);
     }
