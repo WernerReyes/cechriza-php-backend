@@ -72,15 +72,11 @@ class MachineService
                     'url' => $this->uploadFile($image)
                 ];
                 $imagePaths[] = $newImagePath;
-                $imagePathsToOptimize[] = $this->fileUploader->getFullPathFromUrl(
-                    $newImagePath['url']
-                );
+                
             }
         }
 
         if ($dto->imagesToUpdate) {
-
-
             foreach ($dto->imagesToUpdate as $imageUpdate) {
                 $oldImage = $imageUpdate['oldImage'];
                 $newFile = $imageUpdate['newFile'];
@@ -94,8 +90,6 @@ class MachineService
                     ];
                 }
 
-                $imagePathsToOptimize[] = $this->fileUploader->getFullPathFromUrl($newImagePath);
-
                 $this->fileUploader->deleteImage($path);
             }
         }
@@ -103,6 +97,7 @@ class MachineService
         if ($dto->imagesToRemove) {
             foreach ($dto->imagesToRemove as $imageToRemove) {
                 $path = $this->normalizePath($this->fileUploader->getPathFromUrl($imageToRemove));
+
                 $key = array_search($path, array_column($imagePaths, 'url'));
                 if ($key !== false) {
                     unset($imagePaths[$key]);

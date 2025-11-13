@@ -20,9 +20,9 @@ class SectionService
     {
         $sections = SectionModel::with([
             'sectionItems',
-            'link:id_link,type,title',
-            'extraLink:id_link,type,title',
-            'sectionItems.link:id_link,type',
+            'link:id_link,type,title,url,file_path,page_id',
+            'extraLink:id_link,type,title,url,file_path,page_id',
+            'sectionItems.link:id_link,type,title,url,file_path,page_id',
 
             'pages:id_page,title,slug',
             'pivot',
@@ -104,11 +104,11 @@ class SectionService
             }
 
             if ($dto->linkId) {
-                $section->load('link:id_link,type,title');
+                $section->load('link:id_link,type,title,url,file_path,page_id');
             }
 
             if ($dto->extraLinkId) {
-                $section->load('extraLink:id_link,type,title');
+                $section->load('extraLink:id_link,type,title,url,file_path,page_id');
             }
 
 
@@ -199,11 +199,11 @@ class SectionService
         // }
 
         if ($dto->linkId) {
-            $section->load('link:id_link,type,title');
+            $section->load('link:id_link,type,title,url,file_path,page_id');
         }
 
         if ($dto->extraLinkId) {
-            $section->load('extraLink:id_link,type,title');
+            $section->load('extraLink:id_link,type,title,url,file_path,page_id');
         }
 
         return new SectionResponseDto($section);

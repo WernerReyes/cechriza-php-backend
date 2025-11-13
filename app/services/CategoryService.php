@@ -4,9 +4,10 @@ require_once "app/dtos/category/response/CategoryResponseDto.php";
 require_once "app/exceptions/DBExceptionHandler.php";
 class CategoryService
 {
+   
     public function getAll()
     {
-        $categories = CategoryModel::with('machines')->orderBy('created_at', 'asc')->get();
+        $categories = CategoryModel::with('machines', 'machines.link:id_link,type,title,url,file_path,page_id')->orderBy('created_at', 'asc')->get();
         return $categories->map(fn($category) => new CategoryResponseDto($category));
     }
 
