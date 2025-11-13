@@ -41,16 +41,15 @@ class MachineService
         $machine = MachineModel::create($dto->toArray($imagePaths, $manualPath));
 
 
-       
 
-        $machine->load('category:id_category,type');
+
+        $machine->load('category:id_category,type,title');
 
         return new MachineResponseDto($machine);
     }
 
     public function update(UpdateMachineDto $dto)
     {
-        error_log("Updating machine with DTO: " . json_encode($dto));
 
         $machine = MachineModel::find($dto->id);
         if (!$machine) {
@@ -66,9 +65,6 @@ class MachineService
 
         $imagePaths = json_decode($machine->images ?? [], true);
 
-        $imagePathsToOptimize = [];
-
-
         if ($dto->fileImages) {
             foreach ($dto->fileImages as $image) {
                 $newImagePath = [
@@ -81,8 +77,6 @@ class MachineService
                 );
             }
         }
-
-
 
         if ($dto->imagesToUpdate) {
 
@@ -114,15 +108,15 @@ class MachineService
                     unset($imagePaths[$key]);
                 }
 
-               
 
-                $deleted = $this->fileUploader->deleteImage($path);
-              
+
+                $this->fileUploader->deleteImage($path);
+
             }
             // Reindex array
-            $imagePaths = array_values(array: $imagePaths);
+            $imagePaths = array_values($imagePaths);
 
-           
+
         }
 
         $manualPath = $machine->manual;
@@ -136,76 +130,16 @@ class MachineService
 
         $machine->update($dto->toArray($imagePaths, $manualPath));
 
-        
-       
+
+
         $machine->load('sections:id_section');
-        $machine->load('category:id_category,type');
+        $machine->load('category:id_category,type,title');
 
         return new MachineResponseDto($machine);
     }
 
 
-    /**
-     * Encola un job JSON para que el worker optimice la imagen.
-     */
-    private function enqueueOptimization(string $path, $machineId): void
-    {
-        $queueDir = __DIR__ . '/../queue/jobs/';
-        if (!is_dir($queueDir)) {
-            mkdir($queueDir, 0755, true);
-        }
 
-        $jobId = uniqid('job_', true);
-        $job = [
-            'type' => 'optimize_image',
-            'machine_id' => $machineId,
-            'path' => $path,
-            'created_at' => date('Y-m-d H:i:s')
-        ];
-
-        file_put_contents($queueDir . "$jobId.json", json_encode($job, JSON_PRETTY_PRINT));
-
-        // Inicia el worker en background si no está corriendo
-        $this->startWorkerIfNotRunning();
-    }
-
-    /**
-     * Inicia el worker solo si no está activo.
-     */
-    private function startWorkerIfNotRunning(): void
-{
-    $workerPath = __DIR__ . '/../queue/worker.php';
-    $escapedWorkerPath = escapeshellarg($workerPath);
-
-    if (stristr(PHP_OS, 'WIN')) {
-        // Buscar si el worker ya está corriendo
-        $output = [];
-        exec('tasklist /FI "IMAGENAME eq php.exe"', $output);
-
-        $isRunning = false;
-        foreach ($output as $line) {
-            if (str_contains($line, 'php.exe')) {
-                // Verificamos si el comando worker.php está en uso
-                $cmdCheck = shell_exec('wmic process where "CommandLine like \'%worker.php%\'" get CommandLine 2>nul');
-                if (str_contains($cmdCheck ?? '', 'worker.php')) {
-                    $isRunning = true;
-                    break;
-                }
-            }
-        }
-
-        if (!$isRunning) {
-            // Iniciar en segundo plano
-            pclose(popen("start /B php $escapedWorkerPath", "r"));
-        }
-    } else {
-        // Linux / Mac
-        $isRunning = shell_exec("pgrep -f 'php .*worker.php'");
-        if (!$isRunning) {
-            exec("nohup php $escapedWorkerPath > /dev/null 2>&1 &");
-        }
-    }
-}
 
 
     private function normalizePath($p)
