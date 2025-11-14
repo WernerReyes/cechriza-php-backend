@@ -1,7 +1,7 @@
 <?php
 // require_once 'app/controllers/SeedController.php';
 require_once 'vendor/autoload.php';
-require_once 'app/controllers/OS_TICKET.php';
+// require_once 'app/controllers/OS_TICKET.php';
 
 use Illuminate\Database\Eloquent\Model;
 

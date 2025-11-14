@@ -60,6 +60,19 @@ class SectionController extends AppController
         return AppResponse::success($this->sectionService->associeteToPages($dto), "Sección asociada a páginas correctamente");
     }
 
+
+    public function moveToPage($id)
+    {
+        $fromPageId = $this->body()["fromPageId"] ?? null;
+        $toPageId = $this->body()["toPageId"] ?? null;
+        if (empty($fromPageId) || empty($toPageId)) {
+            throw AppException::badRequest("Los parámetros fromPageId y toPageId son obligatorios");
+        }
+
+        $this->sectionService->moveToPage(intval($id), intval($fromPageId), intval($toPageId));
+        return AppResponse::success(null, "Sección movida correctamente a la página destino");
+    }
+
     public function updateOrder()
     {
         $body = $this->body();

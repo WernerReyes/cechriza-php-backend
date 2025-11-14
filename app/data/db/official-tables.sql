@@ -227,9 +227,8 @@ CREATE TABLE section_pages (
 CREATE TABLE section_machines (
      id_section INT NOT NULL,
     id_machine INT NOT NULL,
+    order_num INT DEFAULT 1,
     PRIMARY KEY (id_section, id_machine),
     CONSTRAINT fk_section_machines_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     CONSTRAINT fk_section_machines_machine FOREIGN KEY (id_machine) REFERENCES machines(id_machine)
 );
-
-

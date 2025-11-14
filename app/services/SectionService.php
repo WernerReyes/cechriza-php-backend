@@ -76,17 +76,32 @@ class SectionService
             $section = SectionModel::create($dto->toInsertDB($imageUrl, $fileIconUrl, $fileVideoUrl));
 
             if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
+                $menusAttach = [];
+
                 foreach ($dto->menusIds as $index => $menuId) {
-                    $section->menus()->attach($menuId, [
-                        'order_num' => $index + 1
-                    ]);
+                    $menusAttach[$menuId] = ['order_num' => $index + 1];
                 }
+
+                $section->menus()->sync($menusAttach);
+
+                // foreach ($dto->menusIds as $index => $menuId) {
+                //     $section->menus()->attach($menuId, [
+                //         'order_num' => $index + 1
+                //     ]);
+                // }
 
                 $section->load('menus:id_menu,title,parent_id', 'menus.parent:id_menu,title,parent_id', 'menus.parent.parent:id_menu,title');
             }
 
             if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value, SectionType::CASH_PROCESSING_EQUIPMENT->value]) && !empty($dto->machinesIds)) {
-                $section->machines()->attach($dto->machinesIds);
+                $machinesAttach = [];
+
+                foreach ($dto->machinesIds as $index => $machineId) {
+                    $machinesAttach[$machineId] = ['order_num' => $index + 1];
+                }
+
+
+                $section->machines()->attach($machinesAttach);
 
                 $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
             }
@@ -189,7 +204,15 @@ class SectionService
         }
 
         if (in_array($dto->type, [SectionType::MACHINE->value, SectionType::MACHINE_DETAILS->value, SectionType::MACHINES_CATALOG->value, SectionType::CASH_PROCESSING_EQUIPMENT->value]) && !empty($dto->machinesIds)) {
-            $section->machines()->sync($dto->machinesIds);
+            $machinesSync = [];
+
+            if (!empty($dto->machinesIds)) {
+                foreach ($dto->machinesIds as $index => $machineId) {
+                    $machinesSync[$machineId] = ['order_num' => $index + 1];
+                }
+            }
+
+            $section->machines()->sync($machinesSync);
 
             $section->load('machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button', 'machines.category:id_category,title,type');
         }
@@ -208,6 +231,8 @@ class SectionService
 
         return new SectionResponseDto($section);
     }
+
+
 
     private function allowSectionTypeToUpsertImages(string $type)
     {
@@ -273,6 +298,51 @@ class SectionService
         // Recargar pivote actualizado
         $section->load('pivot');
         $section->load('pages:id_page');
+
+        return new SectionResponseDto($section);
+    }
+
+
+    public function moveToPage($sectionId, $fromPageId, $toPageId)
+    {
+        $section = SectionModel::with('pivot')->find($sectionId);
+
+        if (empty($section)) {
+            throw AppException::badRequest("La sección seleccionada no existe");
+        }
+
+        if ($fromPageId === $toPageId) {
+            throw AppException::badRequest("La página de origen y destino no pueden ser la misma.");
+        }
+
+
+        $pages = $section->pivot->pluck('id_page')->toArray();
+        if (!in_array($fromPageId, $pages)) {
+            throw AppException::badRequest("La sección no está asociada a la página de origen indicada.");
+        }
+
+        if (in_array($toPageId, $pages)) {
+            throw AppException::badRequest("La sección ya está asociada a la página de destino indicada.");
+        }
+        $pivotPage = $section->pivot->firstWhere('id_page', $fromPageId);
+        // if ($pivotPage->type !== SectionMode::CUSTOM->value) {
+        //     throw AppException::badRequest("Solo se pueden mover secciones que fueron agregadas de forma personalizada a una página.");
+        // }
+
+
+        // Desasociar de la página de origen
+        $section->pages()->detach($fromPageId);
+
+
+
+        // Asociar a la página de destino con el siguiente orden
+        // $maxOrder = PageSectionModel::where('id_page', $toPageId)->max('order_num') ?? 0;
+        $section->pages()->attach($toPageId, [
+            'order_num' => $pivotPage->order_num,
+            'active' => $pivotPage->active,
+            'type' => $pivotPage->type
+        ]);
+
 
         return new SectionResponseDto($section);
     }

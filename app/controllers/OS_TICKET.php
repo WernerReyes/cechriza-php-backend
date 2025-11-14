@@ -34,7 +34,7 @@ class OS_TICKET
 
     private function readExcelFile($conn)
     {
-        $inputFileName = 'C:\Users\Cechriza\Downloads\Copia de Sistema Web (1).xlsx';
+        $inputFileName = 'C:\Users\Cechriza\Downloads\AGENCIAS - david 2 (1).xlsx';
         $spreadsheet = IOFactory::load($inputFileName);
         $sheet = $spreadsheet->getActiveSheet();
 
@@ -56,8 +56,10 @@ class OS_TICKET
 
         }
 
+        // return $data;
 
-        $filter = array_filter($data, fn($row, $i) => $i > 1 && $row[13] !== 'CESADO', ARRAY_FILTER_USE_BOTH);
+
+        $filter = array_filter($data, fn($row, $i) => $i > 1, ARRAY_FILTER_USE_BOTH);
         return array_values($filter);
 
     }
@@ -234,9 +236,9 @@ class OS_TICKET
     {
         return array_map(function ($row) {
             return [
-                'id' => $row[1],
-                'Area' => $row[3],
-                'Cargo' => $row[4],
+                'id' => $row[0],
+                'id_cliente' => $row[3],
+                // 'Cargo' => $row[4],
                 // 'CDepartamento' => $row[2],
                 // 'Nombre' => $row[3],
                 // 'DNI' => $row[4],
@@ -267,57 +269,31 @@ class OS_TICKET
 
     private function updateDB($conn, $dataToUpdate)
     {
-        $limit = 3; // Límite de registros a procesar
+        $limit = 2; // Límite de registros a procesar
         $counter = 0;
         $totalUpdated = 0;
         $totalNotUpdated = 0;
 
-        $ids = [
-            3,
-            16,
-            19,
-            29,
-            52,
-            53,
-            58,
-            59,
-            63,
-            67,
-            77,
-            79,
-            82,
-            83,
-            106,
-            122,
-            133,
-            138,
-            139,
-            143,
-            147,
-            162,
-            164,
-            169
-        ];
+        
 
-
-        foreach ($ids as $id) {
+        foreach ($dataToUpdate as $row) {
             // if (++$counter > $limit) break;
 
-            $stmt = $conn->prepare("UPDATE ost_staff SET
-            activo = ?
-            WHERE staff_id = ?");
+            $stmt = $conn->prepare("UPDATE ost_list_items SET
+            id_cliente = ?
+            WHERE id = ?");
 
             $stmt->execute([
-                0,
-                $id
+                $row['id_cliente'],
+                $row['id']
             ]);
 
             if ($stmt->rowCount() > 0) {
                 $totalUpdated++;
-                echo "✅ Registro actualizado correctamente (staff_id = {$id})\n";
+                echo "✅ Registro actualizado correctamente (staff_id = {$row['id']})\n";
             } else {
                 $totalNotUpdated++;
-                echo "⚠️ No se actualizó el registro (staff_id = {$id}) — posiblemente no existe o no cambió.\n";
+                echo "⚠️ No se actualizó el registro (staff_id = {$row['id']}) — posiblemente no existe o no cambió.\n";
             }
         }
 
@@ -349,10 +325,10 @@ class OS_TICKET
         // $dataToUpdate = $this->getCompanies($conn, $dataToUpdate);
         // $dataToUpdate = $this->getArea($conn, $dataToUpdate);
         // $dataToUpdate = $this->getCargo($conn, $dataToUpdate);
-        // $dataToUpdate = $this->excelParsed($dataToUpdate);
+        $dataToUpdate = $this->excelParsed($dataToUpdate);
         $this->updateDB($conn, $dataToUpdate);
 
-        echo "Datos leídos del archivo Excel: " . count($dataToUpdate) . " filas.\n";
+        // echo "Datos leídos del archivo Excel: " . count($dataToUpdate) . " filas.\n";
 
         echo "<h3>Datos del Excel (" . json_encode($dataToUpdate) . " total):</h3>";
 

@@ -96,7 +96,7 @@ class SectionModel extends Model
 
     public function machines()
     {
-        return $this->belongsToMany(MachineModel::class, 'section_machines', 'id_section', 'id_machine');
+        return $this->belongsToMany(MachineModel::class, 'section_machines', 'id_section', 'id_machine')->orderBy('order_num');
     }
 
     public function pivot()
