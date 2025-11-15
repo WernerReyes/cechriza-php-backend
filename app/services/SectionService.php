@@ -234,6 +234,7 @@ class SectionService
 
 
 
+
     private function allowSectionTypeToUpsertImages(string $type)
     {
         return in_array($type, [
@@ -247,6 +248,67 @@ class SectionService
             SectionType::PREVENTIVE_CORRECTIVE_MAINTENANCE->value,
             SectionType::SUPPORT_WIDGET->value,
         ]);
+    }
+
+    public function duplicate(int $id, int $pageId): SectionResponseDto
+    {
+        $section = SectionModel::with(['sectionItems', 'machines', 'menus', 'pivot'])->find($id);
+
+        if (empty($section)) {
+            throw AppException::notFound("La sección seleccionada no existe");
+        }
+
+        $newSection = Capsule::connection()->transaction(function () use ($section, $pageId) {
+            // Any pre-duplication logic can go here
+            $newSection = $section->replicate();
+            $newSection->title = $newSection->title . " (Copia)";
+            $newSection->save();
+
+            // Duplicate section items
+            $sectionPage = $section->pivot->firstWhere('id_page', $pageId);
+            error_log(json_encode(value: $sectionPage) . " sectionPage");
+            $maxOrder = $section->pivot->where('id_page', $pageId)->max('order_num') ?? 0;
+            $newSection->pages()->syncWithoutDetaching([
+                $pageId => [
+                    'order_num' => $maxOrder + 1,
+                    'active' => $sectionPage?->active ?? 1,
+                    'type' => $sectionPage?->type ?? 'CUSTOM'
+                ]
+            ]);
+
+
+            // Duplicate menus association
+            foreach ($section->menus as $menu) {
+                $newSection->menus()->attach($menu->id_menu, [
+                    'order_num' => $menu->pivot->order_num
+                ]);
+            }
+
+            // Duplicate machines association
+            foreach ($section->machines as $machine) {
+                $newSection->machines()->attach($machine->id_machine, [
+                    'order_num' => $machine->pivot->order_num
+                ]);
+            }
+
+            if ($section->pivot) {
+                $newSection->load('pivot:id_page,id_section,order_num,active,type');
+            }
+
+            if ($section->link_id) {
+                $newSection->load('link:id_link,type,title,url,file_path,page_id');
+            }
+
+            if ($section->extra_link_id) {
+                $newSection->load('extraLink:id_link,type,title,url,file_path,page_id');
+            }
+
+            return $newSection;
+        });
+
+
+
+        return new SectionResponseDto($newSection);
     }
 
     public function associeteToPages(AssocieteToPagesRequestDto $dto)
@@ -324,24 +386,25 @@ class SectionService
         if (in_array($toPageId, $pages)) {
             throw AppException::badRequest("La sección ya está asociada a la página de destino indicada.");
         }
+
+
         $pivotPage = $section->pivot->firstWhere('id_page', $fromPageId);
-        // if ($pivotPage->type !== SectionMode::CUSTOM->value) {
-        //     throw AppException::badRequest("Solo se pueden mover secciones que fueron agregadas de forma personalizada a una página.");
-        // }
 
 
         // Desasociar de la página de origen
         $section->pages()->detach($fromPageId);
 
 
-
         // Asociar a la página de destino con el siguiente orden
-        // $maxOrder = PageSectionModel::where('id_page', $toPageId)->max('order_num') ?? 0;
+        $maxOrder = PageSectionModel::where('id_page', $toPageId)->max('order_num') ?? 0;
         $section->pages()->attach($toPageId, [
-            'order_num' => $pivotPage->order_num,
+            'order_num' => $maxOrder + 1,
             'active' => $pivotPage->active,
             'type' => $pivotPage->type
         ]);
+
+        $section->load('pivot:id_page,id_section,order_num,active,type');
+        $section->load('pages:id_page');
 
 
         return new SectionResponseDto($section);

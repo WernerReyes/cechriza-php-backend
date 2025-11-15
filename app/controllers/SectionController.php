@@ -48,6 +48,15 @@ class SectionController extends AppController
         return AppResponse::success($this->sectionService->update($dto), "Sección actualizada correctamente");
     }
 
+    public function duplicate($id)
+    {
+        $pageId = $this->body()["pageId"] ?? null;
+        if (empty($pageId)) {
+            throw AppException::badRequest("El parámetro pageId es obligatorio");
+        }
+        return AppResponse::success($this->sectionService->duplicate(intval($id), intval($pageId)), "Sección duplicada correctamente");
+    }
+
     public function associeteToPages($id)
     {
         $body = $this->body();
@@ -69,8 +78,8 @@ class SectionController extends AppController
             throw AppException::badRequest("Los parámetros fromPageId y toPageId son obligatorios");
         }
 
-        $this->sectionService->moveToPage(intval($id), intval($fromPageId), intval($toPageId));
-        return AppResponse::success(null, "Sección movida correctamente a la página destino");
+       
+        return AppResponse::success($this->sectionService->moveToPage(intval($id), intval($fromPageId), intval($toPageId)), "Sección movida correctamente a la página destino");
     }
 
     public function updateOrder()
