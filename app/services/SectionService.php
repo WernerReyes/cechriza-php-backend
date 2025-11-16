@@ -250,7 +250,7 @@ class SectionService
         ]);
     }
 
-    public function duplicate(int $id, int $pageId): SectionResponseDto
+    public function duplicate(int $id, ?int $pageId): SectionResponseDto
     {
         $section = SectionModel::with(['sectionItems', 'machines', 'menus', 'pivot'])->find($id);
 
@@ -262,19 +262,38 @@ class SectionService
             // Any pre-duplication logic can go here
             $newSection = $section->replicate();
             $newSection->title = $newSection->title . " (Copia)";
+
+            if ($section->image) {
+                // Duplicate the image file
+                $newImagePath = $this->fileUploader->duplicateImage($section->image);
+                $newSection->image = $newImagePath;
+            }
+
+            if ($section->icon_url) {
+                // Duplicate the icon file
+                $newIconPath = $this->fileUploader->duplicateImage($section->icon_url);
+                $newSection->icon_url = $newIconPath;
+            }
+
             $newSection->save();
 
-            // Duplicate section items
-            $sectionPage = $section->pivot->firstWhere('id_page', $pageId);
-            error_log(json_encode(value: $sectionPage) . " sectionPage");
-            $maxOrder = $section->pivot->where('id_page', $pageId)->max('order_num') ?? 0;
-            $newSection->pages()->syncWithoutDetaching([
-                $pageId => [
-                    'order_num' => $maxOrder + 1,
-                    'active' => $sectionPage?->active ?? 1,
-                    'type' => $sectionPage?->type ?? 'CUSTOM'
-                ]
-            ]);
+
+            if (!empty($pageId)) {
+
+                // Duplicate section items
+                $sectionPage = $section->pivot->firstWhere('id_page', $pageId);
+
+                $maxOrder = $section->pivot->where('id_page', $pageId)->max('order_num') ?? 0;
+                $newSection->pages()->syncWithoutDetaching([
+                    $pageId => [
+                        'order_num' => $maxOrder + 1,
+                        'active' => $sectionPage?->active ?? 1,
+                        'type' => $sectionPage?->type ?? 'CUSTOM'
+                    ]
+                ]);
+
+                $newSection->load('pivot:id_page,id_section,order_num,active,type');
+            }
 
 
             // Duplicate menus association
@@ -291,9 +310,7 @@ class SectionService
                 ]);
             }
 
-            if ($section->pivot) {
-                $newSection->load('pivot:id_page,id_section,order_num,active,type');
-            }
+
 
             if ($section->link_id) {
                 $newSection->load('link:id_link,type,title,url,file_path,page_id');
@@ -555,7 +572,13 @@ class SectionService
     {
 
         if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
+
+            if ($imageDB) {
+                $this->fileUploader->deleteImage($imageDB);
+
+            }
             return null;
+
         } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
             return $this->fileUploader->getPathFromUrl($currentImageUrl);
         }

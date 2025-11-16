@@ -51,10 +51,8 @@ class SectionController extends AppController
     public function duplicate($id)
     {
         $pageId = $this->body()["pageId"] ?? null;
-        if (empty($pageId)) {
-            throw AppException::badRequest("El parámetro pageId es obligatorio");
-        }
-        return AppResponse::success($this->sectionService->duplicate(intval($id), intval($pageId)), "Sección duplicada correctamente");
+        
+        return AppResponse::success($this->sectionService->duplicate(intval($id),  empty($pageId) ? null : intval($pageId)), "Sección duplicada correctamente");
     }
 
     public function associeteToPages($id)

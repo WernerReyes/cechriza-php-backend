@@ -45,10 +45,6 @@ class SectionItemService
 
 
 
-        // $fileIconUrl = $this->getImageToInsertDB($dto->fileIconUrl, $dto->fileIcon);
-
-        error_log("Dto " . json_encode($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl)));
-
         $sectionItem = SectionItemModel::create($dto->toInsertDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
 
 
@@ -101,6 +97,32 @@ class SectionItemService
         $sectionItem->update($dto->toUpdateDB($imageUrl, $backgroundImageUrl, $fileIconUrl));
 
         return new SectionItemResponseDto($sectionItem);
+    }
+
+
+
+    public function duplicate(int $id)
+    {
+        $sectionItem = $this->findById($id);
+
+        $newSectionItem = $sectionItem->replicate();
+        $newSectionItem->title = $sectionItem->title . " (Copia)";
+
+        if ($sectionItem->image) {
+            $newSectionItem->image = $this->fileUploader->duplicateImage($sectionItem->image);
+        }
+
+        if ($sectionItem->background_image) {
+            $newSectionItem->background_image = $this->fileUploader->duplicateImage($sectionItem->background_image);
+        }
+
+        if ($sectionItem->icon_url) {
+            $newSectionItem->icon_url = $this->fileUploader->duplicateImage($sectionItem->icon_url);
+        }
+
+        $newSectionItem->save();
+
+        return new SectionItemResponseDto($newSectionItem);
     }
 
 
@@ -160,6 +182,9 @@ class SectionItemService
     {
 
         if (empty($newImageUrl) && empty($fileImage) && empty($currentImageUrl)) {
+            if ($imageDB) {
+                $this->fileUploader->deleteImage($imageDB);
+            }
             return null;
         } else if (empty($newImageUrl) && empty($fileImage) && !empty($currentImageUrl)) {
             return $this->fileUploader->getPathFromUrl($currentImageUrl);

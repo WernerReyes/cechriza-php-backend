@@ -37,6 +37,16 @@ class SectionItemController extends AppController
         return AppResponse::success($this->sectionItemService->update($dto), "Item de sección actualizado correctamente");
     }
 
+
+    public function duplicate($id)
+    {
+       
+        
+        return AppResponse::success($this->sectionItemService->duplicate(intval($id)), "Item de sección duplicado correctamente");
+    }
+
+   
+
     public function delete($id)
     {
         return AppResponse::success($this->sectionItemService->delete(intval($id)), "Item de sección eliminado correctamente");

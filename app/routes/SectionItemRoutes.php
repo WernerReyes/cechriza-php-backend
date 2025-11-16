@@ -11,6 +11,7 @@ class SectionItemRoutes
         // $router->get(self::$prefix, "SectionItemController@getAll", ["auth"]);
         $router->post(self::$prefix, "SectionItemController@create", ["auth"]);
         $router->post(self::$prefix . "/{id}", "SectionItemController@update", ["auth"]);
+        $router->post(self::$prefix . "/{id}/duplicate", "SectionItemController@duplicate", ["auth"]);
         $router->delete(self::$prefix . "/{id}", "SectionItemController@delete", ["auth"]);
 
     }

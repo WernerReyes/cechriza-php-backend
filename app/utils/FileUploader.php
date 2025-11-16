@@ -293,6 +293,30 @@ class FileUploader
     }
 
 
+    public function duplicateImage($imagePath)
+    {
+        $sourcePath = $this->getFullPathFromUrl($imagePath);
+        if (!file_exists($sourcePath)) {
+            throw new Exception('El archivo de imagen a duplicar no existe: ' . $sourcePath);
+        }
+
+        $targetDir = $this->uploadDir('images');
+        if (!is_dir($targetDir)) {
+            mkdir($targetDir, 0755, true);
+        }
+
+        $extension = strtolower(pathinfo($sourcePath, PATHINFO_EXTENSION));
+        $newFileName = UuidUtil::v4() . '.' . $extension;
+        $targetPath = $targetDir . $newFileName;
+
+        if (!copy($sourcePath, $targetPath)) {
+            throw new Exception('Error al duplicar la imagen desde ' . $sourcePath . ' a ' . $targetPath);
+        }
+
+        return "/uploads/images/" . $newFileName;
+    }
+
+
     public function uploadImageFromUrl($url)
     {
         try {
@@ -693,6 +717,7 @@ class FileUploader
     {
         $fullPath = $this->uploadDir('images') . ltrim(basename($imagePath), '/');
 
+    
         if (file_exists($fullPath)) {
             return unlink(filename: $fullPath);
         }
