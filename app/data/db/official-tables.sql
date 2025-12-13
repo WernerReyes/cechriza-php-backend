@@ -206,6 +206,13 @@ CREATE TABLE section_menus (
 );
 
 
+-- TODO: Add indexes to improve performance
+ALTER TABLE section_menus 
+ADD INDEX idx_sm_section (id_section),
+ADD INDEX idx_sm_menu (id_menu),
+ADD INDEX idx_sm_section_order (id_section, order_num);
+
+
 -- ==========================================
 -- Tabla de page_sections
 -- ==========================================
@@ -232,3 +239,10 @@ CREATE TABLE section_machines (
     CONSTRAINT fk_section_machines_section FOREIGN KEY (id_section) REFERENCES sections(id_section) ON DELETE CASCADE,
     CONSTRAINT fk_section_machines_machine FOREIGN KEY (id_machine) REFERENCES machines(id_machine)
 );
+
+
+-- TODO: Add indexes to improve performance
+ALTER TABLE section_machines 
+ADD INDEX idx_sm_section (id_section),
+ADD INDEX idx_sm_machine (id_machine),
+ADD INDEX idx_sm_section_order (id_section, order_num);

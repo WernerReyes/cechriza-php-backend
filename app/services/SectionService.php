@@ -428,8 +428,8 @@ class SectionService
             'type' => $pivotPage->type
         ]);
 
-        $section->load('pageSections:id_page,id_section,order_num,active,type');
-        $section->load('pages:id_page');
+        // $section->load('pageSections:id_page,id_section,order_num,active,type');
+        // $section->load('pages:id_page');
 
 
         return new SectionResponseDto($section);
