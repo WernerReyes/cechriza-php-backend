@@ -4,8 +4,7 @@ require_once "app/dtos/sectionItem/request/CreateSectionItemRequestDto.php";
 require_once "app/dtos/sectionItem/request/UpdateSectionItemRequestDto.php";
 class SectionItemController extends AppController
 {
-    private readonly SectionItemService $sectionItemService;
-
+    private readonly SectionItemService $sectionItemService;   
 
     public function __construct()
     {

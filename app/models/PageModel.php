@@ -36,15 +36,13 @@ class PageModel extends Model
     
     public function sections()
     {
-        return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section')->withPivot('order_num', 'active', 'type')->
-            where('active', 1)->
-            orderBy('pivot_order_num', 'asc');
+        return $this->belongsToMany(SectionModel::class, 'section_pages', 'id_page', 'id_section');
     }
 
-    public function pivot()
-    {
-        return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');
-    }
+    // public function pivot()
+    // {
+    //     return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');
+    // }
 
 }
 

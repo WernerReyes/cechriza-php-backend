@@ -16,24 +16,32 @@ class SectionService
     {
         $this->fileUploader = new FileUploader();
     }
-    public function getAll()
-    {
-        $sections = SectionModel::with([
-            'sectionItems',
-            'link:id_link,type,title,url,file_path,page_id',
-            'extraLink:id_link,type,title,url,file_path,page_id',
-            'sectionItems.link:id_link,type,title,url,file_path,page_id',
 
-            'pages:id_page,title,slug',
-            'pivot',
+    public function getLayouts()
+    {
+        $sections = SectionModel::whereDoesntHave(
+            "pages", function($query) {
+                $query->where('type', '=', 'CUSTOM');
+            }
+        )->with([
+                    'sectionItems',
+                    'link:id_link,type,title,url,file_path,page_id',
+                    'extraLink:id_link,type,title,url,file_path,page_id',
+                    'sectionItems.link:id_link,type,title,url,file_path,page_id',
+
+                    
+                    'pages:id_page,title,slug',
+
+                    'pageSections',
+
+                ])->get();
+
+        $sections->load([
             'machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
             'machines.category:id_category,title,type',
 
             'menus.parent.parent:id_menu,title',
-
-        ])->get();
-
-
+        ]);
 
         return $sections->map(fn($section) => new SectionResponseDto($section));
     }
@@ -115,7 +123,7 @@ class SectionService
                     'type' => $dto->mode
                 ]);
 
-                $section->load('pivot:id_page,id_section,order_num,active,type');
+                $section->load('pageSections:id_page,id_section,order_num,active,type');
             }
 
             if ($dto->linkId) {
@@ -135,7 +143,7 @@ class SectionService
 
     public function update(UpdateSectionRequestDto $dto)
     {
-        $section = SectionModel::with('pivot')->find($dto->id);
+        $section = SectionModel::with('pageSections')->find($dto->id);
         if (empty($section)) {
             throw AppException::validationError("La sección seleccionada no existe");
         }
@@ -184,7 +192,7 @@ class SectionService
                 ->update([
                     'active' => $dto->active,
                 ]);
-            $section->load('pivot');
+            $section->load('pageSections');
         }
 
         if (in_array($dto->type, [SectionType::MAIN_NAVIGATION_MENU->value, SectionType::FOOTER->value]) && !empty($dto->menusIds)) {
@@ -252,7 +260,7 @@ class SectionService
 
     public function duplicate(int $id, ?int $pageId): SectionResponseDto
     {
-        $section = SectionModel::with(['sectionItems', 'machines', 'menus', 'pivot'])->find($id);
+        $section = SectionModel::with(['sectionItems', 'machines', 'menus', 'pageSections'])->find($id);
 
         if (empty($section)) {
             throw AppException::notFound("La sección seleccionada no existe");
@@ -281,9 +289,9 @@ class SectionService
             if (!empty($pageId)) {
 
                 // Duplicate section items
-                $sectionPage = $section->pivot->firstWhere('id_page', $pageId);
+                $sectionPage = $section->pageSections->firstWhere('id_page', $pageId);
 
-                $maxOrder = $section->pivot->where('id_page', $pageId)->max('order_num') ?? 0;
+                $maxOrder = $section->pageSections->where('id_page', $pageId)->max('order_num') ?? 0;
                 $newSection->pages()->syncWithoutDetaching([
                     $pageId => [
                         'order_num' => $maxOrder + 1,
@@ -292,21 +300,21 @@ class SectionService
                     ]
                 ]);
 
-                $newSection->load('pivot:id_page,id_section,order_num,active,type');
+                $newSection->load('pageSections:id_page,id_section,order_num,active,type');
             }
 
 
             // Duplicate menus association
             foreach ($section->menus as $menu) {
                 $newSection->menus()->attach($menu->id_menu, [
-                    'order_num' => $menu->pivot->order_num
+                    'order_num' => $menu->pageSections->order_num
                 ]);
             }
 
             // Duplicate machines association
             foreach ($section->machines as $machine) {
                 $newSection->machines()->attach($machine->id_machine, [
-                    'order_num' => $machine->pivot->order_num
+                    'order_num' => $machine->pageSections->order_num
                 ]);
             }
 
@@ -330,7 +338,7 @@ class SectionService
 
     public function associeteToPages(AssocieteToPagesRequestDto $dto)
     {
-        $section = SectionModel::with('pivot')->find($dto->id);
+        $section = SectionModel::with('pageSections')->find($dto->id);
 
         if (empty($section)) {
             throw AppException::badRequest("La sección seleccionada no existe");
@@ -342,7 +350,7 @@ class SectionService
         }
 
         // IDs de páginas actuales
-        $currentPageIds = $section->pivot->pluck('id_page')->toArray();
+        $currentPageIds = $section->pageSections->pluck('id_page')->toArray();
 
         // IDs nuevos que vienen del front
         $newPageIds = $dto->pagesIds;
@@ -375,7 +383,7 @@ class SectionService
         }
 
         // Recargar pivote actualizado
-        $section->load('pivot');
+        $section->load('pageSections');
         $section->load('pages:id_page');
 
         return new SectionResponseDto($section);
@@ -384,7 +392,7 @@ class SectionService
 
     public function moveToPage($sectionId, $fromPageId, $toPageId)
     {
-        $section = SectionModel::with('pivot')->find($sectionId);
+        $section = SectionModel::with('pageSections')->find($sectionId);
 
         if (empty($section)) {
             throw AppException::badRequest("La sección seleccionada no existe");
@@ -395,7 +403,7 @@ class SectionService
         }
 
 
-        $pages = $section->pivot->pluck('id_page')->toArray();
+        $pages = $section->pageSections->pluck('id_page')->toArray();
         if (!in_array($fromPageId, $pages)) {
             throw AppException::badRequest("La sección no está asociada a la página de origen indicada.");
         }
@@ -405,7 +413,7 @@ class SectionService
         }
 
 
-        $pivotPage = $section->pivot->firstWhere('id_page', $fromPageId);
+        $pivotPage = $section->pageSections->firstWhere('id_page', $fromPageId);
 
 
         // Desasociar de la página de origen
@@ -420,7 +428,7 @@ class SectionService
             'type' => $pivotPage->type
         ]);
 
-        $section->load('pivot:id_page,id_section,order_num,active,type');
+        $section->load('pageSections:id_page,id_section,order_num,active,type');
         $section->load('pages:id_page');
 
 
@@ -457,7 +465,7 @@ class SectionService
     public function delete(int $id, $pageId): void
     {
         try {
-            $section = SectionModel::with('sectionItems', 'pivot')->find($id);
+            $section = SectionModel::with('sectionItems', 'pageSections')->find($id);
             if (empty($section)) {
                 throw AppException::notFound("La sección seleccionada no existe");
             }

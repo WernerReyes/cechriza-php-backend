@@ -73,8 +73,8 @@ class SectionResponseDto
         $this->extra_link = ($data->relationLoaded('extraLink') && $data->extraLink) ? new LinkResponseDto($data->extraLink) : null;
         $this->menus = ($data->relationLoaded('menus') && $data->menus) ? $data->menus->map(fn($menu) => new MenuResponseDto($menu)) : null;
 
-        $this->pivot_pages = ($data->relationLoaded('pivot') && $data->pivot) ? $data->pivot : null;
-        $this->pages = ($data->relationLoaded('pages') && $data->pages) ? $data->pages : null;
+        $this->pivot_pages = ($data->relationLoaded('pageSections') && $data->pageSections) ? $data->pageSections : [];
+        $this->pages = ($data->relationLoaded('pages') && $data->pages) ? $data->pages : [];
 
         $this->icon_url = isset($data->icon_url) ? $fileUploader->getUrl($data->icon_url) : null;
         $this->icon = isset($data->icon) ? json_decode($data->icon, true) : null;

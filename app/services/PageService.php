@@ -14,6 +14,9 @@ class PageService
         return PageModel::select('slug', 'updated_at')->get();
     }
 
+
+
+
     public function getBySlug(string $slug)
     {
         $page = PageModel::withAllRelations()->where('slug', $slug)->first();
@@ -38,21 +41,7 @@ class PageService
     }
 
 
-    private function withRelations()
-    {
-        return [
-            'sections.sectionItems',
-            'sections.menus:id_menu,title,parent_id,link_id',
-            'sections.menus.parent.parent',
-            'sections.menus.link:id_link,page_id,new_tab',
-            'sections.menus.link.page:id_page,title,slug',
-            'sections.menus.parent.link:id_link,page_id,new_tab',
-            'sections.menus.parent.link.page:id_page,title,slug',
-            'sections.menus.parent.parent.link:id_link,page_id,new_tab',
-            'sections.menus.parent.parent.link.page.section:id_section,title,slug',
 
-        ];
-    }
 
     //* Private Methods
     public function getAll(GetAllPagesFilterRequestDto $dto)
@@ -64,14 +53,35 @@ class PageService
 
     public function getById(int $id)
     {
-        $page = PageModel::with('sections.sectionItems', 'sections.menus', 'pivot:id_page,id_section,order_num,active,type')->find($id);
+        $page = PageModel::select(
+        'id_page',
+        )->with([
+            'sections.sectionItems',
+            'sections.link:id_link,type,title,url,file_path,page_id',
+            'sections.extraLink:id_link,type,title,url,file_path,page_id',
+            'sections.sectionItems.link:id_link,type,title,url,file_path,page_id',
+            // 'sections.pages:id_page',
+            'sections.pageSections',
+
+
+                  'sections.machines:id_machine,name,images,category_id,link_id',
+            'sections.machines.category:id_category,title,type',
+            'sections.menus:id_menu,title,parent_id',
+            'sections.menus.parent:id_menu,title,parent_id',
+
+
+        ])->find($id);
+
+
         if (empty($page)) {
             throw AppException::validationError("La página seleccionada no existe");
         }
-        // return new PageResponseDto($page);
-        return $page;
+        
+        return new PageResponseDto($page);
     }
 
+
+    
     public function create(CreatePageRequestDto $dto)
     {
         try {
@@ -82,9 +92,8 @@ class PageService
                 ["name" => "pages.slug", "message" => "Ya existe una página con este slug"]
             ]);
         }
-
-
     }
+
 
     public function update(UpdatePageRequestDto $dto)
     {

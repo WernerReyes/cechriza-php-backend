@@ -90,16 +90,21 @@ class SectionModel extends Model
 
 
     public function menus()
-    {
-        return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu')->orderBy('order_num');
-    }
+{
+    return $this->belongsToMany(MenuModel::class, 'section_menus', 'id_section', 'id_menu')
+        ->withPivot('order_num')
+        ->orderBy('section_menus.order_num');
+}
 
-    public function machines()
-    {
-        return $this->belongsToMany(MachineModel::class, 'section_machines', 'id_section', 'id_machine')->orderBy('order_num');
-    }
+public function machines()
+{
+    return $this->belongsToMany(MachineModel::class, 'section_machines', 'id_section', 'id_machine')
+        ->withPivot('order_num')
+        ->orderBy('section_machines.order_num');
+}
 
-    public function pivot()
+
+    public function pageSections()
     {
         return $this->hasMany(PageSectionModel::class, 'id_section', 'id_section');
     }

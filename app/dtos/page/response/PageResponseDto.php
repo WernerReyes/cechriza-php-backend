@@ -1,7 +1,7 @@
 <?php
 class PageResponseDto
 {
-    public $page_id;
+    public $id_page;
     public $title;
     public $slug;
     public $description;
@@ -17,7 +17,7 @@ class PageResponseDto
 
     public function __construct(PageModel $data)
     {
-        $this->page_id = $data->id_page;
+        $this->id_page = $data->id_page;
         $this->title = $data->title;
         $this->slug = $data->slug;
         $this->description = $data->description;

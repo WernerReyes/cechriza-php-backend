@@ -8,7 +8,7 @@ class SectionRoutes
     public static function routes(
         Router $router,
     ) {
-        $router->get(self::$prefix, "SectionController@getAll", ["auth"]);
+        $router->get(self::$prefix . "/layouts", "SectionController@getLayouts", ["auth"]);
         $router->post(self::$prefix, "SectionController@create", ["auth"]);
         $router->post(self::$prefix . "/{id}", "SectionController@update", ["auth"]);
         $router->post(self::$prefix . "/{id}/duplicate", "SectionController@duplicate", ["auth"]);

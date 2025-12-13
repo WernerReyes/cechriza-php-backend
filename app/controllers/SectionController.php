@@ -14,17 +14,18 @@ class SectionController extends AppController
     }
 
 
-    public function getAll()
+
+
+    public function getLayouts()
     {
-        return AppResponse::success($this->sectionService->getAll(), "Secciones obtenidas correctamente");
+        return AppResponse::success($this->sectionService->getLayouts(), "Layouts de secciones obtenidos correctamente");
     }
 
     public function create()
     {
 
         $formData = $this->formData(["fileImage", "fileIcon", 'fileVideo']);
-        // $body = $this->body();
-        error_log(json_encode($formData) ." formData");
+      
         $dto = new CreateSectionRequestDto($formData);
         $dto = $dto->validate();
         if (is_array($dto)) {
@@ -38,7 +39,6 @@ class SectionController extends AppController
     {
          $formData = $this->formData(["fileImage", "fileIcon", 'fileVideo']);
 
-         error_log(json_encode($formData) ." formData");
         $dto = new UpdateSectionRequestDto($formData, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {
