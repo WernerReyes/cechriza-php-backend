@@ -59,12 +59,17 @@ class MachineController extends AppController
         if (!isset($body['technicalSpecifications']) || !is_array($body['technicalSpecifications'])) {
             throw AppException::badRequest("Las especificaciones técnicas son obligatorias y deben ser un arreglo");
         }
-        
-        $isCreated = $body['created'] ?? false;
 
+        $action = $body['action'] ?? 'update';
+        $text = 'actualizaron';
+        if ($action === 'create') {
+            $text = 'crearon';
+        } else if ($action == 'delete') {
+            $text = 'eliminaron';
+        }
         return AppResponse::success(
             $this->machineService->updateTechnicalSpecifications($id, $body['technicalSpecifications']),
-            "Se " . ($isCreated ? "crearon" : "actualizaron") . " las especificaciones técnicas exitosamente"
+            "Se " . $text . " las especificaciones técnicas exitosamente"
         );
     }
 
