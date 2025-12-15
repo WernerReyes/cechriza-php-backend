@@ -41,8 +41,6 @@ class MachineController extends AppController
         $formData = $this->formData(["fileImages", "manualFile", "imagesToUpdateNew"]);
 
 
-        error_log(json_encode($formData));
-
         $dto = new UpdateMachineDto($formData, $id);
         $dto = $dto->validate();
         if (is_array($dto)) {
@@ -54,6 +52,23 @@ class MachineController extends AppController
             "Máquina actualizada exitosamente"
         );
     }
+
+    public function updateTechnicalSpecifications($id)
+    {
+        $body = $this->body(['technicalSpecifications', 'created']);
+        if (!isset($body['technicalSpecifications']) || !is_array($body['technicalSpecifications'])) {
+            throw AppException::badRequest("Las especificaciones técnicas son obligatorias y deben ser un arreglo");
+        }
+        
+        $isCreated = $body['created'] ?? false;
+
+        return AppResponse::success(
+            $this->machineService->updateTechnicalSpecifications($id, $body['technicalSpecifications']),
+            "Se " . ($isCreated ? "crearon" : "actualizaron") . " las especificaciones técnicas exitosamente"
+        );
+    }
+
+
 
     public function setImageAsMain($id)
     {

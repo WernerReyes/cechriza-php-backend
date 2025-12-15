@@ -144,6 +144,27 @@ class MachineService
     }
 
 
+    public function updateTechnicalSpecifications(int $id, array $technicalSpecifications)
+    {
+        $machine = MachineModel::find($id);
+        if (!$machine) {
+            throw AppException::notFound("Machine not found");
+        }
+
+        $machine->update([
+            'technical_specifications' => json_encode(array_map(function ($spec) {
+                return [
+                    'id' => UuidUtil::v4(),
+                    'title' => $spec['title'],
+                    'description' => $spec['description']
+                ];
+            }, $technicalSpecifications))
+        ]);
+
+        return new MachineResponseDto($machine);
+    }
+
+
 
 
 

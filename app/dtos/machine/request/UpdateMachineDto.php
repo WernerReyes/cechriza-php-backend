@@ -139,13 +139,13 @@ class UpdateMachineDto
                 ];
             }, $imagesPath)),
             'manual' => $manualPath,
-            'technical_specifications' => json_encode(array_map(function ($spec) {
-                return [
-                    'id' => UuidUtil::v4(),
-                    'title' => $spec['title'],
-                    'description' => $spec['description']
-                ];
-            }, $this->technicalSpecifications)),
+            // 'technical_specifications' => json_encode(array_map(function ($spec) {
+            //     return [
+            //         'id' => UuidUtil::v4(),
+            //         'title' => $spec['title'],
+            //         'description' => $spec['description']
+            //     ];
+            // }, $this->technicalSpecifications)),
             'link_id' => $this->linkId,
             'text_button' => $this->textButton,
         ];
