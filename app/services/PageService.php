@@ -63,11 +63,10 @@ class PageService
             // 'sections.pages:id_page',
             'sections.pageSections',
 
-
-                  'sections.machines:id_machine,name,images,category_id,link_id',
+            'sections.machines:id_machine,name,images,description,category_id,long_description,technical_specifications,manual,link_id,text_button',
             'sections.machines.category:id_category,title,type',
-            'sections.menus:id_menu,title,parent_id',
-            'sections.menus.parent:id_menu,title,parent_id',
+
+            'sections.menus.parent.parent:id_menu,title',
 
 
         ])->find($id);
