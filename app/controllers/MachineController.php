@@ -55,7 +55,7 @@ class MachineController extends AppController
 
     public function updateTechnicalSpecifications($id)
     {
-        $body = $this->body(['technicalSpecifications', 'created']);
+        $body = $this->body(['technicalSpecifications', 'action']);
         if (!isset($body['technicalSpecifications']) || !is_array($body['technicalSpecifications'])) {
             throw AppException::badRequest("Las especificaciones técnicas son obligatorias y deben ser un arreglo");
         }
